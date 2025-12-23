@@ -178,3 +178,46 @@ export async function getAllBudgetsProgress(month?: string): Promise<BudgetProgr
 
     return results.filter((p): p is BudgetProgress => p !== null);
 }
+
+export function getMonthlyFixedCharges(charges: any[]): number {
+    let total = 0;
+    for (const charge of charges) {
+        if (!charge.isActive) continue;
+
+        switch (charge.frequency) {
+            case 'daily':
+                total += charge.amount * 30;
+                break;
+            case 'weekly':
+                total += charge.amount * 4.33;
+                break;
+            case 'monthly':
+                total += charge.amount;
+                break;
+            case 'yearly':
+                total += charge.amount / 12;
+                break;
+        }
+    }
+    return total;
+}
+
+export function getRealAvailableBudget(
+    totalIncome: number,
+    totalFixedCharges: number,
+    totalExpenses: number,
+    savingsGoal: number = 0
+) {
+    // Reste pour Dépenses Variables (RDV)
+    const rdv = totalIncome - totalFixedCharges - savingsGoal;
+
+    // Argent Réellement Disponible (ARD)
+    const ard = rdv - totalExpenses;
+
+    return {
+        rdv,
+        ard,
+        fixed: totalFixedCharges,
+        saved: savingsGoal
+    };
+}

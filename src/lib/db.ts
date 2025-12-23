@@ -1,9 +1,10 @@
 import Dexie, { Table } from 'dexie';
-import { Transaction, Budget, Category, Settings, FixedCharge } from '../types';
+import { Transaction, Budget, Category, Settings, FixedCharge, RecurringTransaction } from '../types';
 
 export class BudgetEaseDB extends Dexie {
     transactions!: Table<Transaction>;
     budgets!: Table<Budget>;
+    recurring!: Table<RecurringTransaction>;
     categories!: Table<Category>;
     settings!: Table<Settings>;
     fixedCharges!: Table<FixedCharge>;
@@ -13,6 +14,7 @@ export class BudgetEaseDB extends Dexie {
         this.version(1).stores({
             transactions: '++id, type, amount, category, date',
             budgets: '++id, category, amount, month',
+            recurring: '++id, category, frequency, isActive',
             categories: '++id, &name, isDefault',
             settings: '++id',
             fixedCharges: '++id, title, isActive'

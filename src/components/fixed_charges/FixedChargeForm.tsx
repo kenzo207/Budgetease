@@ -45,7 +45,7 @@ export function FixedChargeForm({ isOpen, onClose, onSave, initialData }: FixedC
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit((data) => {
+                <form onSubmit={handleSubmit((data: FixedCharge) => {
                     onSave({
                         ...data,
                         amount: Number(data.amount),

@@ -70,7 +70,7 @@ export function FixedCharges() {
 
                 {/* List */}
                 <div className="space-y-3">
-                    {charges?.map(charge => (
+                    {charges?.map((charge: FixedCharge) => (
                         <div
                             key={charge.id}
                             className={`bg-white rounded-xl p-4 shadow-sm border border-gray-100 transition-opacity ${!charge.isActive ? 'opacity-60' : ''}`}
@@ -105,8 +105,8 @@ export function FixedCharges() {
                                 <button
                                     onClick={() => handleToggleActive(charge)}
                                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${charge.isActive
-                                            ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            : 'bg-green-50 text-green-600 hover:bg-green-100'
+                                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        : 'bg-green-50 text-green-600 hover:bg-green-100'
                                         }`}
                                 >
                                     {charge.isActive ? 'Désactiver' : 'Activer'}

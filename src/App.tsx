@@ -3,6 +3,7 @@ import { Dashboard } from './screens/Dashboard';
 import { History } from './screens/History';
 import { Budgets } from './screens/Budgets';
 import { Settings } from './screens/Settings';
+import { FixedCharges } from './screens/FixedCharges';
 import { Onboarding } from './screens/Onboarding';
 import { BottomNav } from './components/layout/BottomNav';
 import { FAB } from './components/layout/FAB';
@@ -81,7 +82,8 @@ function App() {
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'history' && <History onEditTransaction={handleEditTransaction} />}
         {activeTab === 'budgets' && <Budgets />}
-        {activeTab === 'settings' && <Settings />}
+        {activeTab === 'settings' && <Settings onNavigate={setActiveTab} />}
+        {activeTab === 'fixed-charges' && <FixedCharges />}
       </div>
 
       {/* FAB */}

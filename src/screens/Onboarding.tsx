@@ -60,6 +60,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 space-y-6">
                 {/* Header */}
                 <div className="text-center">
+                    <div className="flex justify-center mb-4">
+                        <img src="/logo.png" alt="Logo" className="w-20 h-20 object-contain" />
+                    </div>
                     <h1 className="text-2xl font-bold text-gray-900">BudgetEase</h1>
                     <p className="text-sm text-gray-600 mt-2">
                         Gérez votre budget simplement
@@ -170,8 +173,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                                     key={category.id}
                                     onClick={() => toggleCategory(category.name)}
                                     className={`p-3 rounded-lg border-2 transition-all ${selectedCategories.includes(category.name)
-                                            ? 'border-primary bg-primary-light'
-                                            : 'border-gray-200 hover:border-gray-300'
+                                        ? 'border-primary bg-primary-light'
+                                        : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
                                     <div className="text-2xl mb-1">{category.icon}</div>

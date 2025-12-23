@@ -9,7 +9,11 @@ import { exportToCSV } from '../lib/export';
 import { requestNotificationPermission, scheduleDailyNotification } from '../lib/notifications';
 import { Download, Bell, Globe, Trash2 } from 'lucide-react';
 
-export function Settings() {
+interface SettingsProps {
+    onNavigate?: (tab: string) => void;
+}
+
+export function Settings({ onNavigate }: SettingsProps) {
     const [currency, setCurrency] = useState<Currency>('FCFA');
     const [notificationEnabled, setNotificationEnabled] = useState(false);
     const [notificationTime, setNotificationTime] = useState('20:00');
@@ -126,6 +130,28 @@ export function Settings() {
                     <div className="flex items-center gap-3 mb-4">
                         <Globe size={20} className="text-primary" />
                         <h3 className="font-semibold text-gray-900">Général</h3>
+                    </div>
+
+                    <div className="mb-4">
+                        <button
+                            onClick={() => onNavigate?.('fixed-charges')}
+                            className="w-full flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div className="text-left">
+                                    <span className="block font-medium text-gray-900">Charges Fixes</span>
+                                    <span className="block text-xs text-gray-500">Loyers, abonnements...</span>
+                                </div>
+                            </div>
+                            <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
                     </div>
 
                     <Select

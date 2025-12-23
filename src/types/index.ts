@@ -46,6 +46,16 @@ export interface Category {
     createdAt: Date;
 }
 
+export interface FixedCharge {
+    id?: number;
+    title: string;
+    amount: number;
+    frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    nextDueDate: Date;
+    isActive: boolean;
+    categoryId?: string;
+}
+
 export interface Settings {
     id?: number;
     currency: Currency;

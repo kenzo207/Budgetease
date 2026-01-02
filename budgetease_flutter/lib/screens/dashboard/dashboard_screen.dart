@@ -5,10 +5,15 @@ import '../../services/calculation_service.dart';
 import '../../models/category.dart';
 import '../../widgets/common/custom_widgets.dart';
 import '../../widgets/dashboard/dashboard_widgets.dart';
+import '../../widgets/dashboard/smart_dashboard_widgets.dart';
+import '../../services/advisor_service.dart';
+import '../../services/fixed_charge_service.dart';
 import '../transactions/transaction_form_screen.dart';
 import '../transactions/history_screen.dart';
 import '../budgets/budgets_screen.dart';
 import '../fixed_charges/fixed_charges_screen.dart';
+import '../insights/insights_screen.dart';
+import '../../utils/constants.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -134,11 +139,30 @@ class _DashboardTabState extends State<DashboardTab> {
     final currency = settings?.currency ?? 'FCFA';
     
     final transactions = DatabaseService.transactions.values.toList();
+    final activeFixedCharges = FixedChargeService.getActiveCharges();
     final startDate = _getStartDate();
     final endDate = DateTime.now();
 
     final totals = CalculationService.getPeriodTotals(transactions, startDate, endDate);
     final topCategories = CalculationService.getTopCategories(transactions, startDate, endDate);
+
+    // Smart Calculations
+    final totalFixedCharges = FixedChargeService.getMonthlyFixedChargesAmount();
+    final savingsGoal = 0.0; // TODO: Implement Savings Module
+    
+    final realBudget = CalculationService.getRealAvailableBudget(
+      totals['income'] ?? 0,
+      totalFixedCharges,
+      totals['expenses'] ?? 0,
+      savingsGoal,
+    );
+
+    final dailyCap = AdvisorService.getRecommendedDailyCap();
+    final advice = AdvisorService.getAdvice();
+
+    final sosAmount = settings?.sosAmount ?? 0.0;
+    final isSosActive = sosAmount > 0;
+    final appBarColor = isSosActive ? AppColors.danger : AppColors.primary;
 
     return Scaffold(
       backgroundColor: AppColors.gray50,
@@ -148,21 +172,21 @@ class _DashboardTabState extends State<DashboardTab> {
             expandedHeight: 120,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primary,
+            backgroundColor: appBarColor,
             flexibleSpace: FlexibleSpaceBar(
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
+                   Image.asset(
                     'assets/images/logo.png',
                     height: 24,
                     width: 24,
                     color: Colors.white,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'BudgetEase',
-                    style: TextStyle(
+                  Text(
+                    isSosActive ? 'MODE SOS ACTIF' : 'BudgetEase',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -172,7 +196,10 @@ class _DashboardTabState extends State<DashboardTab> {
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryHover],
+                    colors: [
+                        appBarColor, 
+                        isSosActive ? Colors.red.shade900 : AppColors.primaryHover
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -180,6 +207,58 @@ class _DashboardTabState extends State<DashboardTab> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: Icon(isSosActive ? Icons.warning : Icons.sos, color: Colors.white),
+                onPressed: () async {
+                    if (isSosActive) {
+                        final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                title: const Text('Désactiver SOS ?'),
+                                content: const Text('Tout va mieux ?'),
+                                actions: [
+                                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Non')),
+                                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Oui')),
+                                ],
+                            ),
+                        );
+                        if (confirm == true) {
+                            await AdvisorService.deactivateSOS();
+                            setState(() {});
+                        }
+                    } else {
+                        final controller = TextEditingController();
+                        final amount = await showDialog<double>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                title: const Text('Mode SOS 🚨'),
+                                content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                        const Text('Combien devez-vous réserver d\'urgence ?'),
+                                        TextField(
+                                            controller: controller,
+                                            keyboardType: TextInputType.number,
+                                            decoration: const InputDecoration(suffixText: 'FCFA'),
+                                        ),
+                                    ],
+                                ),
+                                actions: [
+                                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(context, double.tryParse(controller.text)), 
+                                        child: const Text('Activer SOS', style: TextStyle(color: Colors.red))
+                                    ),
+                                ],
+                            ),
+                        );
+                        if (amount != null && amount > 0) {
+                            await AdvisorService.activateSOS(amount);
+                            setState(() {});
+                        }
+                    }
+                },
+              ),
               PopupMenuButton<String>(
                 icon: const Icon(Icons.calendar_today, color: Colors.white),
                 onSelected: (value) => setState(() => _selectedPeriod = value),
@@ -195,14 +274,21 @@ class _DashboardTabState extends State<DashboardTab> {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Summary Card
-                SummaryCard(
-                  income: totals['income']!,
-                  expenses: totals['expenses']!,
-                  balance: totals['balance']!,
+                // Smart Summary
+                SmartSummaryCard(
+                  realAvailable: realBudget['ard'] ?? 0,
+                  fixedCharges: realBudget['fixed'] ?? 0,
+                  savings: realBudget['saved'] ?? 0,
                   currency: currency,
+                  dailyCap: dailyCap,
                 ),
                 const SizedBox(height: 24),
+
+                // Smart Advice (if any)
+                if (advice.isNotEmpty) ...[
+                  ...advice.map((rule) => SmartAdviceWidget(rule: rule)),
+                  // const SizedBox(height: 24), // Spacing handled by widget margin
+                ],
 
                 // Quick Stats
                 Row(
@@ -396,8 +482,82 @@ class _SettingsTabState extends State<SettingsTab> {
                   title: const Text('Devise'),
                   subtitle: Text(currency),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Change currency
+                  onTap: () async {
+                    final newCurrency = await showDialog<String>(
+                      context: context,
+                      builder: (context) => SimpleDialog(
+                        title: const Text('Choisir une devise'),
+                        children: currencyOptions.map((option) {
+                          return SimpleDialogOption(
+                            onPressed: () => Navigator.pop(context, option['value']),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(option['label']!),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
+
+                    if (newCurrency != null && settings != null) {
+                      settings.currency = newCurrency;
+                      await settings.save();
+                      setState(() {});
+                    }
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.calendar_today, color: AppColors.primary),
+                  ),
+                  title: const Text('Période de Budget'),
+                  subtitle: Text(
+                    settings?.budgetPeriod == 'daily' ? 'Journalier' :
+                    settings?.budgetPeriod == 'weekly' ? 'Hebdomadaire' : 'Mensuel'
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final newPeriod = await showDialog<String>(
+                      context: context,
+                      builder: (context) => SimpleDialog(
+                        title: const Text('Choisir une période'),
+                        children: [
+                          SimpleDialogOption(
+                            onPressed: () => Navigator.pop(context, 'daily'),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text('Journalier'),
+                            ),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () => Navigator.pop(context, 'weekly'),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text('Hebdomadaire'),
+                            ),
+                          ),
+                          SimpleDialogOption(
+                            onPressed: () => Navigator.pop(context, 'monthly'),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text('Mensuel'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (newPeriod != null && settings != null) {
+                      settings.budgetPeriod = newPeriod;
+                      await settings.save();
+                      setState(() {});
+                    }
                   },
                 ),
                 const Divider(height: 1),

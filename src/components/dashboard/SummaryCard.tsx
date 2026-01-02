@@ -9,17 +9,31 @@ interface SummaryCardProps {
     expenses: number;
     balance: number;
     currency: Currency;
+    sosAmount?: number;
 }
 
-export function SummaryCard({ income, expenses, balance, currency }: SummaryCardProps) {
+export function SummaryCard({ income, expenses, balance, currency, sosAmount = 0 }: SummaryCardProps) {
+    const isSosActive = sosAmount > 0;
+    const realBalance = balance - sosAmount;
+
     return (
-        <Card className="bg-gradient-to-br from-primary to-blue-600 text-white">
+        <Card className={`text-white transition-colors duration-300 ${isSosActive ? 'bg-gradient-to-br from-red-600 to-red-800' : 'bg-gradient-to-br from-primary to-blue-600'}`}>
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm opacity-90">Solde</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm opacity-90">
+                                {isSosActive ? 'Reste à vivre (Mode SOS)' : 'Solde'}
+                            </p>
+                            {isSosActive && (
+                                <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-bold animate-pulse">
+                                    ⚠️ URGENCE
+                                </span>
+                            )}
+                        </div>
                         <p className="text-2xl font-semibold mt-1">
-                            {formatCurrency(balance, currency)}
+                            {formatCurrency(realBalance, currency)}
+                            {isSosActive && <span className="text-sm font-normal opacity-75 block">({formatCurrency(balance, currency)} réels)</span>}
                         </p>
                     </div>
                     <Wallet size={32} className="opacity-80" />

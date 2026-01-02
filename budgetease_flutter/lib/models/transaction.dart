@@ -28,6 +28,12 @@ class Transaction extends HiveObject {
   @HiveField(7)
   DateTime createdAt;
 
+  @HiveField(8)
+  String? incomeFrequency; // 'daily', 'weekly', 'monthly' - only for income
+
+  @HiveField(9, defaultValue: 0.0)
+  double shadowSavings; // Amount saved via rounding up
+
   Transaction({
     required this.id,
     required this.type,
@@ -37,7 +43,12 @@ class Transaction extends HiveObject {
     required this.date,
     this.note,
     required this.createdAt,
+    this.incomeFrequency,
+    this.shadowSavings = 0.0,
   });
+
+  // Returns the actual cost paid by user (amount - shadowSavings)
+  double get realCost => amount - shadowSavings;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -48,5 +59,6 @@ class Transaction extends HiveObject {
         'date': date.toIso8601String(),
         'note': note,
         'createdAt': createdAt.toIso8601String(),
+        'shadowSavings': shadowSavings,
       };
 }

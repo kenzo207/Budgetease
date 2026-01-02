@@ -38,13 +38,28 @@ class DateFormatter {
     } else if (dateOnly == yesterday) {
       return 'Hier';
     } else {
-      return DateFormat('dd/MM/yyyy').format(date);
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
   }
 
   static String formatMonth(String monthStr) {
-    final parts = monthStr.split('-');
-    final date = DateTime(int.parse(parts[0]), int.parse(parts[1]));
-    return DateFormat('MMMM yyyy', 'fr_FR').format(date);
+    try {
+      final parts = monthStr.split('-');
+      if (parts.length != 2) return monthStr;
+      
+      final year = parts[0];
+      final month = int.parse(parts[1]);
+      
+      const months = [
+        'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+        'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+      ];
+      
+      if (month < 1 || month > 12) return monthStr;
+      
+      return '${months[month - 1]} $year';
+    } catch (e) {
+      return monthStr;
+    }
   }
 }

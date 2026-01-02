@@ -14,6 +14,7 @@ export function Dashboard() {
     const [topCategories, setTopCategories] = useState<CategoryTotal[]>([]);
     const [allCategories, setAllCategories] = useState<CategoryTotal[]>([]);
     const [currency, setCurrency] = useState<Currency>('FCFA');
+    const [sosAmount, setSosAmount] = useState<number>(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,6 +29,29 @@ export function Dashboard() {
         const settings = await db.settings.toArray();
         if (settings.length > 0) {
             setCurrency(settings[0].currency);
+            setSosAmount(settings[0].sosAmount || 0);
+        }
+    };
+
+    const toggleSOS = async () => {
+        const settings = await db.settings.toArray();
+        if (settings.length === 0) return;
+        const settingId = settings[0].id!;
+
+        if (sosAmount > 0) {
+            if (window.confirm("Désactiver le mode SOS ?")) {
+                await db.settings.update(settingId, { sosAmount: 0 });
+                setSosAmount(0);
+            }
+        } else {
+            const amountStr = window.prompt("Mode SOS 🚨\nEntrez le montant à réserver pour l'urgence :", "10000");
+            if (amountStr) {
+                const amount = parseFloat(amountStr);
+                if (!isNaN(amount) && amount > 0) {
+                    await db.settings.update(settingId, { sosAmount: amount });
+                    setSosAmount(amount);
+                }
+            }
         }
     };
 
@@ -61,12 +85,22 @@ export function Dashboard() {
             <Header
                 title="Tableau de bord"
                 action={
-                    <Select
-                        value={period}
-                        onChange={(e) => setPeriod(e.target.value as Period)}
-                        options={periodOptions}
-                        className="text-sm h-9 px-3"
-                    />
+                    <div className="flex gap-2">
+                        <button
+                            onClick={toggleSOS}
+                            className={`px-3 py-1 text-sm font-bold rounded-lg transition-colors ${sosAmount > 0
+                                ? 'bg-red-100 text-red-600 border border-red-200 animate-pulse'
+                                : 'bg-gray-100 text-gray-600'}`}
+                        >
+                            {sosAmount > 0 ? '⚠️ SOS' : '🆘'}
+                        </button>
+                        <Select
+                            value={period}
+                            onChange={(e) => setPeriod(e.target.value as Period)}
+                            options={periodOptions}
+                            className="text-sm h-9 px-3"
+                        />
+                    </div>
                 }
             />
 
@@ -82,6 +116,7 @@ export function Dashboard() {
                             expenses={totals.expenses}
                             balance={totals.balance}
                             currency={currency}
+                            sosAmount={sosAmount}
                         />
 
                         <TopCategories categories={topCategories} currency={currency} />

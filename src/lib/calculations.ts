@@ -206,10 +206,11 @@ export function getRealAvailableBudget(
     totalIncome: number,
     totalFixedCharges: number,
     totalExpenses: number,
-    savingsGoal: number = 0
+    savingsGoal: number = 0,
+    sosAmount: number = 0
 ) {
     // Reste pour Dépenses Variables (RDV)
-    const rdv = totalIncome - totalFixedCharges - savingsGoal;
+    const rdv = totalIncome - totalFixedCharges - savingsGoal - sosAmount;
 
     // Argent Réellement Disponible (ARD)
     const ard = rdv - totalExpenses;
@@ -221,3 +222,19 @@ export function getRealAvailableBudget(
         saved: savingsGoal
     };
 }
+
+export async function getRecommendedDailyCap(): Promise<number> {
+    const settings = await db.settings.toArray();
+    const sosAmount = settings.length > 0 ? (settings[0].sosAmount || 0) : 0;
+
+    // Simple implementation for MVP: (Balance - SOS) / Days remaining in month
+    const totals = await getPeriodTotals('month');
+    const now = new Date();
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const daysRemaining = Math.max(1, lastDay.getDate() - now.getDate());
+
+    const available = totals.balance - sosAmount;
+
+    return Math.max(0, available / daysRemaining);
+}
+

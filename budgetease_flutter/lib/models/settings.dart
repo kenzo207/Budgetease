@@ -19,11 +19,21 @@ class Settings extends HiveObject {
   @HiveField(4)
   List<String> favoriteCategories;
 
+  @HiveField(5)
+  String budgetPeriod; // 'daily', 'weekly', 'monthly'
+
+  @HiveField(6, defaultValue: 0.0)
+  double sosAmount; // 0.0 means inactive
+
   Settings({
     this.currency = 'FCFA',
     this.notificationEnabled = false,
     this.notificationTime = '20:00',
     this.onboardingCompleted = false,
     this.favoriteCategories = const [],
+    this.budgetPeriod = 'monthly',
+    this.sosAmount = 0.0,
   });
+
+  bool get isSosActive => sosAmount > 0;
 }

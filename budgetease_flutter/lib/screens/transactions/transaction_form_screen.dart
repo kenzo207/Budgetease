@@ -3,9 +3,12 @@ import 'package:uuid/uuid.dart';
 import '../../models/transaction.dart';
 import '../../models/category.dart';
 import '../../services/database_service.dart';
+import '../../services/behavioral_profiler.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants.dart';
 import '../../widgets/common/custom_widgets.dart';
+import '../../widgets/behavioral/round_up_sheet.dart';
+import '../../widgets/behavioral/ice_block_dialog.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final Transaction? transaction;
@@ -26,6 +29,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   String _selectedPaymentMethod = 'MoMo';
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
+  String _incomeFrequency = 'monthly'; // Default for income
 
   @override
   void initState() {
@@ -37,6 +41,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       _selectedPaymentMethod = widget.transaction!.paymentMethod;
       _selectedDate = widget.transaction!.date;
       _noteController.text = widget.transaction!.note ?? '';
+      _incomeFrequency = widget.transaction!.incomeFrequency ?? 'monthly';
     }
   }
 
@@ -52,17 +57,82 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final amount = double.parse(_amountController.text);
+      double amount = double.parse(_amountController.text);
+      double shadowSavings = 0.0;
+
+      // --- INTERCEPTOR A: Gamification (Round Up) ---
+      if (_type == 'expense') {
+        // Calculate potential round up (nearest 500 or 1000)
+        double target;
+        if (amount % 1000 != 0) {
+           // Round to next 1000 if close enough (e.g. 850 -> 1000)
+           target = (amount / 1000).ceil() * 1000;
+        } else {
+           // Already round, maybe suggest +500? No, keeping it simple.
+           target = amount;
+        }
+        
+        // If target is different and reasonable (less than +20% or +500 max)
+        final diff = target - amount;
+        if (diff > 0 && diff <= 500 && diff < (amount * 0.2)) {
+          final accepted = await showModalBottomSheet<bool>(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (context) => RoundUpSheet(
+              originalAmount: amount,
+              roundedAmount: target,
+              currency: 'FCFA', // TODO: Get from settings
+            ),
+          );
+
+          if (accepted == true) {
+            shadowSavings = diff;
+            amount = target;
+          }
+        }
+      }
+
+      // --- INTERCEPTOR B: Friction Protocol (Ice Block) ---
+      // Check behavioral profile
+      final profile = BehavioralProfiler.getOrCreateProfile();
+      final isHighRisk = profile.riskScore > 0.7;
+      
+      // Define essential categories (could be in constants)
+      final essentialCategories = ['Logement', 'Santé', 'Éducation', 'Alimentation'];
+      final isEssential = essentialCategories.contains(_selectedCategory);
+
+      if (_type == 'expense' && isHighRisk && !isEssential) {
+        final continued = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const IceBlockDialog(),
+        );
+
+        if (continued != true) {
+           setState(() => _isLoading = false);
+           return; // Abort save
+        }
+      }
+
+      // --- SAVE PIPELINE ---
       final box = DatabaseService.transactions;
 
       if (widget.transaction != null) {
-        // Update existing
+        // Update existing logic
+        // Note: Updating a transaction usually doesn't trigger gamification again 
+        // to avoid double counting, but let's allow it for now or implement logic to skip.
+        // For simplicity in this iteration, we apply it.
+        
         widget.transaction!.type = _type;
         widget.transaction!.amount = amount;
         widget.transaction!.category = _selectedCategory!;
         widget.transaction!.paymentMethod = _selectedPaymentMethod;
         widget.transaction!.date = _selectedDate;
         widget.transaction!.note = _noteController.text.isEmpty ? null : _noteController.text;
+        widget.transaction!.incomeFrequency = _type == 'income' ? _incomeFrequency : null;
+        if (shadowSavings > 0) {
+            widget.transaction!.shadowSavings = shadowSavings;
+        }
         await widget.transaction!.save();
       } else {
         // Create new
@@ -75,6 +145,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           date: _selectedDate,
           note: _noteController.text.isEmpty ? null : _noteController.text,
           createdAt: DateTime.now(),
+          incomeFrequency: _type == 'income' ? _incomeFrequency : null,
+          shadowSavings: shadowSavings,
         );
         await box.add(transaction);
       }
@@ -219,6 +291,24 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
               ),
               const SizedBox(height: 16),
+
+              // Income Frequency (only for income)
+              if (_type == 'income')
+                DropdownButtonFormField<String>(
+                  value: _incomeFrequency,
+                  decoration: const InputDecoration(
+                    labelText: 'Fréquence du revenu',
+                    prefixIcon: Icon(Icons.schedule),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'daily', child: Text('Journalier')),
+                    DropdownMenuItem(value: 'weekly', child: Text('Hebdomadaire')),
+                    DropdownMenuItem(value: 'monthly', child: Text('Mensuel')),
+                  ],
+                  onChanged: (value) => setState(() => _incomeFrequency = value!),
+                ),
+              if (_type == 'income') const SizedBox(height: 16),
 
               // Date
               InkWell(

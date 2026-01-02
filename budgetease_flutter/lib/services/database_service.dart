@@ -1,20 +1,30 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 import '../models/transaction.dart';
 import '../models/budget.dart';
 import '../models/settings.dart';
 import '../models/fixed_charge.dart';
+import '../models/behavioral_profile.dart';
+import '../models/income_pattern.dart';
+import '../models/ghost_money_insight.dart';
 
 class DatabaseService {
   static const String transactionsBox = 'transactions';
   static const String budgetsBox = 'budgets';
   static const String settingsBox = 'settings';
   static const String fixedChargesBox = 'fixed_charges';
+  static const String behavioralProfilesBox = 'behavioral_profiles';
+  static const String incomePatternsBox = 'income_patterns';
+  static const String ghostMoneyInsightsBox = 'ghost_money_insights';
 
   static late Box<Transaction> transactions;
   static late Box<Budget> budgets;
   static late Box<Settings> settings;
   static late Box<FixedCharge> fixedCharges;
+  static late Box<BehavioralProfile> behavioralProfiles;
+  static late Box<IncomePattern> incomePatterns;
+  static late Box<GhostMoneyInsight> ghostMoneyInsights;
 
   static Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -25,12 +35,19 @@ class DatabaseService {
     Hive.registerAdapter(BudgetAdapter());
     Hive.registerAdapter(SettingsAdapter());
     Hive.registerAdapter(FixedChargeAdapter());
+    Hive.registerAdapter(BehavioralProfileAdapter());
+    Hive.registerAdapter(IncomePatternAdapter());
+    Hive.registerAdapter(GhostMoneyInsightAdapter());
 
     // Open boxes
-    await Hive.openBox<Transaction>(transactionsBox);
-    await Hive.openBox<Budget>(budgetsBox);
-    await Hive.openBox<Settings>(settingsBox);
-    await Hive.openBox<FixedCharge>(fixedChargesBox);
+    // Open boxes with safe recovery
+    transactions = await _openBoxSafely<Transaction>(transactionsBox);
+    budgets = await _openBoxSafely<Budget>(budgetsBox);
+    settings = await _openBoxSafely<Settings>(settingsBox);
+    fixedCharges = await _openBoxSafely<FixedCharge>(fixedChargesBox);
+    behavioralProfiles = await _openBoxSafely<BehavioralProfile>(behavioralProfilesBox);
+    incomePatterns = await _openBoxSafely<IncomePattern>(incomePatternsBox);
+    ghostMoneyInsights = await _openBoxSafely<GhostMoneyInsight>(ghostMoneyInsightsBox);
 
     // Initialize defaults
     await initializeDefaults();
@@ -44,17 +61,19 @@ class DatabaseService {
     }
   }
 
-  static Box<Transaction> get transactions =>
-      Hive.box<Transaction>(transactionsBox);
-
-  static Box<Budget> get budgets => Hive.box<Budget>(budgetsBox);
-
-  static Box<Settings> get settings => Hive.box<Settings>(settingsBox);
-
   static Future<void> resetAll() async {
     await transactions.clear();
     await budgets.clear();
     await settings.clear();
     await initializeDefaults();
+  }
+  static Future<Box<T>> _openBoxSafely<T>(String boxName) async {
+    try {
+      return await Hive.openBox<T>(boxName);
+    } catch (e) {
+      debugPrint('Error opening $boxName box: $e. Resetting box.');
+      await Hive.deleteBoxFromDisk(boxName);
+      return await Hive.openBox<T>(boxName);
+    }
   }
 }

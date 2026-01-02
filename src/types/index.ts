@@ -13,6 +13,7 @@ export interface Transaction {
     date: Date;
     note?: string;
     createdAt: Date;
+    shadowSavings?: number; // Optional for compatibility with existing data
 }
 
 export interface Budget {
@@ -63,6 +64,7 @@ export interface Settings {
     notificationTime: string; // Format: HH:mm
     onboardingCompleted: boolean;
     favoriteCategories: string[];
+    sosAmount?: number;
 }
 
 export interface CategoryTotal {
@@ -90,4 +92,35 @@ export interface ChartDataPoint {
     name: string;
     value: number;
     date?: string;
+}
+
+// Smart Coach V3 Types
+export interface BehavioralProfile {
+    id: string;
+    userId: string; // Always "local" for MVP
+    spendingFrequency: number; // Transactions per day
+    hourlyPattern: Record<number, number>; // Hour -> Transaction count
+    overrunCount: number; // Overruns in last 30 days
+    averageOverrun: number; // Average overrun amount
+    lastUpdated: Date;
+}
+
+export interface IncomePattern {
+    id: string;
+    estimatedWeeklyIncome: number;
+    minimumObserved: number;
+    averageObserved: number;
+    observationDays: number;
+    lastUpdated: Date;
+    isRegular: boolean; // true if stable pattern detected
+}
+
+export interface GhostMoneyInsight {
+    id?: number;
+    detectedAt: Date;
+    totalAmount: number;
+    transactionCount: number;
+    categoryNames: string[];
+    periodDays: number; // 7 by default
+    percentageOfAvailable: number; // Relative impact
 }

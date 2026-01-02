@@ -67,14 +67,14 @@ export async function analyzeIncomePattern(): Promise<IncomePattern> {
  * Get or create income pattern
  */
 export async function getOrCreateIncomePattern(): Promise<IncomePattern> {
-    const existing = await db.income_patterns.get(PATTERN_ID);
+    const existing = await db.incomePatterns.get(PATTERN_ID);
 
     if (existing) {
         // Update if more than 24h old
         const hoursSinceUpdate = (Date.now() - new Date(existing.lastUpdated).getTime()) / (1000 * 60 * 60);
         if (hoursSinceUpdate > 24) {
             const updated = await analyzeIncomePattern();
-            await db.income_patterns.put(updated);
+            await db.incomePatterns.put(updated);
             return updated;
         }
         return existing;
@@ -82,7 +82,7 @@ export async function getOrCreateIncomePattern(): Promise<IncomePattern> {
 
     // Create new pattern
     const pattern = await analyzeIncomePattern();
-    await db.income_patterns.add(pattern);
+    await db.incomePatterns.add(pattern);
     return pattern;
 }
 

@@ -1,5 +1,6 @@
 import { db } from './db';
 import { Transaction, BehavioralProfile } from '../types';
+import { getRecommendedDailyCap } from './calculations';
 
 const PROFILE_USER_ID = 'local';
 
@@ -84,14 +85,14 @@ export async function buildBehavioralProfile(): Promise<BehavioralProfile> {
  * Get or create behavioral profile
  */
 export async function getOrCreateBehavioralProfile(): Promise<BehavioralProfile> {
-    const existing = await db.behavioral_profiles.get(PROFILE_USER_ID);
+    const existing = await db.behavioralProfiles.get(PROFILE_USER_ID);
 
     if (existing) {
         // Update if more than 24h old
         const hoursSinceUpdate = (Date.now() - new Date(existing.lastUpdated).getTime()) / (1000 * 60 * 60);
         if (hoursSinceUpdate > 24) {
             const updated = await buildBehavioralProfile();
-            await db.behavioral_profiles.put(updated);
+            await db.behavioralProfiles.put(updated);
             return updated;
         }
         return existing;
@@ -99,7 +100,7 @@ export async function getOrCreateBehavioralProfile(): Promise<BehavioralProfile>
 
     // Create new profile
     const profile = await buildBehavioralProfile();
-    await db.behavioral_profiles.add(profile);
+    await db.behavioralProfiles.add(profile);
     return profile;
 }
 

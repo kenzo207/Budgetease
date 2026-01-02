@@ -104,13 +104,12 @@ export async function dismissGhostMoneyInsight(id: number): Promise<void> {
  * Calculate real available budget
  */
 async function getRealAvailableBudget(): Promise<number> {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const totals = await getPeriodTotals('month');
 
-    const transactions = await db.transactions.toArray();
-    const totals = getPeriodTotals(transactions, startOfMonth, now);
+    const settings = await db.settings.toArray();
+    const sosAmount = settings.length > 0 ? (settings[0].sosAmount || 0) : 0;
 
-    return totals.balance;
+    return totals.balance - sosAmount;
 }
 
 /**

@@ -30,10 +30,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
   String _incomeFrequency = 'monthly'; // Default for income
+  List<Category> _categories = [];
 
   @override
   void initState() {
     super.initState();
+    _loadCategories();
     if (widget.transaction != null) {
       _type = widget.transaction!.type;
       _amountController.text = widget.transaction!.amount.toString();
@@ -43,6 +45,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       _noteController.text = widget.transaction!.note ?? '';
       _incomeFrequency = widget.transaction!.incomeFrequency ?? 'monthly';
     }
+  }
+
+  void _loadCategories() {
+    setState(() {
+      _categories = DatabaseService.categories.values.toList();
+    });
   }
 
   Future<void> _saveTransaction() async {
@@ -258,7 +266,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   prefixIcon: Icon(Icons.category),
                   border: OutlineInputBorder(),
                 ),
-                items: defaultCategories.map((cat) {
+                items: _categories.map((cat) {
                   return DropdownMenuItem(
                     value: cat.name,
                     child: Row(

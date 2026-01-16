@@ -156,9 +156,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildTransactionItem(Transaction transaction, String currency) {
-    final category = defaultCategories.firstWhere(
+    final category = DatabaseService.categories.values.firstWhere(
       (c) => c.name == transaction.category,
-      orElse: () => defaultCategories.last,
+      orElse: () => DatabaseService.categories.values.last,
     );
 
     final isExpense = transaction.type == 'expense';
@@ -264,7 +264,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 items: [
                   const DropdownMenuItem(value: null, child: Text('Toutes')),
-                  ...defaultCategories.map((cat) => DropdownMenuItem(
+                  ...DatabaseService.categories.values.map((cat) => DropdownMenuItem(
                         value: cat.name,
                         child: Row(
                           children: [

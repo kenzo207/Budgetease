@@ -3,6 +3,7 @@ import '../../models/category.dart';
 import '../../services/database_service.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants.dart';
+import '../../widgets/custom_category_dialog.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -21,9 +22,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _notificationEnabled = false;
   String _notificationTime = '20:00';
   List<String> _selectedCategories = [];
+  List<Category> _customCategories = [];
 
   void _nextPage() {
-    if (_currentPage < 2) {
+    if (_currentPage < 3) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -48,6 +50,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     settings.onboardingCompleted = true;
     settings.favoriteCategories = _selectedCategories;
     await settings.save();
+
+    // Save custom categories to database (already saved in dialog)
+    // They are already in DatabaseService.categories
 
     widget.onComplete();
   }
@@ -100,12 +105,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // Progress indicator
                   Row(
                     children: List.generate(
-                      3,
+                      4,
                       (index) => Expanded(
                         child: Container(
                           height: 4,
                           margin: EdgeInsets.only(
-                            right: index < 2 ? 8 : 0,
+                            right: index < 3 ? 8 : 0,
                           ),
                           decoration: BoxDecoration(
                             color: index <= _currentPage
@@ -130,6 +135,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _buildCurrencyPage(),
                   _buildNotificationPage(),
                   _buildCategoriesPage(),
+                  _buildCustomCategoriesPage(),
                 ],
               ),
             ),
@@ -156,7 +162,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   if (_currentPage > 0) const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _currentPage == 2 && _selectedCategories.isEmpty
+                      onPressed: (_currentPage == 2 && _selectedCategories.isEmpty)
                           ? null
                           : _nextPage,
                       style: ElevatedButton.styleFrom(
@@ -167,7 +173,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text(_currentPage == 2 ? 'Commencer' : 'Continuer'),
+                      child: Text(_currentPage == 3 ? 'Commencer' : 'Continuer'),
                     ),
                   ),
                 ],
@@ -325,13 +331,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.2,
               ),
-              itemCount: defaultCategories.length,
+              itemCount: defaultCategoriesData.length,
               itemBuilder: (context, index) {
-                final category = defaultCategories[index];
-                final isSelected = _selectedCategories.contains(category.name);
+                final categoryData = defaultCategoriesData[index];
+                final isSelected = _selectedCategories.contains(categoryData['name']);
 
                 return InkWell(
-                  onTap: () => _toggleCategory(category.name),
+                  onTap: () => _toggleCategory(categoryData['name']!),
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -346,12 +352,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          category.icon,
+                          categoryData['icon']!,
                           style: const TextStyle(fontSize: 32),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          category.name,
+                          categoryData['name']!,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -368,6 +374,128 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 16),
           Text(
             '${_selectedCategories.length}/3 sélectionnées',
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.gray600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomCategoriesPage() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Personnalisation',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Créez vos propres catégories (optionnel, max 3)',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.gray600,
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Custom categories list
+          Expanded(
+            child: _customCategories.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.category_outlined,
+                          size: 64,
+                          color: AppColors.gray300,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Aucune catégorie personnalisée',
+                          style: TextStyle(
+                            color: AppColors.gray500,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _customCategories.length,
+                    itemBuilder: (context, index) {
+                      final category = _customCategories[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          leading: Text(
+                            category.icon,
+                            style: const TextStyle(fontSize: 32),
+                          ),
+                          title: Text(
+                            category.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+                            onPressed: () {
+                              setState(() {
+                                _customCategories.removeAt(index);
+                              });
+                              // Delete from database
+                              category.delete();
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          const SizedBox(height: 16),
+
+          // Add category button
+          if (_customCategories.length < 3)
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final category = await showDialog<Category>(
+                    context: context,
+                    builder: (context) => const CustomCategoryDialog(),
+                  );
+                  if (category != null) {
+                    setState(() {
+                      _customCategories.add(category);
+                    });
+                  }
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Créer une catégorie'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          const SizedBox(height: 8),
+          Text(
+            '${_customCategories.length}/3 créées',
             style: const TextStyle(
               fontSize: 12,
               color: AppColors.gray600,

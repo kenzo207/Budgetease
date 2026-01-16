@@ -138,7 +138,7 @@ class _BudgetFormScreenState extends State<BudgetFormScreen> {
                   prefixIcon: Icon(Icons.category),
                   border: OutlineInputBorder(),
                 ),
-                items: defaultCategories.map((cat) {
+                items: DatabaseService.categories.values.map((cat) {
                   return DropdownMenuItem(
                     value: cat.name,
                     child: Row(

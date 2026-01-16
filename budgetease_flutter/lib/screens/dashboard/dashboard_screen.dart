@@ -334,10 +334,10 @@ class _DashboardTabState extends State<DashboardTab> {
                 else
                   ...topCategories.map((cat) => CategoryCard(
                         name: cat['category'] as String,
-                        icon: defaultCategories
+                        icon: DatabaseService.categories.values
                             .firstWhere(
                               (c) => c.name == cat['category'],
-                              orElse: () => defaultCategories.last,
+                              orElse: () => DatabaseService.categories.values.last,
                             )
                             .icon,
                         amount: cat['amount'] as double,

@@ -8,6 +8,7 @@ import '../models/fixed_charge.dart';
 import '../models/behavioral_profile.dart';
 import '../models/income_pattern.dart';
 import '../models/ghost_money_insight.dart';
+import '../models/category.dart' as models;
 
 class DatabaseService {
   static const String transactionsBox = 'transactions';
@@ -17,6 +18,7 @@ class DatabaseService {
   static const String behavioralProfilesBox = 'behavioral_profiles';
   static const String incomePatternsBox = 'income_patterns';
   static const String ghostMoneyInsightsBox = 'ghost_money_insights';
+  static const String categoriesBox = 'categories';
 
   static late Box<Transaction> transactions;
   static late Box<Budget> budgets;
@@ -25,6 +27,7 @@ class DatabaseService {
   static late Box<BehavioralProfile> behavioralProfiles;
   static late Box<IncomePattern> incomePatterns;
   static late Box<GhostMoneyInsight> ghostMoneyInsights;
+  static late Box<models.Category> categories;
 
   static Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -38,6 +41,7 @@ class DatabaseService {
     Hive.registerAdapter(BehavioralProfileAdapter());
     Hive.registerAdapter(IncomePatternAdapter());
     Hive.registerAdapter(GhostMoneyInsightAdapter());
+    Hive.registerAdapter(models.CategoryAdapter());
 
     // Open boxes
     // Open boxes with safe recovery
@@ -48,6 +52,7 @@ class DatabaseService {
     behavioralProfiles = await _openBoxSafely<BehavioralProfile>(behavioralProfilesBox);
     incomePatterns = await _openBoxSafely<IncomePattern>(incomePatternsBox);
     ghostMoneyInsights = await _openBoxSafely<GhostMoneyInsight>(ghostMoneyInsightsBox);
+    categories = await _openBoxSafely<models.Category>(categoriesBox);
 
     // Initialize defaults
     await initializeDefaults();
@@ -58,6 +63,15 @@ class DatabaseService {
 
     if (settingsBox.isEmpty) {
       await settingsBox.add(Settings());
+    }
+
+    // Initialize default categories if empty
+    final categoriesBox = Hive.box<models.Category>(DatabaseService.categoriesBox);
+    if (categoriesBox.isEmpty) {
+      final defaultCategories = models.getDefaultCategories();
+      for (final category in defaultCategories) {
+        await categoriesBox.add(category);
+      }
     }
   }
 

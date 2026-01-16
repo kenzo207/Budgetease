@@ -1,23 +1,59 @@
-class Category {
-  final String name;
-  final String icon;
-  final bool isDefault;
+import 'package:hive/hive.dart';
 
-  const Category({
+part 'category.g.dart';
+
+@HiveType(typeId: 7)
+class Category extends HiveObject {
+  @HiveField(0)
+  String id;
+
+  @HiveField(1)
+  String name;
+
+  @HiveField(2)
+  String icon;
+
+  @HiveField(3)
+  bool isCustom;
+
+  @HiveField(4)
+  DateTime createdAt;
+
+  Category({
+    required this.id,
     required this.name,
     required this.icon,
-    this.isDefault = true,
-  });
+    this.isCustom = false,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  // Helper to create from default category
+  factory Category.fromDefault(String name, String icon) {
+    return Category(
+      id: name.toLowerCase().replaceAll(' ', '_'),
+      name: name,
+      icon: icon,
+      isCustom: false,
+    );
+  }
 }
 
-const List<Category> defaultCategories = [
-  Category(name: 'Mobile Money', icon: '📱'),
-  Category(name: 'Transport', icon: '🚌'),
-  Category(name: 'Alimentation', icon: '🍽️'),
-  Category(name: 'Logement', icon: '🏠'),
-  Category(name: 'Santé', icon: '🏥'),
-  Category(name: 'Éducation', icon: '📚'),
-  Category(name: 'Loisirs', icon: '🎮'),
-  Category(name: 'Vêtements', icon: '👕'),
-  Category(name: 'Autres', icon: '📦'),
+// Default categories as constant list
+const List<Map<String, String>> defaultCategoriesData = [
+  {'name': 'Mobile Money', 'icon': '📱'},
+  {'name': 'Transport', 'icon': '🚌'},
+  {'name': 'Alimentation', 'icon': '🍽️'},
+  {'name': 'Logement', 'icon': '🏠'},
+  {'name': 'Santé', 'icon': '🏥'},
+  {'name': 'Éducation', 'icon': '📚'},
+  {'name': 'Loisirs', 'icon': '🎮'},
+  {'name': 'Vêtements', 'icon': '👕'},
+  {'name': 'Autres', 'icon': '📦'},
 ];
+
+// Helper to get default categories as Category objects
+List<Category> getDefaultCategories() {
+  return defaultCategoriesData
+      .map((data) => Category.fromDefault(data['name']!, data['icon']!))
+      .toList();
+}

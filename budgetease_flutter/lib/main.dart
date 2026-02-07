@@ -1,98 +1,121 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'services/database_service.dart';
-import 'screens/onboarding/onboarding_screen.dart';
-import 'screens/dashboard/dashboard_screen.dart';
-import 'utils/colors.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:budgetease_flutter/database/app_database.dart';
+import 'package:budgetease_flutter/providers/privacy_mode_provider.dart';
+import 'package:budgetease_flutter/services/wallet_service.dart';
+import 'package:budgetease_flutter/services/shield_service.dart';
+import 'package:budgetease_flutter/services/daily_cap_calculator.dart';
+import 'package:budgetease_flutter/services/daily_snapshots_service.dart';
+import 'package:budgetease_flutter/screens/vertical_home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Color(0xFF121212),
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+
+  // Initialize Drift database
+  final database = AppDatabase();
   
-  // Initialize database
-  await DatabaseService.init();
+  // Initialize services
+  final walletService = WalletService(database);
+  final shieldService = ShieldService(database);
+  final dailyCapCalculator = DailyCapCalculator(database, shieldService, walletService);
+  final snapshotsService = DailySnapshotsService(database);
   
-  runApp(const MyApp());
+  // Initialize default wallets if needed
+  await walletService.initializeDefaultWallets();
+
+  runApp(BudgetEaseApp(
+    database: database,
+    walletService: walletService,
+    shieldService: shieldService,
+    dailyCapCalculator: dailyCapCalculator,
+    snapshotsService: snapshotsService,
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BudgetEaseApp extends StatelessWidget {
+  final AppDatabase database;
+  final WalletService walletService;
+  final ShieldService shieldService;
+  final DailyCapCalculator dailyCapCalculator;
+  final DailySnapshotsService snapshotsService;
+
+  const BudgetEaseApp({
+    super.key,
+    required this.database,
+    required this.walletService,
+    required this.shieldService,
+    required this.dailyCapCalculator,
+    required this.snapshotsService,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BudgetEase',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.light,
-        ),
-        textTheme: GoogleFonts.interTextTheme(),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: AppColors.gray200),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PrivacyModeProvider()),
+        Provider<AppDatabase>.value(value: database),
+        Provider<WalletService>.value(value: walletService),
+        Provider<ShieldService>.value(value: shieldService),
+        Provider<DailyCapCalculator>.value(value: dailyCapCalculator),
+        Provider<DailySnapshotsService>.value(value: snapshotsService),
+      ],
+      child: MaterialApp(
+        title: 'BudgetEase - Flow & Shield',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: const Color(0xFF121212),
+          primaryColor: const Color(0xFF6C63FF),
+          colorScheme: const ColorScheme.dark(
+            primary: Color(0xFF6C63FF),
+            secondary: Color(0xFF03DAC6),
+            surface: Color(0xFF1E1E1E),
+            background: Color(0xFF121212),
+            error: Color(0xFFF44336),
+          ),
+          cardTheme: CardThemeData(
+            color: const Color(0xFF1E1E1E),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: const Color(0xFF2A2A2A),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
+            ),
           ),
         ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          foregroundColor: AppColors.gray900,
-        ),
+        home: const VerticalHomeScreen(),
       ),
-      home: const AppRoot(),
     );
-  }
-}
-
-class AppRoot extends StatefulWidget {
-  const AppRoot({super.key});
-
-  @override
-  State<AppRoot> createState() => _AppRootState();
-}
-
-class _AppRootState extends State<AppRoot> {
-  bool _isLoading = true;
-  bool _showOnboarding = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkOnboarding();
-  }
-
-  Future<void> _checkOnboarding() async {
-    final settings = DatabaseService.settings.values.firstOrNull;
-    setState(() {
-      _showOnboarding = settings?.onboardingCompleted != true;
-      _isLoading = false;
-    });
-  }
-
-  void _completeOnboarding() {
-    setState(() {
-      _showOnboarding = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (_showOnboarding) {
-      return OnboardingScreen(onComplete: _completeOnboarding);
-    }
-
-    return const DashboardScreen();
   }
 }

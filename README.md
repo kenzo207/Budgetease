@@ -1,169 +1,174 @@
-# BudgetEase
+# 💰 BudgetEase - Flow & Shield Budget App
 
-Application de gestion budgétaire simple et locale, adaptée au contexte africain.
+**Version actuelle** : v3.1 (UX Améliorée)  
+**Plateforme** : Flutter (Android)  
+**Database** : Drift (SQLite)
 
-## Fonctionnalités
+---
 
-- ✅ Enregistrement rapide des dépenses et revenus
-- ✅ Visualisation par période (jour/semaine/mois)
-- ✅ Graphiques de répartition par catégorie
-- ✅ Budgets mensuels avec alertes
-- ✅ Support multi-devises (FCFA, NGN, GHS, USD, EUR)
-- ✅ Export CSV
-- ✅ Données 100% locales (IndexedDB)
-- ✅ PWA - Fonctionne hors-ligne
-- ✅ Rappels quotidiens (selon support navigateur)
+## 🚀 Quick Start
 
-## Installation
-
-### Prérequis
-
-- Node.js 18+ et npm
-
-### Étapes
-
+### Installation
 ```bash
-# Installer les dépendances
-npm install
+# Télécharger la dernière version
+# APK: budgetease-latest.apk (48MB)
 
-# Lancer en développement
-npm run dev
+# Installer sur Android
+adb install -r budgetease-latest.apk
 
-# Build pour production
-npm run build
-
-# Prévisualiser le build
-npm run preview
+# Ou transfert manuel vers téléphone
 ```
 
-## Déploiement
-
-### Vercel (recommandé)
-
+### Build depuis source
 ```bash
-# Installer Vercel CLI
-npm i -g vercel
-
-# Déployer
-vercel
+cd budgetease_flutter
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter build apk --release --no-shrink
 ```
 
-### Netlify
+---
 
+## 📱 Features
+
+### ✅ Implémentées
+- **Navigation verticale** : Swipe entre Shield / Flow / History
+- **LiquidGauge animé** : Visualisation daily cap en temps réel
+- **Multi-wallet** : Cash, MTN MoMo, Orange Money, Bank
+- **Shield System** : Fixed charges, debts, SOS fund
+- **Daily Cap Calculator** : Flow & Shield budget logic
+- **Transaction History** : Historique complet
+- **Dark Theme Premium** : Interface moderne
+
+### 🚧 En Développement
+- Formulaires ajout transactions
+- Shield items management complet
+- Charts & statistics
+- Export data
+- Settings screen
+
+---
+
+## 🏗️ Architecture
+
+### Tech Stack
+- **Framework** : Flutter 3.38.9
+- **Database** : Drift 2.31.0 (SQLite)
+- **State Management** : Provider
+- **UI** : Material Design 3
+- **Platform** : Android (API 21+)
+
+### Structure
+```
+budgetease_flutter/
+├── lib/
+│   ├── database/          # Drift tables & DB
+│   ├── services/          # Business logic
+│   ├── screens/           # UI screens
+│   ├── widgets/           # Reusable widgets
+│   ├── providers/         # State management
+│   └── utils/             # Helpers
+├── android/               # Android config
+└── assets/                # Images, fonts
+
+docs/                      # Documentation
+builds/                    # APK versions
+scripts/                   # Utility scripts
+```
+
+---
+
+## 📚 Documentation
+
+- **[User Flow](user_flow.md)** : Diagramme UX complet
+- **[Build History](docs/build-history/)** : Historique builds & migrations
+- **[Installation Guide](docs/INSTALLATION_GUIDE.md)** : Guide installation détaillé
+
+---
+
+## 🎨 Concept - Flow & Shield
+
+**Flow** : Argent disponible quotidiennement après Shield  
+**Shield** : Budget protégé (charges fixes, dettes, urgences)
+
+**Formule** :
+```
+Daily Cap = (Total Balance - Shield Allocation) / Jours Restants
+```
+
+---
+
+## 🔧 Development
+
+### Requirements
+- Flutter SDK 3.38.9+
+- Android SDK (Platform 35)
+- Dart 3.x
+
+### Commands
 ```bash
-# Build
-npm run build
+# Get dependencies
+flutter pub get
 
-# Le dossier dist/ contient les fichiers à déployer
+# Generate Drift code
+dart run build_runner build
+
+# Run debug
+flutter run
+
+# Build APK
+flutter build apk --release
+
+# Install via ADB
+adb install -r build/app/outputs/flutter-apk/app-release.apk
 ```
 
-## Structure du Projet
+---
 
-```
-src/
-├── components/       # Composants réutilisables
-│   ├── ui/          # Composants de base (Button, Card, etc.)
-│   ├── layout/      # Layout (Header, BottomNav, FAB)
-│   ├── dashboard/   # Composants dashboard
-│   ├── transactions/# Composants transactions
-│   └── budgets/     # Composants budgets
-├── screens/         # Écrans principaux
-├── lib/             # Logique métier
-│   ├── db.ts        # Configuration Dexie
-│   ├── calculations.ts
-│   ├── currency.ts
-│   ├── export.ts
-│   ├── notifications.ts
-│   └── recurring.ts
-└── types/           # Types TypeScript
-```
+## 📦 Versions
 
-## Technologies
+### v3.1 (Current) - UX Améliorée
+- Retrait emojis
+- Icônes Material Design
+- Navigation améliorée
+- Design professionnel
 
-- **React 18** + **TypeScript**
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **Dexie.js** - IndexedDB wrapper
-- **Recharts** - Graphiques
-- **date-fns** - Manipulation dates
-- **vite-plugin-pwa** - PWA support
+### v3.0 - UI Premium
+- Navigation verticale
+- LiquidGauge animé
+- 3 screens complets
 
-## Utilisation
+### v2.0 - Migration Drift
+- Migration complète Isar → Drift
+- Résolution problèmes Android SDK
 
-### Premier lancement
+### v1.0 - MVP
+- Proof of concept avec Hive
+- UI basique
 
-1. Sélectionnez votre devise
-2. Configurez le rappel quotidien (optionnel)
-3. Choisissez 3 catégories favorites
+---
 
-### Ajouter une transaction
+## 🤝 Contributing
 
-1. Cliquez sur le bouton `+` flottant
-2. Sélectionnez Dépense ou Revenu
-3. Remplissez le montant, catégorie, moyen de paiement
-4. Ajoutez une note (optionnel)
-5. Enregistrez
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit (`git commit -m 'Add AmazingFeature'`)
+4. Push (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
 
-### Créer un budget
+---
 
-1. Allez dans l'onglet "Budgets"
-2. Cliquez sur "Créer"
-3. Sélectionnez une catégorie
-4. Définissez le montant mensuel
+## 📄 License
 
-### Exporter les données
+MIT License - Voir LICENSE pour détails
 
-1. Allez dans "Paramètres"
-2. Cliquez sur "Exporter en CSV"
-3. Le fichier sera téléchargé automatiquement
+---
 
-## Limitations & Fallbacks
+## 👤 Author
 
-### Notifications (iOS Safari)
+**Kenzo O'Bryan**  
+Project: BudgetEase - Personal Finance Manager
 
-Les notifications push ne sont pas supportées sur iOS Safari. Un fallback in-app est implémenté :
-- Banner de rappel visible dans l'application
-- Badge sur l'icône Paramètres
+---
 
-### Synchronisation
-
-Le MVP ne supporte pas la synchronisation multi-appareils. Les données sont stockées localement uniquement.
-
-**Recommandation** : Exportez régulièrement vos données en CSV.
-
-### Offline
-
-L'application fonctionne entièrement hors-ligne après la première visite. Les assets sont mis en cache automatiquement.
-
-## Support Navigateurs
-
-- ✅ Chrome/Edge (Desktop & Android)
-- ✅ Firefox (Desktop & Android)
-- ✅ Safari (Desktop & iOS) - notifications limitées
-- ✅ Samsung Internet
-
-## Développement
-
-### Ajouter une catégorie par défaut
-
-Modifiez `src/lib/db.ts` dans la fonction `initializeDefaultData()`.
-
-### Ajouter une devise
-
-1. Ajoutez la devise dans `src/types/index.ts`
-2. Configurez le formatage dans `src/lib/currency.ts`
-
-### Tests
-
-```bash
-# Tests unitaires (à implémenter)
-npm run test
-```
-
-## Licence
-
-MIT
-
-## Contact
-
-Pour toute question ou suggestion, ouvrez une issue sur GitHub.
+**Fait avec ❤️ et Flutter**

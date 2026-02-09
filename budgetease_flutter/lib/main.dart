@@ -1,120 +1,165 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:budgetease_flutter/database/app_database.dart';
-import 'package:budgetease_flutter/providers/privacy_mode_provider.dart';
-import 'package:budgetease_flutter/services/wallet_service.dart';
-import 'package:budgetease_flutter/services/shield_service.dart';
-import 'package:budgetease_flutter/services/daily_cap_calculator.dart';
-import 'package:budgetease_flutter/services/daily_snapshots_service.dart';
-import 'package:budgetease_flutter/screens/vertical_home_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'dart:io';
+import 'dart:ffi';
+import 'package:sqlite3/open.dart';
+import 'config/theme.dart';
+import 'presentation/providers/security_provider.dart';
+import 'presentation/screens/auth/lock_screen.dart';
+import 'presentation/screens/onboarding/onboarding_screen.dart';
+import 'presentation/screens/main_screen.dart';
+import 'data/database/app_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF121212),
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
+  // Initialize French locale for date formatting
+  await initializeDateFormatting('fr_FR', null);
 
-  // Initialize Drift database
+  // Override sqlite3 loading for Android (using sqlcipher)
+  open.overrideFor(OperatingSystem.android, () {
+    return DynamicLibrary.open('libsqlcipher.so');
+  });
+  
+  // Initialiser la base de données
   final database = AppDatabase();
   
-  // Initialize services
-  final walletService = WalletService(database);
-  final shieldService = ShieldService(database);
-  final dailyCapCalculator = DailyCapCalculator(database, shieldService, walletService);
-  final snapshotsService = DailySnapshotsService(database);
-  
-  // Initialize default wallets if needed
-  await walletService.initializeDefaultWallets();
-
-  runApp(BudgetEaseApp(
-    database: database,
-    walletService: walletService,
-    shieldService: shieldService,
-    dailyCapCalculator: dailyCapCalculator,
-    snapshotsService: snapshotsService,
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [
+        // Ajouter les overrides si nécessaire
+      ],
+      child: const BudgetEaseApp(),
+    ),
+  );
 }
 
-class BudgetEaseApp extends StatelessWidget {
-  final AppDatabase database;
-  final WalletService walletService;
-  final ShieldService shieldService;
-  final DailyCapCalculator dailyCapCalculator;
-  final DailySnapshotsService snapshotsService;
+class BudgetEaseApp extends ConsumerWidget {
+  const BudgetEaseApp({super.key});
 
-  const BudgetEaseApp({
-    super.key,
-    required this.database,
-    required this.walletService,
-    required this.shieldService,
-    required this.dailyCapCalculator,
-    required this.snapshotsService,
-  });
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
+      title: 'Zolt',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      home: const AppInitializer(),
+    );
+  }
+}
+
+/// Widget d'initialisation de l'application
+class AppInitializer extends ConsumerStatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  ConsumerState<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends ConsumerState<AppInitializer> {
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final securityService = ref.watch(securityServiceProvider);
+
+    return authState.when(
+      data: (isAuthenticated) {
+        if (isAuthenticated) {
+          // Utilisateur authentifié, vérifier si l'onboarding est complété
+          return FutureBuilder<bool>(
+            future: _isOnboardingCompleted(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const _LoadingScreen();
+              }
+
+              if (snapshot.data == true) {
+                // Onboarding complété, aller au home
+                return const MainScreen();
+              } else {
+                // Onboarding non complété
+                return const OnboardingScreen();
+              }
+            },
+          );
+        } else {
+          // Utilisateur non authentifié, afficher l'écran de verrouillage
+          return FutureBuilder<bool>(
+            future: securityService.isSecurityConfigured(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const _LoadingScreen();
+              }
+
+              if (snapshot.data == true) {
+                // Sécurité configurée, afficher le lock screen
+                return LockScreen(
+                  securityService: securityService,
+                  onUnlocked: () {
+                    ref.read(authProvider.notifier).markAsAuthenticated();
+                  },
+                );
+              } else {
+                // Sécurité non configurée, aller à l'onboarding
+                return const OnboardingScreen();
+              }
+            },
+          );
+        }
+      },
+      loading: () => const _LoadingScreen(),
+      error: (error, stack) => _ErrorScreen(error: error.toString()),
+    );
+  }
+
+  Future<bool> _isOnboardingCompleted() async {
+    print('DEBUG: Checking onboarding status...');
+    final database = AppDatabase();
+    try {
+      final settings = await (database.select(database.settings)..limit(1)).getSingleOrNull();
+      print('DEBUG: Settings found: ${settings != null}, Onboarding Completed: ${settings?.onboardingCompleted}');
+      return settings?.onboardingCompleted ?? false;
+    } catch (e) {
+      print('DEBUG: Error checking onboarding: $e');
+      return false;
+    } 
+    // removed finally -> await database.close() because it's a singleton now!
+  }
+}
+
+/// Écran de chargement
+class _LoadingScreen extends StatelessWidget {
+  const _LoadingScreen();
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => PrivacyModeProvider()),
-        Provider<AppDatabase>.value(value: database),
-        Provider<WalletService>.value(value: walletService),
-        Provider<ShieldService>.value(value: shieldService),
-        Provider<DailyCapCalculator>.value(value: dailyCapCalculator),
-        Provider<DailySnapshotsService>.value(value: snapshotsService),
-      ],
-      child: MaterialApp(
-        title: 'BudgetEase - Flow & Shield',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: const Color(0xFF121212),
-          primaryColor: const Color(0xFF6C63FF),
-          colorScheme: const ColorScheme.dark(
-            primary: Color(0xFF6C63FF),
-            secondary: Color(0xFF03DAC6),
-            surface: Color(0xFF1E1E1E),
-            background: Color(0xFF121212),
-            error: Color(0xFFF44336),
-          ),
-          cardTheme: CardThemeData(
-            color: const Color(0xFF1E1E1E),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: const Color(0xFF2A2A2A),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
-            ),
-          ),
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+/// Écran d'erreur
+class _ErrorScreen extends StatelessWidget {
+  final String error;
+
+  const _ErrorScreen({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Erreur: $error'),
+          ],
         ),
-        home: const VerticalHomeScreen(),
       ),
     );
   }

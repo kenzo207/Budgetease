@@ -1,8 +1,8 @@
-# 💰 BudgetEase - Flow & Shield Budget App
+# ⚡ Zolt - Flow & Shield Budget App
 
-**Version actuelle** : v3.1 (UX Améliorée)  
-**Plateforme** : Flutter (Android)  
-**Database** : Drift (SQLite)
+**Version actuelle** : v4.0 (Release)
+**Plateforme** : Flutter (Android)
+**Database** : Drift (SQLite + SQLCipher)
 
 ---
 
@@ -60,16 +60,22 @@ flutter build apk --release --no-shrink
 
 ### Structure
 ```
-budgetease_flutter/
+### Structure
+```
+budgetease_flutter/        # MAIN PROJECT (v4.0)
 ├── lib/
-│   ├── database/          # Drift tables & DB
-│   ├── services/          # Business logic
-│   ├── screens/           # UI screens
-│   ├── widgets/           # Reusable widgets
-│   ├── providers/         # State management
-│   └── utils/             # Helpers
+│   ├── data/              # Drift DB & DAOs
+│   ├── presentation/      # Screens & Providers
+│   ├── core/              # Constants & Utils
+│   └── config/            # Theme & Routes
 ├── android/               # Android config
 └── assets/                # Images, fonts
+
+budgetease_legacy/         # OLD VERSION (v1.0)
+docs/                      # Documentation
+builds/                    # APK versions
+scripts/                   # Utility scripts
+```
 
 docs/                      # Documentation
 builds/                    # APK versions
@@ -167,7 +173,7 @@ MIT License - Voir LICENSE pour détails
 ## 👤 Author
 
 **Kenzo O'Bryan**  
-Project: BudgetEase - Personal Finance Manager
+Project: Zolt - Personal Finance Manager
 
 ---
 

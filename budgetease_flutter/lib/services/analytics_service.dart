@@ -23,8 +23,11 @@ class AnalyticsService {
       if (kDebugMode) {
         print('📊 Analytics Event: $eventName | Properties: $properties');
       }
-      // TODO: Re-enable PostHog when build issue is resolved
-      // await _posthog.capture(eventName: eventName, properties: properties);
+      // Cast properties to Map<String, Object> to satisfy PostHog strict typing
+      // We use Map.from to create a new map if needed, or cast if compatible.
+      final safeProperties = properties?.map((key, value) => MapEntry(key, value as Object));
+      
+      await _posthog.capture(eventName: eventName, properties: safeProperties);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ Analytics Error: $e');
@@ -38,7 +41,9 @@ class AnalyticsService {
       if (kDebugMode) {
         print('📱 Analytics Screen: $screenName | Properties: $properties');
       }
-      // await _posthog.screen(screenName: screenName, properties: properties);
+      
+      final safeProperties = properties?.map((key, value) => MapEntry(key, value as Object));
+      await _posthog.screen(screenName: screenName, properties: safeProperties);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ Analytics Error: $e');

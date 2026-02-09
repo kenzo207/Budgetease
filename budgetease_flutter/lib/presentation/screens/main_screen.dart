@@ -7,6 +7,7 @@ import '../screens/analysis/analysis_screen.dart';
 import '../screens/settings/settings_screen.dart';
 import '../widgets/action_bottom_sheet.dart';
 import '../providers/navigation_provider.dart';
+import '../../services/analytics_service.dart';
 
 /// Écran principal avec Bottom Navigation
 class MainScreen extends ConsumerStatefulWidget {
@@ -49,6 +50,12 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         currentIndex: currentIndex,
         onTap: (index) {
           ref.read(navigationIndexProvider.notifier).state = index;
+          
+          // Analytics
+          final screenByName = ['Home', 'Transactions', 'Analysis', 'Settings'];
+          if (index < screenByName.length) {
+            ref.read(analyticsServiceProvider).screen(screenByName[index]);
+          }
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: AppColors.surfaceColor,

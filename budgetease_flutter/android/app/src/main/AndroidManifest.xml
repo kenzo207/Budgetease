@@ -34,6 +34,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        
+        <!-- PostHog Configuration -->
+        <meta-data android:name="com.posthog.posthog.API_KEY" android:value="phc_UxUrbANVZ3V0pJxug9tKF3AS62IOuGO0LgZBLumLJBO" />
+        <meta-data android:name="com.posthog.posthog.POSTHOG_HOST" android:value="https://app.posthog.com" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

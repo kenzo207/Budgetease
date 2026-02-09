@@ -47,6 +47,7 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.8
+  posthog_flutter: ^5.13.0
 
 dev_dependencies:
   flutter_test:

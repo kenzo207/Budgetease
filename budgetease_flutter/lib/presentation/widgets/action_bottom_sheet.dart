@@ -9,6 +9,7 @@ import '../../data/database/tables/transactions_table.dart';
 import '../../data/database/tables/categories_table.dart';
 import '../../core/utils/ui_helpers.dart';
 import '../../data/database/tables/accounts_table.dart';
+import '../../services/analytics_service.dart';
 
 /// Bottom Sheet d'actions (FAB)
 class ActionBottomSheet extends ConsumerStatefulWidget {
@@ -131,6 +132,14 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             date: _selectedDate,
             isException: _isException,
           );
+
+      // Analytics
+      await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {
+        'type': 'expense',
+        'amount': amount,
+        'category_id': _selectedCategoryId,
+        'is_exception': _isException,
+      });
 
       if (mounted) {
         Navigator.pop(context);
@@ -366,6 +375,14 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             scopeDuration: _scopeDuration,
             description: _sourceController.text.isEmpty ? null : _sourceController.text,
           );
+
+      // Analytics
+      await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {
+        'type': 'income',
+        'amount': amount,
+        'category_id': _selectedCategoryId,
+        'scope': _scopeType,
+      });
 
       if (mounted) {
         Navigator.pop(context);
@@ -634,6 +651,13 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             date: _selectedDate,
             feeAmount: fee,
           );
+
+      // Analytics
+      await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {
+        'type': 'transfer',
+        'amount': amount,
+        'fee': fee ?? 0,
+      });
 
       if (mounted) {
         Navigator.pop(context);

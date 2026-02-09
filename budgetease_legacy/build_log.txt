@@ -1,0 +1,48 @@
+Running Gradle task 'assembleRelease'...                        
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 1572 bytes (99.9% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/BackgroundWorker.kt:14:44 Unresolved reference 'shim'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/BackgroundWorker.kt:98:55 Unresolved reference 'registerWith'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/BackgroundWorker.kt:98:68 Unresolved reference 'ShimPluginRegistry'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:35:52 Unresolved reference 'PluginRegistrantCallback'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:38:52 Unresolved reference 'Registrar'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:40:49 Unresolved reference 'context'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:40:70 Unresolved reference 'messenger'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:41:23 Unresolved reference 'addViewDestroyListener'.
+e: file:///home/kenzoobryan/.pub-cache/hosted/pub.dev/workmanager-0.5.2/android/src/main/kotlin/dev/fluttercommunity/workmanager/WorkmanagerPlugin.kt:49:80 Unresolved reference 'PluginRegistrantCallback'.
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':workmanager:compileReleaseKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:checkReleaseDuplicateClasses'.
+> A failure occurred while executing com.android.build.gradle.internal.tasks.CheckDuplicatesRunnable
+   > Duplicate class androidx.work.OneTimeWorkRequestKt found in modules work-runtime-2.8.1.aar -> work-runtime-2.8.1-runtime (androidx.work:work-runtime:2.8.1) and work-runtime-ktx-2.7.1.aar -> work-runtime-ktx-2.7.1-runtime (androidx.work:work-runtime-ktx:2.7.1)
+     Duplicate class androidx.work.PeriodicWorkRequestKt found in modules work-runtime-2.8.1.aar -> work-runtime-2.8.1-runtime (androidx.work:work-runtime:2.8.1) and work-runtime-ktx-2.7.1.aar -> work-runtime-ktx-2.7.1-runtime (androidx.work:work-runtime-ktx:2.7.1)
+
+     Learn how to fix dependency resolution errors at https://d.android.com/r/tools/classpath-sync-errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 28s
+Running Gradle task 'assembleRelease'...                           29,0s
+Gradle task assembleRelease failed with exit code 1

@@ -39,6 +39,13 @@ class PendingTransactions extends _$PendingTransactions {
     await service.cleanOldPendingTransactions();
     ref.invalidateSelf();
   }
+  /// Scanner les SMS et mettre à jour la liste
+  Future<int> scan() async {
+    final service = ref.read(smsParserServiceProvider);
+    final count = await service.scanAndParseSms();
+    ref.invalidateSelf();
+    return count;
+  }
 }
 
 /// Provider du nombre de transactions en attente

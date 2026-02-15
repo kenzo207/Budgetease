@@ -5,6 +5,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../onboarding/calibration_screen.dart';
+import '../transactions/pending_transactions_screen.dart';
 import 'categories_management_screen.dart';
 import '../../providers/border_color_provider.dart';
 
@@ -149,12 +150,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Analyse SMS',
                 subtitle: 'Détection automatique des transactions',
                 trailing: Switch(
-                  value: _smsEnabled,
-                  onChanged: (value) async {
-                    await _toggleSms(value);
-                  },
                 ),
               ),
+
+              if (_smsEnabled)
+                _buildSettingCard(
+                  context,
+                  icon: Icons.mark_email_unread_outlined,
+                  title: 'Transactions détectées',
+                  subtitle: 'Valider les transactions SMS',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PendingTransactionsScreen(),
+                      ),
+                    );
+                  },
+                ),
 
               const SizedBox(height: 24),
 

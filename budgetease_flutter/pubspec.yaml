@@ -30,7 +30,7 @@ dependencies:
 
   # SMS & Notifications (temporairement désactivé - problème Gradle namespace)
   # flutter_sms: ^2.3.3
-  permission_handler: ^11.1.0
+  permission_handler: ^12.0.1
   flutter_local_notifications: ^17.0.0
 
   # UI
@@ -48,6 +48,7 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.8
   posthog_flutter: ^5.13.0
+  flutter_sms_inbox: ^1.0.4
 
 dev_dependencies:
   flutter_test:

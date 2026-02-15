@@ -9,6 +9,7 @@ import '../../../data/database/daos/transactions_dao.dart';
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../../providers/accounts_provider.dart';
+import '../../providers/budget_provider.dart';
 import '../onboarding/calibration_screen.dart';
 
 /// Écran des transactions
@@ -451,6 +452,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       // Refresh providers
       ref.invalidate(transactionsProviderProvider);
       ref.invalidate(accountsProviderProvider);
+      ref.invalidate(budgetProviderProvider);
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

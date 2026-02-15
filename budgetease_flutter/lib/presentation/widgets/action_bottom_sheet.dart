@@ -4,6 +4,7 @@ import '../../core/constants/app_constants.dart';
 import '../providers/categories_provider.dart';
 import '../providers/accounts_provider.dart';
 import '../providers/transactions_provider.dart';
+import '../providers/budget_provider.dart';
 import '../screens/onboarding/calibration_screen.dart';
 import '../../data/database/tables/transactions_table.dart';
 import '../../data/database/tables/categories_table.dart';
@@ -132,6 +133,8 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             date: _selectedDate,
             isException: _isException,
           );
+
+      ref.invalidate(budgetProviderProvider);
 
       // Analytics
       await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {
@@ -375,6 +378,8 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             scopeDuration: _scopeDuration,
             description: _sourceController.text.isEmpty ? null : _sourceController.text,
           );
+          
+      ref.invalidate(budgetProviderProvider);
 
       // Analytics
       await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {
@@ -651,6 +656,8 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             date: _selectedDate,
             feeAmount: fee,
           );
+
+      ref.invalidate(budgetProviderProvider);
 
       // Analytics
       await ref.read(analyticsServiceProvider).capture('transaction_created', properties: {

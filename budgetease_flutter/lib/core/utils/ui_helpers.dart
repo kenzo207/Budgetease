@@ -43,6 +43,37 @@ class UIHelpers {
     }
   }
 
+  static IconData getIconForCategory(String? iconName, CategoryType type) {
+    if (iconName == null || iconName.isEmpty) {
+      return getCategoryIcon(type);
+    }
+
+    switch (iconName) {
+      // Expense
+      case 'restaurant': return Icons.restaurant;
+      case 'directions_car': return Icons.directions_car;
+      case 'phone_iphone': return Icons.phone_iphone;
+      case 'home': return Icons.home;
+      case 'local_hospital': return Icons.local_hospital;
+      case 'sports_esports': return Icons.sports_esports;
+      case 'checkroom': return Icons.checkroom;
+      case 'school': return Icons.school;
+      case 'lightbulb': return Icons.lightbulb;
+      case 'category': return Icons.category;
+      
+      // Income
+      case 'payments': return Icons.payments;
+      case 'work': return Icons.work;
+      case 'store': return Icons.store;
+      case 'card_giftcard': return Icons.card_giftcard;
+      case 'trending_up': return Icons.trending_up;
+      case 'attach_money': return Icons.attach_money;
+      
+      // Fallback/Legacy (if emoji)
+      default: return getCategoryIcon(type);
+    }
+  }
+
   static Color getCategoryColor(CategoryType type) {
     switch (type) {
       case CategoryType.expense:

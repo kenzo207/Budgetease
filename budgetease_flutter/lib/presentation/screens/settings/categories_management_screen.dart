@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../../../data/database/app_database.dart';
@@ -16,10 +15,10 @@ class CategoriesManagementScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoriesProviderProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed
       appBar: AppBar(
         title: const Text('Gérer les catégories'),
-        backgroundColor: AppColors.backgroundColor,
+        // backgroundColor: AppColors.backgroundColor, // Removed
       ),
       body: categoriesAsync.when(
         data: (categories) {
@@ -61,7 +60,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text('Erreur de chargement')),
+        error: (e, s) => const Center(child: Text('Erreur de chargement')),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddCategoryDialog(context, ref),
@@ -83,11 +82,11 @@ class CategoriesManagementScreen extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: UIHelpers.getCategoryColor(category.type).withOpacity(0.2),
+            color: UIHelpers.getCategoryColor(category.type).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
-            UIHelpers.getCategoryIcon(category.type),
+            UIHelpers.getIconForCategory(category.icon, category.type),
             color: UIHelpers.getCategoryColor(category.type),
           ),
         ),
@@ -132,7 +131,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<CategoryType>(
-                value: selectedType,
+                initialValue: selectedType,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: const [
                   DropdownMenuItem(

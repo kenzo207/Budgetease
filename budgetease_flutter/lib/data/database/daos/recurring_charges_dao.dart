@@ -7,7 +7,7 @@ part 'recurring_charges_dao.g.dart';
 /// DAO pour la gestion des charges fixes
 @DriftAccessor(tables: [RecurringCharges])
 class RecurringChargesDao extends DatabaseAccessor<AppDatabase> with _$RecurringChargesDaoMixin {
-  RecurringChargesDao(AppDatabase db) : super(db);
+  RecurringChargesDao(super.db);
 
   /// Récupérer toutes les charges fixes
   Future<List<RecurringCharge>> getAllCharges() => select(recurringCharges).get();

@@ -1,7 +1,6 @@
 import '../../data/database/daos/accounts_dao.dart';
 import '../../data/database/daos/transactions_dao.dart';
 import '../../data/database/daos/recurring_charges_dao.dart';
-import '../../data/database/tables/settings_table.dart';
 import 'cycle_manager_service.dart';
 import 'transport_manager_service.dart';
 

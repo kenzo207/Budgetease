@@ -84,7 +84,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
           const SizedBox(height: 16),
           
           DropdownButtonFormField<String>(
-            value: _selectedCurrency,
+            initialValue: _selectedCurrency,
             decoration: const InputDecoration(
               labelText: 'Devise',
               prefixIcon: Icon(Icons.attach_money),

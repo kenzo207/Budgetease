@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase._internal() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3; // Phase 7: Income Patterns, Insights, Behavioral Profiles
+  int get schemaVersion => 4; // Phase 13: B&W Theme
   
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,7 +64,6 @@ class AppDatabase extends _$AppDatabase {
           await _seedDefaultData();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // Migration de v1 à v2 : Ajout du champ borderColor
           // Migration de v1 à v2 : Ajout du champ borderColor
           if (from < 2) {
             try {
@@ -84,6 +83,16 @@ class AppDatabase extends _$AppDatabase {
               print('✅ Migration v2→v3: Tables Phase 7 créées avec succès');
             } catch (e) {
               print('⚠️ Migration v2→v3: Erreur création tables: $e');
+            }
+          }
+
+          // Migration de v3 à v4 : Ajout du thème
+          if (from < 4) {
+            try {
+              await m.addColumn(settings, settings.themeMode);
+              print('✅ Migration v3→v4: themeMode ajouté avec succès');
+            } catch (e) {
+              print('⚠️ Migration v3→v4: Erreur ajout themeMode: $e');
             }
           }
         },
@@ -108,25 +117,25 @@ class AppDatabase extends _$AppDatabase {
   /// Créer les catégories de dépenses par défaut
   Future<void> _seedDefaultCategories() async {
     final expenseCategories = [
-      ('Alimentation', '🍔', '#FF6B6B', CategoryType.expense),
-      ('Transport', '🚕', '#4ECDC4', CategoryType.expense),
-      ('Téléphone', '📱', '#95E1D3', CategoryType.expense),
-      ('Logement', '🏠', '#F38181', CategoryType.expense),
-      ('Santé', '💊', '#AA96DA', CategoryType.expense),
-      ('Loisirs', '🎮', '#FCBAD3', CategoryType.expense),
-      ('Vêtements', '👕', '#FFFFD2', CategoryType.expense),
-      ('Éducation', '📚', '#A8D8EA', CategoryType.expense),
-      ('Factures', '💡', '#FFD93D', CategoryType.expense),
-      ('Autres', '🎁', '#6C5CE7', CategoryType.expense),
+      ('Alimentation', 'restaurant', '#FF6B6B', CategoryType.expense),
+      ('Transport', 'directions_car', '#4ECDC4', CategoryType.expense),
+      ('Téléphone', 'phone_iphone', '#95E1D3', CategoryType.expense),
+      ('Logement', 'home', '#F38181', CategoryType.expense),
+      ('Santé', 'local_hospital', '#AA96DA', CategoryType.expense),
+      ('Loisirs', 'sports_esports', '#FCBAD3', CategoryType.expense),
+      ('Vêtements', 'checkroom', '#FFFFD2', CategoryType.expense),
+      ('Éducation', 'school', '#A8D8EA', CategoryType.expense),
+      ('Factures', 'lightbulb', '#FFD93D', CategoryType.expense),
+      ('Autres', 'category', '#6C5CE7', CategoryType.expense),
     ];
 
     final incomeCategories = [
-      ('Salaire', '💰', '#00D2FF', CategoryType.income),
-      ('Freelance', '💼', '#3AA0FF', CategoryType.income),
-      ('Business', '🏪', '#4A69FF', CategoryType.income),
-      ('Cadeau', '🎁', '#6C5CE7', CategoryType.income),
-      ('Investissement', '📈', '#A29BFE', CategoryType.income),
-      ('Autre', '💵', '#74B9FF', CategoryType.income),
+      ('Salaire', 'payments', '#00D2FF', CategoryType.income),
+      ('Freelance', 'work', '#3AA0FF', CategoryType.income),
+      ('Business', 'store', '#4A69FF', CategoryType.income),
+      ('Cadeau', 'card_giftcard', '#6C5CE7', CategoryType.income),
+      ('Investissement', 'trending_up', '#A29BFE', CategoryType.income),
+      ('Autre', 'attach_money', '#74B9FF', CategoryType.income),
     ];
 
     for (final (name, icon, color, type) in expenseCategories) {
@@ -187,10 +196,10 @@ class AppDatabase extends _$AppDatabase {
         setup: (rawDb) {
           // Activer le chiffrement avec la clé
           rawDb.execute("PRAGMA key = '$encryptionKey';");
-          rawDb.execute("PRAGMA cipher_page_size = 4096;");
-          rawDb.execute("PRAGMA kdf_iter = 64000;");
-          rawDb.execute("PRAGMA cipher_hmac_algorithm = HMAC_SHA512;");
-          rawDb.execute("PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;");
+          rawDb.execute('PRAGMA cipher_page_size = 4096;');
+          rawDb.execute('PRAGMA kdf_iter = 64000;');
+          rawDb.execute('PRAGMA cipher_hmac_algorithm = HMAC_SHA512;');
+          rawDb.execute('PRAGMA cipher_kdf_algorithm = PBKDF2_HMAC_SHA512;');
           
           // Optimisations SQLite
           rawDb.execute('PRAGMA foreign_keys = ON;');
@@ -205,11 +214,26 @@ class AppDatabase extends _$AppDatabase {
     const storage = FlutterSecureStorage();
     const keyName = 'budgetease_v4_db_encryption_key';
     
-    // Vérifier si une clé existe déjà
-    String? existingKey = await storage.read(key: keyName);
-    
-    if (existingKey != null) {
-      return existingKey;
+    try {
+      // Vérifier si une clé existe déjà
+      String? existingKey = await storage.read(key: keyName);
+      
+      if (existingKey != null) {
+        return existingKey;
+      }
+    } catch (e) {
+      print('⚠️ Erreur de lecture de la clé de chiffrement: $e');
+      print('🚨 Réinitialisation du stockage sécurisé et de la base de données...');
+      
+      // En cas d'erreur (ex: clé Android Keystore invalidée), on réinitialise tout
+      await storage.deleteAll();
+      
+      // On supprime aussi la base de données qui ne pourra plus être déchiffrée
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dbFolder.path, 'budgetease_v4.db'));
+      if (await file.exists()) {
+        await file.delete();
+      }
     }
     
     // Générer une nouvelle clé sécurisée (256 bits)

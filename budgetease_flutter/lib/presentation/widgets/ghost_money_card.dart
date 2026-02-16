@@ -152,7 +152,7 @@ class GhostMoneyCard extends ConsumerWidget {
                       ref.invalidate(activeInsightsProvider);
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppColors.textTertiary),
+                      side: const BorderSide(color: AppColors.textTertiary),
                     ),
                     child: const Text('Compris'),
                   ),

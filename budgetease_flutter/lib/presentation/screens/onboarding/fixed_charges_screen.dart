@@ -100,7 +100,7 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.receipt_long_outlined,
                       size: 64,
                       color: AppColors.textTertiary,
@@ -289,7 +289,7 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<ChargeType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(labelText: 'Type'),
               items: ChargeType.values.map((type) {
                 return DropdownMenuItem(

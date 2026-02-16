@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/tables/transactions_table.dart';
-import '../../data/database/tables/recurring_charges_table.dart';
 import 'behavioral_profiler_service.dart';
 import 'income_predictor_service.dart';
 

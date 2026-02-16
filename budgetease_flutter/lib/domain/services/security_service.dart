@@ -65,18 +65,30 @@ class SecurityService {
 
   /// Activer la biométrie
   Future<void> enableBiometric() async {
-    await _storage.write(key: _biometricEnabledKey, value: 'true');
+    try {
+      await _storage.write(key: _biometricEnabledKey, value: 'true');
+    } catch (e) {
+      // Ignorer
+    }
   }
 
   /// Désactiver la biométrie
   Future<void> disableBiometric() async {
-    await _storage.write(key: _biometricEnabledKey, value: 'false');
+    try {
+      await _storage.write(key: _biometricEnabledKey, value: 'false');
+    } catch (e) {
+      // Ignorer
+    }
   }
 
   /// Vérifier si la biométrie est activée
   Future<bool> isBiometricEnabled() async {
-    final value = await _storage.read(key: _biometricEnabledKey);
-    return value == 'true';
+    try {
+      final value = await _storage.read(key: _biometricEnabledKey);
+      return value == 'true';
+    } catch (e) {
+      return false;
+    }
   }
 
   // ========== PIN ==========
@@ -88,41 +100,62 @@ class SecurityService {
     }
 
     final hashedPin = _hashPin(pin);
-    await _storage.write(key: _pinKey, value: hashedPin);
-    await _storage.write(key: _pinEnabledKey, value: 'true');
+    try {
+      await _storage.write(key: _pinKey, value: hashedPin);
+      await _storage.write(key: _pinEnabledKey, value: 'true');
+    } catch (e) {
+      throw Exception('Erreur lors de la sauvegarde du PIN');
+    }
   }
 
   /// Vérifier un PIN
   Future<bool> verifyPin(String pin) async {
-    final storedHash = await _storage.read(key: _pinKey);
-    if (storedHash == null) return false;
+    try {
+      final storedHash = await _storage.read(key: _pinKey);
+      if (storedHash == null) return false;
 
-    final hashedPin = _hashPin(pin);
-    final isValid = hashedPin == storedHash;
+      final hashedPin = _hashPin(pin);
+      final isValid = hashedPin == storedHash;
 
-    if (isValid) {
-      await _updateLastAuthTimestamp();
+      if (isValid) {
+        await _updateLastAuthTimestamp();
+      }
+
+      return isValid;
+    } catch (e) {
+      return false;
     }
-
-    return isValid;
   }
+
 
   /// Supprimer le PIN
   Future<void> removePin() async {
-    await _storage.delete(key: _pinKey);
-    await _storage.write(key: _pinEnabledKey, value: 'false');
+    try {
+      await _storage.delete(key: _pinKey);
+      await _storage.write(key: _pinEnabledKey, value: 'false');
+    } catch (e) {
+      // Ignorer les erreurs de suppression
+    }
   }
 
   /// Vérifier si un PIN est défini
   Future<bool> isPinSet() async {
-    final pin = await _storage.read(key: _pinKey);
-    return pin != null;
+    try {
+      final pin = await _storage.read(key: _pinKey);
+      return pin != null;
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Vérifier si le PIN est activé
   Future<bool> isPinEnabled() async {
-    final value = await _storage.read(key: _pinEnabledKey);
-    return value == 'true';
+    try {
+      final value = await _storage.read(key: _pinEnabledKey);
+      return value == 'true';
+    } catch (e) {
+      return false;
+    }
   }
 
   /// Hasher le PIN avec SHA-256
@@ -136,19 +169,27 @@ class SecurityService {
 
   /// Mettre à jour le timestamp de la dernière authentification
   Future<void> _updateLastAuthTimestamp() async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    await _storage.write(key: _lastAuthKey, value: timestamp);
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      await _storage.write(key: _lastAuthKey, value: timestamp);
+    } catch (e) {
+      // Ignorer
+    }
   }
 
   /// Obtenir le timestamp de la dernière authentification
   Future<DateTime?> getLastAuthTimestamp() async {
-    final value = await _storage.read(key: _lastAuthKey);
-    if (value == null) return null;
+    try {
+      final value = await _storage.read(key: _lastAuthKey);
+      if (value == null) return null;
 
-    final timestamp = int.tryParse(value);
-    if (timestamp == null) return null;
+      final timestamp = int.tryParse(value);
+      if (timestamp == null) return null;
 
-    return DateTime.fromMillisecondsSinceEpoch(timestamp);
+      return DateTime.fromMillisecondsSinceEpoch(timestamp);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Vérifier si l'application doit être verrouillée

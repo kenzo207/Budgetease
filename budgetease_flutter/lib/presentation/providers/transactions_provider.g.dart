@@ -7,7 +7,7 @@ part of 'transactions_provider.dart';
 // **************************************************************************
 
 String _$transactionsProviderHash() =>
-    r'b2a55ceddfcf9315206b024f922c7b7c188da39c';
+    r'd9a6d52ec510585ba1ae2fcf006596a616aa9949';
 
 /// Provider des transactions
 ///

@@ -122,7 +122,7 @@ class _LockScreenState extends State<LockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed
       body: SafeArea(
         child: Center(
           child: Column(
@@ -134,7 +134,7 @@ class _LockScreenState extends State<LockScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryColor.withOpacity(0.2),
+                  color: AppColors.primaryColor.withValues(alpha: 0.2),
                 ),
                 child: const Icon(
                   Icons.lock_outline,

@@ -1,6 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/accounts_table.dart';
 import '../../data/database/daos/accounts_dao.dart';
 
 part 'accounts_provider.g.dart';

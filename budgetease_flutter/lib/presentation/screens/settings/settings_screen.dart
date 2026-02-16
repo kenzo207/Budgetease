@@ -8,6 +8,9 @@ import '../onboarding/calibration_screen.dart';
 import '../transactions/pending_transactions_screen.dart';
 import 'categories_management_screen.dart';
 import '../../providers/border_color_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../providers/notification_provider.dart';
+import '../../providers/sms_parser_provider.dart';
 
 /// Écran des paramètres
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -44,7 +47,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final calibrationData = ref.watch(calibrationDataProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed to use theme
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -64,7 +67,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Text(
                       'Bonjour, ${calibrationData.userName} 👋',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textSecondary,
+                            // color: AppColors.textSecondary, // Removed to use theme
                           ),
                     ),
                   ],
@@ -105,6 +108,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Couleur des bordures',
                 subtitle: 'Personnaliser l\'apparence',
                 onTap: () => _showBorderColorPicker(context, ref),
+              ),
+
+              _buildSettingCard(
+                context,
+                icon: Icons.brightness_6_outlined,
+                title: 'Thème',
+                subtitle: _getThemeName(ref.watch(themeProviderProvider).valueOrNull),
+                onTap: () => _showThemePicker(context, ref),
               ),
 
               const SizedBox(height: 24),
@@ -150,6 +161,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Analyse SMS',
                 subtitle: 'Détection automatique des transactions',
                 trailing: Switch(
+                  value: _smsEnabled,
+                  onChanged: (value) async {
+                    setState(() => _smsEnabled = value);
+                    // TODO: Persist preference
+                    if (value) {
+                      try {
+                         await ref.read(pendingTransactionsProvider.notifier).scan();
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Erreur: $e')),
+                          );
+                          setState(() => _smsEnabled = false);
+                        }
+                      }
+                    }
+                  },
                 ),
               ),
 
@@ -278,7 +306,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primaryColor).withOpacity(0.2),
+            color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -630,25 +658,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ],
                   ),
                 ),
-                Switch(
-                  value: true,
-                  onChanged: (value) {
-                    // TODO: Save to settings
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(value ? 'Alertes budget activées' : 'Alertes budget désactivées'),
-                        backgroundColor: AppColors.accentColor,
-                      ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final settings = ref.watch(notificationSettingsProvider).valueOrNull ?? {};
+                    final enabled = settings['budget'] ?? true;
+                    return Switch(
+                      value: enabled,
+                      onChanged: (value) {
+                         ref.read(notificationSettingsProvider.notifier).toggleBudgetAlerts(value);
+                      },
                     );
-                  },
+                  }
                 ),
               ],
             ),
             
             const Divider(),
             
-            // Recurring charges reminder
+            // Daily check-in
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -657,36 +684,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Rappels charges récurrentes',
+                        'Check-in Quotidien',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Rappel avant les prélèvements',
+                        'Petit rappel le soir pour noter vos dépenses',
                         style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
                 ),
-                Switch(
-                  value: true,
-                  onChanged: (value) {
-                    // TODO: Save to settings
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(value ? 'Rappels activés' : 'Rappels désactivés'),
-                        backgroundColor: AppColors.accentColor,
-                      ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    final settings = ref.watch(notificationSettingsProvider).valueOrNull ?? {};
+                    final enabled = settings['daily'] ?? false;
+                    return Switch(
+                      value: enabled,
+                      onChanged: (value) {
+                         ref.read(notificationSettingsProvider.notifier).toggleDailyReminders(value);
+                      },
                     );
-                  },
+                  }
                 ),
               ],
-            ),
-            
-            const SizedBox(height: 8),
-            const Text(
-              'Note: Les notifications locales seront implémentées dans une prochaine version.',
-              style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -785,5 +805,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     }
+  }
+
+  String _getThemeName(ThemeMode? mode) {
+    if (mode == null) return 'Système';
+    switch (mode) {
+      case ThemeMode.system:
+        return 'Système';
+      case ThemeMode.light:
+        return 'Clair';
+      case ThemeMode.dark:
+        return 'Sombre';
+    }
+  }
+
+  void _showThemePicker(BuildContext context, WidgetRef ref) {
+    final currentmode = ref.read(themeProviderProvider).valueOrNull ?? ThemeMode.system;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choisir le thème'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<ThemeMode>(
+              title: const Text('Système'),
+              value: ThemeMode.system,
+              groupValue: currentmode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Clair'),
+              value: ThemeMode.light,
+              groupValue: currentmode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: const Text('Sombre'),
+              value: ThemeMode.dark,
+              groupValue: currentmode,
+              onChanged: (value) {
+                if (value != null) {
+                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+        ],
+      ),
+    );
   }
 }

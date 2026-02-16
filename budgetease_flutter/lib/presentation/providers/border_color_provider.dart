@@ -26,7 +26,7 @@ final borderColorProvider = FutureProvider<Color>((ref) async {
 final cardBorderProvider = FutureProvider<BorderSide>((ref) async {
   final color = await ref.watch(borderColorProvider.future);
   return BorderSide(
-    color: color.withOpacity(0.3),
+    color: color.withValues(alpha: 0.3),
     width: 1.5,
   );
 });

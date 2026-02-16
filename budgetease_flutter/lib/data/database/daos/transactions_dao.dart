@@ -9,7 +9,7 @@ part 'transactions_dao.g.dart';
 /// DAO pour la gestion des transactions
 @DriftAccessor(tables: [Transactions, Categories, Accounts])
 class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsDaoMixin {
-  TransactionsDao(AppDatabase db) : super(db);
+  TransactionsDao(super.db);
 
   /// Récupérer toutes les transactions
   Future<List<Transaction>> getAllTransactions() {

@@ -9,7 +9,6 @@ import '../screens/onboarding/calibration_screen.dart';
 import '../../data/database/tables/transactions_table.dart';
 import '../../data/database/tables/categories_table.dart';
 import '../../core/utils/ui_helpers.dart';
-import '../../data/database/tables/accounts_table.dart';
 import '../../services/analytics_service.dart';
 
 /// Bottom Sheet d'actions (FAB)
@@ -214,7 +213,11 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
                   final isSelected = _selectedCategoryId == category.id;
                   return FilterChip(
                     label: Text(category.name),
-                    avatar: Text(category.icon),
+                    avatar: Icon(
+                      UIHelpers.getIconForCategory(category.icon, category.type),
+                      size: 18,
+                      color: isSelected ? Colors.white : AppColors.primaryColor,
+                    ),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -226,7 +229,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),
@@ -240,7 +243,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _selectedAccountId,
+                initialValue: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -268,7 +271,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),
@@ -340,7 +343,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
   final _sourceController = TextEditingController();
   int? _selectedCategoryId;
   int? _selectedAccountId;
-  DateTime _selectedDate = DateTime.now();
+  final DateTime _selectedDate = DateTime.now();
   String _scopeType = 'global';
   int? _scopeDuration;
   bool _isSaving = false;
@@ -482,7 +485,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),
@@ -496,7 +499,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _selectedAccountId,
+                initialValue: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -524,7 +527,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),
@@ -725,7 +728,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _sourceAccountId,
+                initialValue: _sourceAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte source',
                 ),
@@ -753,7 +756,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),
@@ -767,7 +770,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _destAccountId,
+                initialValue: _destAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte destination',
                 ),
@@ -795,7 +798,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (_, __) => const Text('Erreur'),
+            error: (e, s) => const Text('Erreur'),
           ),
 
           const SizedBox(height: 24),

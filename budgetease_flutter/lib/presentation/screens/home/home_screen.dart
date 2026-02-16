@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/transactions_table.dart';
 import '../../providers/budget_provider.dart';
 import '../../providers/accounts_provider.dart';
@@ -43,11 +42,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final currency = ref.watch(calibrationDataProvider).currency;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
       body: RefreshIndicator(
         onRefresh: _refresh,
         color: AppColors.primaryColor,
-        backgroundColor: AppColors.surfaceColor,
+        backgroundColor: Theme.of(context).cardColor,
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
@@ -183,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         icon: Icons.calendar_today,
         color: AppColors.primaryColor,
       ),
-      error: (_, __) => _buildCard(
+      error: (e, s) => _buildCard(
         title: 'Budget Quotidien',
         amount: 'Erreur',
         icon: Icons.calendar_today,
@@ -213,7 +211,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         icon: Icons.account_balance_wallet,
         color: AppColors.accentColor,
       ),
-      error: (_, __) => _buildCard(
+      error: (e, s) => _buildCard(
         title: 'Solde Total',
         amount: 'Erreur',
         icon: Icons.account_balance_wallet,
@@ -249,7 +247,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(height: 16),
                   if (accounts.isEmpty)
                     const Expanded(
-                      child: Center(child: Text("Aucun compte")),
+                      child: Center(child: Text('Aucun compte')),
                     )
                   else
                     Expanded(
@@ -309,7 +307,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         icon: Icons.account_balance,
         color: AppColors.primaryColor,
       ),
-      error: (_, __) => _buildCard(
+      error: (e, s) => _buildCard(
         title: 'Mes Comptes',
         amount: 'Erreur',
         icon: Icons.account_balance,
@@ -410,7 +408,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: _getTransactionColor(transaction.type).withOpacity(0.2),
+                  backgroundColor: _getTransactionColor(transaction.type).withValues(alpha: 0.2),
                   child: Icon(
                     _getTransactionIcon(transaction.type),
                     color: _getTransactionColor(transaction.type),
@@ -442,7 +440,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: CircularProgressIndicator(),
         )),
       ),
-      error: (_, __) => const SliverToBoxAdapter(
+      error: (e, s) => const SliverToBoxAdapter(
         child: Center(child: Padding(
           padding: EdgeInsets.all(32.0),
           child: Text('Erreur de chargement des transactions'),

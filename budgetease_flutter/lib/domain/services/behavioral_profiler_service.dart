@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/transactions_table.dart';
 
 /// Service pour analyser le comportement de dépense de l'utilisateur
 class BehavioralProfilerService {
@@ -10,7 +9,7 @@ class BehavioralProfilerService {
   BehavioralProfilerService({required AppDatabase database}) : _database = database;
 
   /// Construire le profil comportemental (30 derniers jours)
-  Future<BehavioralProfile> buildProfile() async {
+  Future<BehavioralReport> buildProfile() async {
     final last30Days = DateTime.now().subtract(const Duration(days: 30));
 
     final recentTransactions = await (_database.select(_database.transactions)
@@ -35,7 +34,7 @@ class BehavioralProfilerService {
     // Déterminer niveau de conseil
     final advisoryLevel = _determineAdvisoryLevel(frequency, overrunCount);
 
-    return BehavioralProfile(
+    return BehavioralReport(
       spendingFrequency: frequency,
       hourlyPattern: hourlyPattern,
       overrunCount: overrunCount,
@@ -46,7 +45,7 @@ class BehavioralProfilerService {
   }
 
   /// Récupérer ou créer profil
-  Future<BehavioralProfile> getOrCreateProfile() async {
+  Future<BehavioralReport> getOrCreateProfile() async {
     final existing = await _database.select(_database.behavioralProfiles).getSingleOrNull();
 
     if (existing == null) {
@@ -63,11 +62,11 @@ class BehavioralProfilerService {
       return updated;
     }
 
-    return BehavioralProfile.fromDb(existing);
+    return BehavioralReport.fromDb(existing);
   }
 
   /// Sauvegarder profil
-  Future<void> _saveProfile(BehavioralProfile profile) async {
+  Future<void> _saveProfile(BehavioralReport profile) async {
     await _database.into(_database.behavioralProfiles).insert(
       BehavioralProfilesCompanion.insert(
         spendingFrequency: profile.spendingFrequency,
@@ -82,7 +81,7 @@ class BehavioralProfilerService {
   }
 
   /// Mettre à jour profil
-  Future<void> _updateProfile(int id, BehavioralProfile profile) async {
+  Future<void> _updateProfile(int id, BehavioralReport profile) async {
     await (_database.update(_database.behavioralProfiles)
           ..where((p) => p.id.equals(id)))
         .write(
@@ -139,7 +138,7 @@ class BehavioralProfilerService {
 }
 
 /// Modèle Behavioral Profile
-class BehavioralProfile {
+class BehavioralReport {
   final double spendingFrequency;
   final Map<int, int> hourlyPattern;
   final int overrunCount;
@@ -147,7 +146,7 @@ class BehavioralProfile {
   final String advisoryLevel;
   final DateTime lastUpdated;
 
-  BehavioralProfile({
+  BehavioralReport({
     required this.spendingFrequency,
     required this.hourlyPattern,
     required this.overrunCount,
@@ -156,8 +155,8 @@ class BehavioralProfile {
     required this.lastUpdated,
   });
 
-  factory BehavioralProfile.fromDb(BehavioralProfile dbProfile) {
-    return BehavioralProfile(
+  factory BehavioralReport.fromDb(BehavioralProfile dbProfile) {
+    return BehavioralReport(
       spendingFrequency: dbProfile.spendingFrequency,
       hourlyPattern: Map<int, int>.from(
         jsonDecode(dbProfile.hourlyPattern.toString()) as Map

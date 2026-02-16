@@ -58,9 +58,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.surfaceColor,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         selectedItemColor: AppColors.primaryColor,
-        unselectedItemColor: Colors.white38,
+        unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
-import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/transactions_table.dart'; // For TransactionType enum
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
@@ -27,7 +26,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final categoriesAsync = ref.watch(categoriesProviderProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed to use theme
       body: SafeArea(
         child: Column(
           children: [
@@ -189,7 +188,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                   currency,
                                   category.type,
                                 );
-                              }).toList(),
+                              }),
                             ] else ...[
                               Center(
                                 child: Column(
@@ -198,7 +197,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                     Icon(
                                       Icons.pie_chart_outline,
                                       size: 64,
-                                      color: AppColors.textSecondary.withOpacity(0.5),
+                                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
@@ -218,7 +217,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       );
                     },
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (_, __) => const Center(child: Text('Erreur de chargement')),
+                    error: (e, s) => const Center(child: Text('Erreur de chargement')),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),

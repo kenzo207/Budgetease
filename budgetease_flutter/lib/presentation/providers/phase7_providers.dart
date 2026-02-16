@@ -43,7 +43,7 @@ final advisoryServiceProvider = Provider<AdvisoryService>((ref) {
 // ========== Income Predictor Providers ==========
 
 /// Pattern d'analyse des revenus
-final incomePatternProvider = FutureProvider<IncomePattern>((ref) async {
+final incomePatternProvider = FutureProvider<IncomeAnalysis>((ref) async {
   final service = ref.watch(incomePredictorServiceProvider);
   return await service.analyzeIncomePattern();
 });
@@ -89,7 +89,7 @@ final activeInsightsProvider = FutureProvider<List<Insight>>((ref) async {
 // ========== Behavioral Profile Providers ==========
 
 /// Profil comportemental
-final behavioralProfileProvider = FutureProvider<BehavioralProfile>((ref) async {
+final behavioralProfileProvider = FutureProvider<BehavioralReport>((ref) async {
   final service = ref.watch(behavioralProfilerServiceProvider);
   return await service.getOrCreateProfile();
 });

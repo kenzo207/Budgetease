@@ -139,7 +139,7 @@ class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -194,13 +194,13 @@ class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMix
                       shape: BoxShape.circle,
                       color: index < _pin.length
                           ? (_isError ? AppColors.errorColor : AppColors.primaryColor)
-                          : AppColors.surfaceColor,
+                          : Theme.of(context).dividerColor,
                       border: Border.all(
                         color: _isError
                             ? AppColors.errorColor
                             : (index < _pin.length
                                 ? AppColors.primaryColor
-                                : AppColors.textTertiary),
+                                : Theme.of(context).dividerColor),
                         width: 2,
                       ),
                     ),
@@ -287,7 +287,7 @@ class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMix
         height: 80,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.surfaceColor,
+          color: Theme.of(context).cardColor,
         ),
         child: Center(child: child),
       ),

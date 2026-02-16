@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../services/analytics_service.dart';
 import 'welcome_screen.dart';
 import 'calibration_screen.dart';
 import 'financial_rhythm_screen.dart';
@@ -33,6 +34,8 @@ class OnboardingController extends StateNotifier<int> {
   }
 }
 
+
+
 final onboardingControllerProvider =
     StateNotifierProvider<OnboardingController, int>((ref) {
   return OnboardingController();
@@ -46,6 +49,13 @@ class OnboardingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentStep = ref.watch(onboardingControllerProvider);
 
+    // Track step view
+    ref.listen(onboardingControllerProvider, (previous, next) {
+      ref.read(analyticsServiceProvider).capture('onboarding_step_viewed', properties: {
+        'step_index': next,
+      });
+    });
+
     final screens = [
       const WelcomeScreen(),
       const CalibrationScreen(),
@@ -58,12 +68,12 @@ class OnboardingScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      // backgroundColor: AppColors.backgroundColor, // Removed
       body: SafeArea(
         child: Column(
           children: [
             // Progress indicator
-            _buildProgressIndicator(currentStep),
+            _buildProgressIndicator(context, currentStep),
             
             // Current screen
             Expanded(
@@ -75,7 +85,7 @@ class OnboardingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProgressIndicator(int currentStep) {
+  Widget _buildProgressIndicator(BuildContext context, int currentStep) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
@@ -90,7 +100,7 @@ class OnboardingScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isCompleted || isCurrent
                     ? AppColors.primaryColor
-                    : AppColors.surfaceColor,
+                    : Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

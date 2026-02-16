@@ -2,8 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/pending_transactions_table.dart';
-import '../../data/database/tables/accounts_table.dart';
 
 /// Service de parsing des SMS Mobile Money
 class SmsParserService {
@@ -16,7 +14,7 @@ class SmsParserService {
   Future<int> scanAndParseSms() async {
     final status = await Permission.sms.request();
     if (!status.isGranted) {
-      throw Exception("Permission SMS refusée");
+      throw Exception('Permission SMS refusée');
     }
 
     final messages = await _query.querySms(
@@ -33,7 +31,7 @@ class SmsParserService {
       if (parsed != null) {
         // Vérifier si la transaction existe déjà
         final exists = await (_database.select(_database.pendingTransactions)
-              ..where((t) => t.rawSms.equals(parsed.rawSms) & t.smsDate.equals(parsed.smsDate)))
+              ..where((t) => t.rawSms.equals(parsed.rawSms.value) & t.smsDate.equals(parsed.smsDate.value)))
             .getSingleOrNull();
 
         if (exists == null) {

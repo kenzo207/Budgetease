@@ -48,7 +48,7 @@ class DynamicCard extends ConsumerWidget {
             ? Padding(padding: padding!, child: child)
             : child,
       ),
-      error: (_, __) => Card(
+      error: (e, s) => Card(
         margin: margin,
         elevation: elevation ?? 0,
         child: padding != null

@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/settings_table.dart';
 
 part 'settings_provider.g.dart';
 
@@ -22,7 +21,7 @@ class SettingsProvider extends _$SettingsProvider {
 
     final database = AppDatabase();
     await (database.update(database.settings)
-          ..where((s) => s.id.equals(current.id!)))
+          ..where((s) => s.id.equals(current.id)))
         .write(
       SettingsCompanion(
         discreteModeEnabled: Value(!current.discreteModeEnabled),

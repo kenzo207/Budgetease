@@ -7,7 +7,7 @@ part 'categories_dao.g.dart';
 /// DAO pour la gestion des catégories
 @DriftAccessor(tables: [Categories])
 class CategoriesDao extends DatabaseAccessor<AppDatabase> with _$CategoriesDaoMixin {
-  CategoriesDao(AppDatabase db) : super(db);
+  CategoriesDao(super.db);
 
   /// Récupérer toutes les catégories
   Future<List<Category>> getAllCategories() => select(categories).get();

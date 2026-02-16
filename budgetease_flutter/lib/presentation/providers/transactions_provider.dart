@@ -6,6 +6,7 @@ import '../../data/database/daos/transactions_dao.dart';
 import '../../data/database/daos/accounts_dao.dart';
 import '../providers/accounts_provider.dart';
 import '../providers/budget_provider.dart';
+import '../providers/notification_provider.dart';
 
 part 'transactions_provider.g.dart';
 
@@ -66,6 +67,32 @@ class TransactionsProvider extends _$TransactionsProvider {
     ref.invalidateSelf();
     ref.invalidate(accountsProviderProvider);
     ref.invalidate(budgetProviderProvider);
+
+    // Check budget for alerts
+    if (type == TransactionType.expense) {
+      final notificationSettings = await ref.read(notificationSettingsProvider.future);
+      if (notificationSettings['budget'] == true) { // Only if enabled
+        final dailyBudget = await ref.read(budgetProviderProvider.future);
+        
+        if (dailyBudget < 0) {
+          final notificationService = ref.read(notificationServiceProvider);
+          await notificationService.showBudgetAlert(
+            categoryName: 'Budget Quotidien',
+            spentPercentage: 1.0 + (amount / (dailyBudget.abs() + amount)),
+            remainingAmount: dailyBudget,
+            currency: 'FCFA',
+          );
+        } else if (amount > dailyBudget * 0.8) {
+           final notificationService = ref.read(notificationServiceProvider);
+           await notificationService.showBudgetAlert(
+            categoryName: 'Dépense Importante',
+            spentPercentage: 0.85,
+            remainingAmount: dailyBudget,
+            currency: 'FCFA',
+          );
+        }
+      }
+    }
   }
 
   Future<void> _updateAccountBalances({

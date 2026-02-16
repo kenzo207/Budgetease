@@ -3205,6 +3205,16 @@ class $SettingsTable extends Settings
     requiredDuringInsert: false,
     defaultValue: const Constant('#4CAF50'),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<ThemeModePreference, int>
+  themeMode = GeneratedColumn<int>(
+    'theme_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  ).withConverter<ThemeModePreference>($SettingsTable.$converterthemeMode);
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -3244,6 +3254,7 @@ class $SettingsTable extends Settings
     savingsGoal,
     onboardingCompleted,
     borderColor,
+    themeMode,
     createdAt,
     updatedAt,
   ];
@@ -3452,6 +3463,12 @@ class $SettingsTable extends Settings
         DriftSqlType.string,
         data['${effectivePrefix}border_color'],
       ),
+      themeMode: $SettingsTable.$converterthemeMode.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}theme_mode'],
+        )!,
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -3472,6 +3489,8 @@ class $SettingsTable extends Settings
       const EnumIndexConverter<FinancialCycle>(FinancialCycle.values);
   static JsonTypeConverter2<TransportMode, int, int> $convertertransportMode =
       const EnumIndexConverter<TransportMode>(TransportMode.values);
+  static JsonTypeConverter2<ThemeModePreference, int, int> $converterthemeMode =
+      const EnumIndexConverter<ThemeModePreference>(ThemeModePreference.values);
 }
 
 class UserSettings extends DataClass implements Insertable<UserSettings> {
@@ -3490,6 +3509,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
   final double savingsGoal;
   final bool onboardingCompleted;
   final String? borderColor;
+  final ThemeModePreference themeMode;
   final DateTime createdAt;
   final DateTime updatedAt;
   const UserSettings({
@@ -3508,6 +3528,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     required this.savingsGoal,
     required this.onboardingCompleted,
     this.borderColor,
+    required this.themeMode,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -3545,6 +3566,11 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     if (!nullToAbsent || borderColor != null) {
       map['border_color'] = Variable<String>(borderColor);
     }
+    {
+      map['theme_mode'] = Variable<int>(
+        $SettingsTable.$converterthemeMode.toSql(themeMode),
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -3575,6 +3601,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       borderColor: borderColor == null && nullToAbsent
           ? const Value.absent()
           : Value(borderColor),
+      themeMode: Value(themeMode),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -3615,6 +3642,9 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
         json['onboardingCompleted'],
       ),
       borderColor: serializer.fromJson<String?>(json['borderColor']),
+      themeMode: $SettingsTable.$converterthemeMode.fromJson(
+        serializer.fromJson<int>(json['themeMode']),
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -3642,6 +3672,9 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       'savingsGoal': serializer.toJson<double>(savingsGoal),
       'onboardingCompleted': serializer.toJson<bool>(onboardingCompleted),
       'borderColor': serializer.toJson<String?>(borderColor),
+      'themeMode': serializer.toJson<int>(
+        $SettingsTable.$converterthemeMode.toJson(themeMode),
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -3663,6 +3696,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     double? savingsGoal,
     bool? onboardingCompleted,
     Value<String?> borderColor = const Value.absent(),
+    ThemeModePreference? themeMode,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => UserSettings(
@@ -3687,6 +3721,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     savingsGoal: savingsGoal ?? this.savingsGoal,
     onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
     borderColor: borderColor.present ? borderColor.value : this.borderColor,
+    themeMode: themeMode ?? this.themeMode,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -3731,6 +3766,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       borderColor: data.borderColor.present
           ? data.borderColor.value
           : this.borderColor,
+      themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -3754,6 +3790,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
           ..write('savingsGoal: $savingsGoal, ')
           ..write('onboardingCompleted: $onboardingCompleted, ')
           ..write('borderColor: $borderColor, ')
+          ..write('themeMode: $themeMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3777,6 +3814,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     savingsGoal,
     onboardingCompleted,
     borderColor,
+    themeMode,
     createdAt,
     updatedAt,
   );
@@ -3799,6 +3837,7 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
           other.savingsGoal == this.savingsGoal &&
           other.onboardingCompleted == this.onboardingCompleted &&
           other.borderColor == this.borderColor &&
+          other.themeMode == this.themeMode &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -3819,6 +3858,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
   final Value<double> savingsGoal;
   final Value<bool> onboardingCompleted;
   final Value<String?> borderColor;
+  final Value<ThemeModePreference> themeMode;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const SettingsCompanion({
@@ -3837,6 +3877,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     this.savingsGoal = const Value.absent(),
     this.onboardingCompleted = const Value.absent(),
     this.borderColor = const Value.absent(),
+    this.themeMode = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -3856,6 +3897,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     this.savingsGoal = const Value.absent(),
     this.onboardingCompleted = const Value.absent(),
     this.borderColor = const Value.absent(),
+    this.themeMode = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
   }) : userName = Value(userName),
@@ -3879,6 +3921,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     Expression<double>? savingsGoal,
     Expression<bool>? onboardingCompleted,
     Expression<String>? borderColor,
+    Expression<int>? themeMode,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -3903,6 +3946,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
       if (onboardingCompleted != null)
         'onboarding_completed': onboardingCompleted,
       if (borderColor != null) 'border_color': borderColor,
+      if (themeMode != null) 'theme_mode': themeMode,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -3924,6 +3968,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     Value<double>? savingsGoal,
     Value<bool>? onboardingCompleted,
     Value<String?>? borderColor,
+    Value<ThemeModePreference>? themeMode,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -3943,6 +3988,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
       savingsGoal: savingsGoal ?? this.savingsGoal,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       borderColor: borderColor ?? this.borderColor,
+      themeMode: themeMode ?? this.themeMode,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -4004,6 +4050,11 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     if (borderColor.present) {
       map['border_color'] = Variable<String>(borderColor.value);
     }
+    if (themeMode.present) {
+      map['theme_mode'] = Variable<int>(
+        $SettingsTable.$converterthemeMode.toSql(themeMode.value),
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -4031,6 +4082,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
           ..write('savingsGoal: $savingsGoal, ')
           ..write('onboardingCompleted: $onboardingCompleted, ')
           ..write('borderColor: $borderColor, ')
+          ..write('themeMode: $themeMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -8174,6 +8226,7 @@ typedef $$SettingsTableCreateCompanionBuilder =
       Value<double> savingsGoal,
       Value<bool> onboardingCompleted,
       Value<String?> borderColor,
+      Value<ThemeModePreference> themeMode,
       required DateTime createdAt,
       required DateTime updatedAt,
     });
@@ -8194,6 +8247,7 @@ typedef $$SettingsTableUpdateCompanionBuilder =
       Value<double> savingsGoal,
       Value<bool> onboardingCompleted,
       Value<String?> borderColor,
+      Value<ThemeModePreference> themeMode,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -8282,6 +8336,12 @@ class $$SettingsTableFilterComposer
   ColumnFilters<String> get borderColor => $composableBuilder(
     column: $table.borderColor,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ThemeModePreference, ThemeModePreference, int>
+  get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
@@ -8379,6 +8439,11 @@ class $$SettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -8470,6 +8535,9 @@ class $$SettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumnWithTypeConverter<ThemeModePreference, int> get themeMode =>
+      $composableBuilder(column: $table.themeMode, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -8523,6 +8591,7 @@ class $$SettingsTableTableManager
                 Value<double> savingsGoal = const Value.absent(),
                 Value<bool> onboardingCompleted = const Value.absent(),
                 Value<String?> borderColor = const Value.absent(),
+                Value<ThemeModePreference> themeMode = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => SettingsCompanion(
@@ -8541,6 +8610,7 @@ class $$SettingsTableTableManager
                 savingsGoal: savingsGoal,
                 onboardingCompleted: onboardingCompleted,
                 borderColor: borderColor,
+                themeMode: themeMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -8561,6 +8631,7 @@ class $$SettingsTableTableManager
                 Value<double> savingsGoal = const Value.absent(),
                 Value<bool> onboardingCompleted = const Value.absent(),
                 Value<String?> borderColor = const Value.absent(),
+                Value<ThemeModePreference> themeMode = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
               }) => SettingsCompanion.insert(
@@ -8579,6 +8650,7 @@ class $$SettingsTableTableManager
                 savingsGoal: savingsGoal,
                 onboardingCompleted: onboardingCompleted,
                 borderColor: borderColor,
+                themeMode: themeMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

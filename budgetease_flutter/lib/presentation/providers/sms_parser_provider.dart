@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/services/sms_parser_service.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/pending_transactions_table.dart';
 
 part 'sms_parser_provider.g.dart';
 

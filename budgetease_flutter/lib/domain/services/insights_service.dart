@@ -19,18 +19,27 @@ class InsightsService {
     final now = DateTime.now();
     final weekAgo = now.subtract(const Duration(days: 7));
 
-    // Micro-dépenses de la semaine
-    final microExpenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.amount.isSmallerOrEqualValue(microExpenseThreshold) &
-              t.date.isBiggerThanValue(weekAgo)))
-        .get();
+    // Micro-dépenses de la semaine (avec jointure catégorie)
+    // Nous devons utiliser une requête join pour obtenir le nom de la catégorie
+    final query = _database.select(_database.transactions).join([
+      innerJoin(_database.categories, _database.categories.id.equalsExp(_database.transactions.categoryId))
+    ]);
+    
+    query.where(
+      _database.transactions.type.equals(TransactionType.expense.index) &
+      _database.transactions.amount.isSmallerOrEqualValue(microExpenseThreshold) &
+      _database.transactions.date.isBiggerThanValue(weekAgo)
+    );
 
-    if (microExpenses.length < minTransactionCount) return null;
+    final results = await query.get();
 
-    final total = microExpenses.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final categories = microExpenses.map((t) => t.category).toSet().toList();
+    if (results.length < minTransactionCount) return null;
+
+    final total = results.fold<double>(0.0, (sum, row) => sum + row.readTable(_database.transactions).amount);
+    final categories = results
+        .map((row) => row.readTable(_database.categories).name)
+        .toSet()
+        .toList();
 
     // Calculer impact vs budget disponible
     final availableBudget = await _getAvailableBudget();
@@ -42,7 +51,7 @@ class InsightsService {
 
     return GhostMoneyInsight(
       totalAmount: total,
-      transactionCount: microExpenses.length,
+      transactionCount: results.length,
       categories: categories,
       percentageOfAvailable: impact,
       detectedAt: now,

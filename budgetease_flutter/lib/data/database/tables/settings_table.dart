@@ -15,6 +15,13 @@ enum TransportMode {
   none,       // Pas de transport
 }
 
+/// Préférence de thème
+enum ThemeModePreference {
+  system,
+  light,
+  dark,
+}
+
 /// Table des paramètres utilisateur
 @DataClassName('UserSettings')
 class Settings extends Table {
@@ -47,6 +54,7 @@ class Settings extends Table {
   
   // Theme
   TextColumn get borderColor => text().withDefault(const Constant('#4CAF50')).nullable()();
+  IntColumn get themeMode => intEnum<ThemeModePreference>().withDefault(const Constant(0))(); // 0=System, 1=Light, 2=Dark
   
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'dart:io';
 import 'dart:ffi';
 import 'package:sqlite3/open.dart';
 import 'config/theme.dart';
 import 'presentation/providers/security_provider.dart';
+import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/auth/lock_screen.dart';
 import 'presentation/screens/onboarding/onboarding_screen.dart';
 import 'presentation/screens/main_screen.dart';
 import 'data/database/app_database.dart';
+import 'domain/services/notification_service.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'services/analytics_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,11 +29,11 @@ void main() async {
   final database = AppDatabase();
   
   runApp(
-    ProviderScope(
+    const ProviderScope(
       overrides: [
         // Ajouter les overrides si nécessaire
       ],
-      child: const BudgetEaseApp(),
+      child: BudgetEaseApp(),
     ),
   );
 }
@@ -40,10 +43,21 @@ class BudgetEaseApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProviderProvider);
+
     return MaterialApp(
       title: 'Zolt',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode.when(
+        data: (mode) => mode,
+        loading: () => ThemeMode.system,
+        error: (e, s) => ThemeMode.system,
+      ),
+      navigatorObservers: [
+        PosthogObserver(),
+      ],
       home: const AppInitializer(),
     );
   }
@@ -58,6 +72,20 @@ class AppInitializer extends ConsumerStatefulWidget {
 }
 
 class _AppInitializerState extends ConsumerState<AppInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    final service = NotificationService();
+    await service.initialize();
+    
+    // Track App Open
+    await ref.read(analyticsServiceProvider).capture('app_opened');
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);

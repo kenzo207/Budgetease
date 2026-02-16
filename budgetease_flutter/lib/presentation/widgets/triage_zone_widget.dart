@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_constants.dart';
-import '../../data/database/tables/pending_transactions_table.dart';
 import '../../data/database/tables/transactions_table.dart';
 import '../../data/database/tables/categories_table.dart';
 import '../../data/database/app_database.dart';
@@ -27,7 +26,7 @@ class TriageZoneWidget extends ConsumerWidget {
 
         return Card(
           margin: const EdgeInsets.all(16),
-          color: AppColors.warningColor.withOpacity(0.1),
+          color: AppColors.warningColor.withValues(alpha: 0.1),
           child: InkWell(
             onTap: () {
               _showTriageDialog(context, ref, pending);
@@ -41,7 +40,7 @@ class TriageZoneWidget extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.warningColor.withOpacity(0.2),
+                      color: AppColors.warningColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -74,7 +73,7 @@ class TriageZoneWidget extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (e, s) => const SizedBox.shrink(),
     );
   }
 
@@ -281,7 +280,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                             label: Text(category.name),
                             avatar: Text(category.icon),
                             onPressed: () => _qualifyAsIncome(category.id),
-                            backgroundColor: AppColors.accentColor.withOpacity(0.2),
+                            backgroundColor: AppColors.accentColor.withValues(alpha: 0.2),
                           );
                         }).toList(),
                       ),
@@ -290,7 +289,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, __) => const Text('Erreur de chargement'),
+              error: (e, s) => const Text('Erreur de chargement'),
             ),
           ),
 

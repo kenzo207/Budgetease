@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/constants/app_constants.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../providers/sms_parser_provider.dart';
-import '../../providers/transactions_provider.dart'; // To add real transaction
-import '../../data/database/app_database.dart'; // For PendingTransaction type
-import '../../core/utils/formatters.dart'; // For money format
-import '../widgets/action_bottom_sheet.dart'; // Reuse for adding transaction details?
+// To add real transaction
+import '../../../data/database/app_database.dart'; // For PendingTransaction type
+import '../../../core/utils/formatters.dart'; // For money format
+// Reuse for adding transaction details?
 
 class PendingTransactionsScreen extends ConsumerWidget {
   const PendingTransactionsScreen({super.key});
@@ -17,7 +17,7 @@ class PendingTransactionsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions SMS détectées'),
-        backgroundColor: AppColors.backgroundColor,
+        // backgroundColor: AppColors.backgroundColor, // Removed
         elevation: 0,
         actions: [
           IconButton(

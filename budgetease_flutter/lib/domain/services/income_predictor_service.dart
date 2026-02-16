@@ -9,7 +9,7 @@ class IncomePredictorService {
   IncomePredictorService({required AppDatabase database}) : _database = database;
 
   /// Analyser les patterns de revenus (90 derniers jours par défaut)
-  Future<IncomePattern> analyzeIncomePattern({int windowDays = 90}) async {
+  Future<IncomeAnalysis> analyzeIncomePattern({int windowDays = 90}) async {
     final now = DateTime.now();
     final windowStart = now.subtract(Duration(days: windowDays));
 
@@ -22,7 +22,7 @@ class IncomePredictorService {
         .get();
 
     if (incomes.isEmpty) {
-      return IncomePattern(
+      return IncomeAnalysis(
         estimatedWeeklyIncome: 0.0,
         minimumObserved: 0.0,
         maximumObserved: 0.0,
@@ -51,7 +51,7 @@ class IncomePredictorService {
     // Détecter fréquence
     final frequency = _detectFrequency(incomes);
 
-    return IncomePattern(
+    return IncomeAnalysis(
       estimatedWeeklyIncome: weightedAvg,
       minimumObserved: min,
       maximumObserved: max,
@@ -219,8 +219,8 @@ class IncomePredictorService {
   }
 }
 
-/// Modèle de résultat d'analyse de pattern de revenus
-class IncomePattern {
+/// Modèle de r??sultat d'analyse de pattern de revenus
+class IncomeAnalysis {
   final double estimatedWeeklyIncome;
   final double minimumObserved;
   final double maximumObserved;
@@ -230,7 +230,7 @@ class IncomePattern {
   final int transactionCount;
   final String frequency; // daily, weekly, biweekly, monthly, irregular, unknown
 
-  IncomePattern({
+  IncomeAnalysis({
     required this.estimatedWeeklyIncome,
     required this.minimumObserved,
     required this.maximumObserved,

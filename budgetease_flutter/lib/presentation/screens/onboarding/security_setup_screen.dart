@@ -117,7 +117,7 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryColor.withValues(alpha: 0.2),
+                color: AppColors.primaryColor.withOpacity(0.2),
               ),
               child: const Icon(
                 Icons.lock_outline,
@@ -133,10 +133,10 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.warningColor.withValues(alpha: 0.1),
+              color: AppColors.warningColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.warningColor.withValues(alpha: 0.3),
+                color: AppColors.warningColor.withOpacity(0.3),
               ),
             ),
             child: Row(

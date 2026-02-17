@@ -243,7 +243,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                initialValue: _selectedAccountId,
+                value: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -499,7 +499,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                initialValue: _selectedAccountId,
+                value: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -728,7 +728,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                initialValue: _sourceAccountId,
+                value: _sourceAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte source',
                 ),
@@ -770,7 +770,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                initialValue: _destAccountId,
+                value: _destAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte destination',
                 ),

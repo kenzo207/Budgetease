@@ -170,7 +170,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                   Icon(
                                     Icons.receipt_long_outlined,
                                     size: 64,
-                                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                                    color: AppColors.textSecondary.withOpacity(0.5),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -298,7 +298,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: UIHelpers.getCategoryColor(category.type).withValues(alpha: 0.2),
+              color: UIHelpers.getCategoryColor(category.type).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(

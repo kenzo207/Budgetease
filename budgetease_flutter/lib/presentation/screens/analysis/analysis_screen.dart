@@ -197,7 +197,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                     Icon(
                                       Icons.pie_chart_outline,
                                       size: 64,
-                                      color: AppColors.textSecondary.withValues(alpha: 0.5),
+                                      color: AppColors.textSecondary.withOpacity(0.5),
                                     ),
                                     const SizedBox(height: 16),
                                     Text(

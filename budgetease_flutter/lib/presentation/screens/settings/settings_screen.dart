@@ -306,7 +306,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
+            color: (iconColor ?? AppColors.primaryColor).withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(

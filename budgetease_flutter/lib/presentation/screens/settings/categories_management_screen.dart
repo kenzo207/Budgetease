@@ -82,7 +82,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: UIHelpers.getCategoryColor(category.type).withValues(alpha: 0.2),
+            color: UIHelpers.getCategoryColor(category.type).withOpacity(0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -131,7 +131,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<CategoryType>(
-                initialValue: selectedType,
+                value: selectedType,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: const [
                   DropdownMenuItem(

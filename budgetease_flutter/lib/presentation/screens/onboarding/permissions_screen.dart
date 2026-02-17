@@ -243,7 +243,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accentColor.withValues(alpha: 0.2),
+                color: AppColors.accentColor.withOpacity(0.2),
               ),
               child: const Icon(
                 Icons.sms_outlined,

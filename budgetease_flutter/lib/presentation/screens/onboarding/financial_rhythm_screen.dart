@@ -74,7 +74,7 @@ class FinancialRhythmScreen extends ConsumerWidget {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
                   color: isSelected
-                      ? AppColors.primaryColor.withValues(alpha: 0.2)
+                      ? AppColors.primaryColor.withOpacity(0.2)
                       : null,
                   child: InkWell(
                     onTap: () {

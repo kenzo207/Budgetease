@@ -408,7 +408,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: _getTransactionColor(transaction.type).withValues(alpha: 0.2),
+                  backgroundColor: _getTransactionColor(transaction.type).withOpacity(0.2),
                   child: Icon(
                     _getTransactionIcon(transaction.type),
                     color: _getTransactionColor(transaction.type),

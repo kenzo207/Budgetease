@@ -152,7 +152,7 @@ class _AccountsInventoryScreenState
             color: AppColors.surfaceColor,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 10,
                 offset: const Offset(0, -2),
               ),
@@ -225,7 +225,7 @@ class _AccountsInventoryScreenState
               const SizedBox(height: 8),
               if (hasOperator)
                 DropdownButtonFormField<String>(
-                  initialValue: _selectedMobileOperator,
+                  value: _selectedMobileOperator,
                   decoration: const InputDecoration(
                     labelText: 'Opérateur',
                   ),

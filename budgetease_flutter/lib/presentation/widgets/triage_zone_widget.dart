@@ -26,7 +26,7 @@ class TriageZoneWidget extends ConsumerWidget {
 
         return Card(
           margin: const EdgeInsets.all(16),
-          color: AppColors.warningColor.withValues(alpha: 0.1),
+          color: AppColors.warningColor.withOpacity(0.1),
           child: InkWell(
             onTap: () {
               _showTriageDialog(context, ref, pending);
@@ -40,7 +40,7 @@ class TriageZoneWidget extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.warningColor.withValues(alpha: 0.2),
+                      color: AppColors.warningColor.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -280,7 +280,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                             label: Text(category.name),
                             avatar: Text(category.icon),
                             onPressed: () => _qualifyAsIncome(category.id),
-                            backgroundColor: AppColors.accentColor.withValues(alpha: 0.2),
+                            backgroundColor: AppColors.accentColor.withOpacity(0.2),
                           );
                         }).toList(),
                       ),

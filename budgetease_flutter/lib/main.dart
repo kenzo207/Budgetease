@@ -11,7 +11,7 @@ import 'presentation/screens/onboarding/onboarding_screen.dart';
 import 'presentation/screens/main_screen.dart';
 import 'data/database/app_database.dart';
 import 'domain/services/notification_service.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
+// import 'package:posthog_flutter/posthog_flutter.dart';
 import 'services/analytics_service.dart';
 
 void main() async {
@@ -56,7 +56,7 @@ class BudgetEaseApp extends ConsumerWidget {
         error: (e, s) => ThemeMode.system,
       ),
       navigatorObservers: [
-        PosthogObserver(),
+        // PosthogObserver(), // Removed due to build conflict
       ],
       home: const AppInitializer(),
     );

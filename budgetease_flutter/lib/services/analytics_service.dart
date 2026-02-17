@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
+// import 'package:posthog_flutter/posthog_flutter.dart';
 
 /// Provider for the Analytics Service
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
@@ -8,26 +8,21 @@ final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
 });
 
 class AnalyticsService {
-  final Posthog _posthog = Posthog();
+  // final Posthog _posthog = Posthog();
 
   /// Initialize analytics (call in main.dart)
   Future<void> init() async {
-    // PostHog is mainly configured via AndroidManifest.xml / Info.plist
-    // or passing options here if using the latest SDK versions.
-    // For now, we rely on the native configuration or default no-op if missing.
+    // PostHog temporarily disabled due to Gradle build conflict
   }
 
   /// Track a specific user event
   Future<void> capture(String eventName, {Map<String, dynamic>? properties}) async {
     try {
       if (kDebugMode) {
-        print('📊 Analytics Event: $eventName | Properties: $properties');
+        print('📊 Analytics Event (Mock): $eventName | Properties: $properties');
       }
-      // Cast properties to Map<String, Object> to satisfy PostHog strict typing
-      // We use Map.from to create a new map if needed, or cast if compatible.
-      final safeProperties = properties?.map((key, value) => MapEntry(key, value as Object));
       
-      await _posthog.capture(eventName: eventName, properties: safeProperties);
+      // await _posthog.capture(eventName: eventName, properties: safeProperties);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ Analytics Error: $e');
@@ -39,11 +34,10 @@ class AnalyticsService {
   Future<void> screen(String screenName, {Map<String, dynamic>? properties}) async {
     try {
       if (kDebugMode) {
-        print('📱 Analytics Screen: $screenName | Properties: $properties');
+        print('📱 Analytics Screen (Mock): $screenName | Properties: $properties');
       }
       
-      final safeProperties = properties?.map((key, value) => MapEntry(key, value as Object));
-      await _posthog.screen(screenName: screenName, properties: safeProperties);
+      // await _posthog.screen(screenName: screenName, properties: safeProperties);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ Analytics Error: $e');

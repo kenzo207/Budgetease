@@ -281,7 +281,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                     ),
                 ],
               ),
-              ?child,
+              if (child != null) child,
             ],
           ),
         ),

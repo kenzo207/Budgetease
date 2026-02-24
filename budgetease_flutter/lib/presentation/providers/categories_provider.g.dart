@@ -13,19 +13,16 @@ String _$categoriesProviderHash() =>
 ///
 /// Copied from [CategoriesProvider].
 @ProviderFor(CategoriesProvider)
-final categoriesProviderProvider =
-    AutoDisposeAsyncNotifierProvider<
-      CategoriesProvider,
-      List<Category>
-    >.internal(
-      CategoriesProvider.new,
-      name: r'categoriesProviderProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$categoriesProviderHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final categoriesProviderProvider = AutoDisposeAsyncNotifierProvider<
+    CategoriesProvider, List<Category>>.internal(
+  CategoriesProvider.new,
+  name: r'categoriesProviderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$categoriesProviderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$CategoriesProvider = AutoDisposeAsyncNotifier<List<Category>>;
 // ignore_for_file: type=lint

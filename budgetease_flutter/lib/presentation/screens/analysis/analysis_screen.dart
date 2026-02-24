@@ -7,6 +7,7 @@ import '../../../data/database/tables/transactions_table.dart'; // For Transacti
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../onboarding/calibration_screen.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran d'analyse des dépenses
 class AnalysisScreen extends ConsumerStatefulWidget {
@@ -18,6 +19,14 @@ class AnalysisScreen extends ConsumerStatefulWidget {
 
 class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   DateTime _selectedMonth = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).screen('Analysis');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +64,13 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                               _selectedMonth.month - 1,
                             );
                           });
+                          ref.read(analyticsServiceProvider).capture(
+                            'analysis_month_changed',
+                            properties: {
+                              'direction': 'prev',
+                              'month': DateFormat('yyyy-MM').format(_selectedMonth),
+                            },
+                          );
                         },
                       ),
                       Text(
@@ -72,6 +88,13 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                             setState(() {
                               _selectedMonth = nextMonth;
                             });
+                            ref.read(analyticsServiceProvider).capture(
+                              'analysis_month_changed',
+                              properties: {
+                                'direction': 'next',
+                                'month': DateFormat('yyyy-MM').format(_selectedMonth),
+                              },
+                            );
                           }
                         },
                       ),
@@ -96,10 +119,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                t.date.isBefore(endOfMonth.add(const Duration(seconds: 1)));
                       }).toList();
 
-                      // Calculate totals
+                      // Calculate totals (include fees in expenses)
                       final totalExpenses = monthTransactions
                           .where((t) => t.type == TransactionType.expense)
-                          .fold<double>(0.0, (sum, t) => sum + t.amount);
+                          .fold<double>(0.0, (sum, t) => sum + t.amount + (t.feeAmount ?? 0));
                       
                       final totalIncome = monthTransactions
                           .where((t) => t.type == TransactionType.income)
@@ -107,12 +130,13 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       
                       final balance = totalIncome - totalExpenses;
 
-                      // Group expenses by category
+                      // Group expenses by category (include fees)
                       final expensesByCategory = <int, double>{};
                       for (var transaction in monthTransactions) {
                         if (transaction.type == TransactionType.expense) {
+                          final total = transaction.amount + (transaction.feeAmount ?? 0);
                           expensesByCategory[transaction.categoryId!] = 
-                              (expensesByCategory[transaction.categoryId] ?? 0) + transaction.amount;
+                              (expensesByCategory[transaction.categoryId] ?? 0) + total;
                         }
                       }
 
@@ -178,7 +202,9 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                   (c) => c.id == entry.key,
                                   orElse: () => categories.first,
                                 );
-                                final percentage = (entry.value / totalExpenses * 100);
+                                final percentage = totalExpenses > 0
+                                    ? (entry.value / totalExpenses * 100)
+                                    : 0.0;
                                 
                                 return _buildCategoryBar(
                                   context,
@@ -187,6 +213,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                   percentage,
                                   currency,
                                   category.type,
+                                  category.icon,
                                 );
                               }),
                             ] else ...[
@@ -197,7 +224,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                     Icon(
                                       Icons.pie_chart_outline,
                                       size: 64,
-                                      color: AppColors.textSecondary.withOpacity(0.5),
+                                      color: AppColors.textSecondary.withValues(alpha: 0.5),
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
@@ -277,6 +304,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     double percentage,
     String currency,
     dynamic categoryType,
+    String iconName,
   ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -291,7 +319,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 Row(
                   children: [
                     Icon(
-                      UIHelpers.getCategoryIcon(categoryType),
+                      UIHelpers.getIconForCategory(iconName, categoryType),
                       color: UIHelpers.getCategoryColor(categoryType),
                       size: 20,
                     ),

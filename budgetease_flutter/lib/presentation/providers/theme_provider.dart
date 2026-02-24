@@ -52,7 +52,6 @@ class ThemeProvider extends _$ThemeProvider {
       case ThemeModePreference.dark:
         return ThemeMode.dark;
       case ThemeModePreference.system:
-      default:
         return ThemeMode.system;
     }
   }
@@ -64,7 +63,6 @@ class ThemeProvider extends _$ThemeProvider {
       case ThemeMode.dark:
         return ThemeModePreference.dark;
       case ThemeMode.system:
-      default:
         return ThemeModePreference.system;
     }
   }

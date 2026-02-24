@@ -22,7 +22,7 @@ class WelcomeScreen extends ConsumerWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primaryColor.withOpacity(0.2),
+              color: AppColors.primaryColor.withValues(alpha: 0.2),
             ),
             child: const Icon(
               Icons.account_balance_wallet,

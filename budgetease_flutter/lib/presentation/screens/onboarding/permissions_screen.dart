@@ -14,6 +14,7 @@ import 'accounts_inventory_screen.dart';
 import 'fixed_charges_screen.dart';
 import 'transport_config_screen.dart';
 import '../main_screen.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran 8 : Autorisations SMS (Final)
 class PermissionsScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,9 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
     setState(() {
       _isRequestingPermission = true;
     });
+
+    // Analytics
+    ref.read(analyticsServiceProvider).capture('sms_permission_requested');
 
     final status = await Permission.sms.request();
     
@@ -138,7 +142,19 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
         );
       }
 
-      // 5. Navigation vers l'écran principal
+      // 5. Analytics — onboarding completed
+      ref.read(analyticsServiceProvider).capture(
+        'onboarding_completed',
+        properties: {
+          'currency': calibration.currency,
+          'accounts_count': accounts.length,
+          'charges_count': charges.length,
+          'sms_enabled': smsEnabled,
+          'has_transport': transport != null,
+        },
+      );
+
+      // 6. Navigation vers l'écran principal
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const MainScreen()),

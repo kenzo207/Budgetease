@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:drift/drift.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/tables/transactions_table.dart';
@@ -45,8 +46,9 @@ class IncomePredictorService {
     final variance = _calculateVariance(weeklyAmounts, average);
     final weightedAvg = _calculateWeightedAverage(weeklyTotals);
 
-    // Déterminer régularité (variance < 20% de la moyenne)
-    final isRegular = average > 0 && variance < (average * 0.2);
+    // Déterminer régularité (écart-type < 20% de la moyenne)
+    final stdDev = math.sqrt(variance);
+    final isRegular = average > 0 && stdDev < (average * 0.2);
 
     // Détecter fréquence
     final frequency = _detectFrequency(incomes);
@@ -63,10 +65,13 @@ class IncomePredictorService {
     );
   }
 
-  /// Prédire le revenu mensuel (4.33 semaines par mois)
+  /// Prédire le revenu mensuel (basé sur le nombre de jours du mois en cours)
   Future<double> predictMonthlyIncome() async {
     final pattern = await analyzeIncomePattern();
-    return pattern.estimatedWeeklyIncome * 4.33;
+    final now = DateTime.now();
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final weeksInMonth = daysInMonth / 7.0;
+    return pattern.estimatedWeeklyIncome * weeksInMonth;
   }
 
   /// Obtenir le revenu estimé du mois (réel ou prédit)

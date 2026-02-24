@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../domain/services/security_service.dart';
 import 'pin_screen.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran de verrouillage de l'application
-class LockScreen extends StatefulWidget {
+class LockScreen extends ConsumerStatefulWidget {
   final SecurityService securityService;
   final VoidCallback onUnlocked;
 
@@ -15,10 +17,10 @@ class LockScreen extends StatefulWidget {
   });
 
   @override
-  State<LockScreen> createState() => _LockScreenState();
+  ConsumerState<LockScreen> createState() => _LockScreenState();
 }
 
-class _LockScreenState extends State<LockScreen> {
+class _LockScreenState extends ConsumerState<LockScreen> {
   bool _isAuthenticating = false;
   int _failedAttempts = 0;
   static const int maxAttempts = 5;
@@ -26,6 +28,10 @@ class _LockScreenState extends State<LockScreen> {
   @override
   void initState() {
     super.initState();
+    // Analytics
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).capture('lock_screen_viewed');
+    });
     _attemptBiometricAuth();
   }
 
@@ -38,6 +44,9 @@ class _LockScreenState extends State<LockScreen> {
         _isAuthenticating = true;
       });
 
+      // Analytics
+      ref.read(analyticsServiceProvider).capture('biometric_attempted');
+
       final authenticated = await widget.securityService.authenticateWithBiometric(
         reason: 'Déverrouillez BudgetEase pour accéder à vos finances',
       );
@@ -47,12 +56,20 @@ class _LockScreenState extends State<LockScreen> {
       });
 
       if (authenticated) {
+        // Analytics
+        ref.read(analyticsServiceProvider).capture('biometric_success');
         widget.onUnlocked();
+      } else {
+        // Analytics
+        ref.read(analyticsServiceProvider).capture('biometric_failed');
       }
     }
   }
 
   Future<void> _showPinScreen() async {
+    // Analytics
+    ref.read(analyticsServiceProvider).capture('pin_fallback_triggered');
+
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -68,6 +85,12 @@ class _LockScreenState extends State<LockScreen> {
               setState(() {
                 _failedAttempts++;
               });
+
+              // Analytics
+              ref.read(analyticsServiceProvider).capture(
+                'pin_verify_failure',
+                properties: {'attempts': _failedAttempts},
+              );
 
               if (_failedAttempts >= maxAttempts) {
                 _showMaxAttemptsDialog();
@@ -134,7 +157,7 @@ class _LockScreenState extends State<LockScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryColor.withOpacity(0.2),
+                  color: AppColors.primaryColor.withValues(alpha: 0.2),
                 ),
                 child: const Icon(
                   Icons.lock_outline,

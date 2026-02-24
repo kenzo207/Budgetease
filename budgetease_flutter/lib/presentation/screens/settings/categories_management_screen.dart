@@ -5,6 +5,7 @@ import '../../../core/utils/ui_helpers.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/categories_table.dart';
 import '../../providers/categories_provider.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran de gestion des catégories
 class CategoriesManagementScreen extends ConsumerWidget {
@@ -13,6 +14,12 @@ class CategoriesManagementScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(categoriesProviderProvider);
+
+    // Track screen view once
+    ref.listen(categoriesProviderProvider, (_, __) {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).screen('Categories');
+    });
 
     return Scaffold(
       // backgroundColor: AppColors.backgroundColor, // Removed
@@ -82,7 +89,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: UIHelpers.getCategoryColor(category.type).withOpacity(0.2),
+            color: UIHelpers.getCategoryColor(category.type).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -131,7 +138,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<CategoryType>(
-                value: selectedType,
+                initialValue: selectedType,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: const [
                   DropdownMenuItem(
@@ -252,6 +259,12 @@ class CategoriesManagementScreen extends ConsumerWidget {
 
       ref.invalidate(categoriesProviderProvider);
 
+      // Analytics
+      ref.read(analyticsServiceProvider).capture(
+        'category_added',
+        properties: {'type': type.name},
+      );
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -285,6 +298,12 @@ class CategoriesManagementScreen extends ConsumerWidget {
       );
 
       ref.invalidate(categoriesProviderProvider);
+
+      // Analytics
+      ref.read(analyticsServiceProvider).capture(
+        'category_edited',
+        properties: {'category_id': category.id, 'type': category.type.name},
+      );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -321,6 +340,11 @@ class CategoriesManagementScreen extends ConsumerWidget {
           .then((list) => list.length);
 
       if (transactionsCount > 0) {
+        // Analytics
+        ref.read(analyticsServiceProvider).capture(
+          'category_delete_blocked',
+          properties: {'transactions_count': transactionsCount},
+        );
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -338,6 +362,12 @@ class CategoriesManagementScreen extends ConsumerWidget {
           .go();
 
       ref.invalidate(categoriesProviderProvider);
+
+      // Analytics
+      ref.read(analyticsServiceProvider).capture(
+        'category_deleted',
+        properties: {'category_id': category.id, 'type': category.type.name},
+      );
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

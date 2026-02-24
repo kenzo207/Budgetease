@@ -26,7 +26,7 @@ class TriageZoneWidget extends ConsumerWidget {
 
         return Card(
           margin: const EdgeInsets.all(16),
-          color: AppColors.warningColor.withOpacity(0.1),
+          color: AppColors.warningColor.withValues(alpha: 0.1),
           child: InkWell(
             onTap: () {
               _showTriageDialog(context, ref, pending);
@@ -40,7 +40,7 @@ class TriageZoneWidget extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.warningColor.withOpacity(0.2),
+                      color: AppColors.warningColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -117,35 +117,62 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
   }
 
   Future<void> _qualifyAsExpense(int categoryId) async {
+    final accountId = _current.suggestedAccountId;
+    if (accountId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aucun compte associé. Veuillez lier un compte Mobile Money.'),
+            backgroundColor: AppColors.errorColor,
+          ),
+        );
+      }
+      return;
+    }
+
     await ref.read(transactionsProviderProvider.notifier).createTransaction(
           amount: _current.amount,
           type: TransactionType.expense,
           categoryId: categoryId,
-          accountId: _current.suggestedAccountId!,
-          date: _current.smsDate,
+          accountId: accountId,
+          date: _current.transactionDate ?? _current.smsDate,
+          feeAmount: _current.fee > 0 ? _current.fee : null,
           description: 'Via ${_current.operator}',
         );
 
-    await ref.read(pendingTransactionsProvider.notifier).markAsProcessed(_current.id);
+    await ref.read(pendingTransactionsProvider.notifier).reject(_current.id);
     _nextTransaction();
   }
 
   Future<void> _qualifyAsIncome(int categoryId) async {
+    final accountId = _current.suggestedAccountId;
+    if (accountId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Aucun compte associé. Veuillez lier un compte Mobile Money.'),
+            backgroundColor: AppColors.errorColor,
+          ),
+        );
+      }
+      return;
+    }
+
     await ref.read(transactionsProviderProvider.notifier).createTransaction(
           amount: _current.amount,
           type: TransactionType.income,
           categoryId: categoryId,
-          accountId: _current.suggestedAccountId!,
-          date: _current.smsDate,
+          accountId: accountId,
+          date: _current.transactionDate ?? _current.smsDate,
           description: 'Via ${_current.operator}',
         );
 
-    await ref.read(pendingTransactionsProvider.notifier).markAsProcessed(_current.id);
+    await ref.read(pendingTransactionsProvider.notifier).reject(_current.id);
     _nextTransaction();
   }
 
   Future<void> _ignore() async {
-    await ref.read(pendingTransactionsProvider.notifier).markAsProcessed(_current.id);
+    await ref.read(pendingTransactionsProvider.notifier).reject(_current.id);
     _nextTransaction();
   }
 
@@ -280,7 +307,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                             label: Text(category.name),
                             avatar: Text(category.icon),
                             onPressed: () => _qualifyAsIncome(category.id),
-                            backgroundColor: AppColors.accentColor.withOpacity(0.2),
+                            backgroundColor: AppColors.accentColor.withValues(alpha: 0.2),
                           );
                         }).toList(),
                       ),

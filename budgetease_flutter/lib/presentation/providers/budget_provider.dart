@@ -36,7 +36,7 @@ class BudgetProvider extends _$BudgetProvider {
       chargesDao: RecurringChargesDao(database),
       cycleManager: cycleManager,
       transportManager: transportManager,
-      savingsGoal: 0.0, // TODO: Ajouter l'objectif d'épargne dans les settings
+      savingsGoal: settings.savingsGoal ?? 0.0,
     );
 
     // 4. Calculer le budget

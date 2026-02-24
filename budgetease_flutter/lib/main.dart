@@ -8,10 +8,11 @@ import 'presentation/providers/security_provider.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/screens/auth/lock_screen.dart';
 import 'presentation/screens/onboarding/onboarding_screen.dart';
+import 'presentation/screens/onboarding/calibration_screen.dart';
 import 'presentation/screens/main_screen.dart';
 import 'data/database/app_database.dart';
 import 'domain/services/notification_service.dart';
-// import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'services/analytics_service.dart';
 
 void main() async {
@@ -25,9 +26,18 @@ void main() async {
     return DynamicLibrary.open('libsqlcipher.so');
   });
   
-  // Initialiser la base de données
-  final database = AppDatabase();
-  
+  // Initialiser la base de données (singleton)
+  AppDatabase();
+
+  // Initialiser PostHog Analytics
+  final config = PostHogConfig(
+    'phc_UxUrbANVZ3V0pJxug9tKF3AS62IOuGO0LgZBLumLJBO',
+  );
+  config.host = 'https://us.i.posthog.com';
+  config.captureApplicationLifecycleEvents = true;
+  config.debug = true;
+  await Posthog().setup(config);
+
   runApp(
     const ProviderScope(
       overrides: [
@@ -56,7 +66,7 @@ class BudgetEaseApp extends ConsumerWidget {
         error: (e, s) => ThemeMode.system,
       ),
       navigatorObservers: [
-        // PosthogObserver(), // Removed due to build conflict
+        PosthogObserver(),
       ],
       home: const AppInitializer(),
     );
@@ -75,15 +85,39 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
   @override
   void initState() {
     super.initState();
-    _initNotifications();
+    _initServices();
   }
 
-  Future<void> _initNotifications() async {
-    final service = NotificationService();
-    await service.initialize();
-    
-    // Track App Open
-    await ref.read(analyticsServiceProvider).capture('app_opened');
+  Future<void> _initServices() async {
+    // 1. Charger les données de calibrage (userName, currency) depuis la DB
+    await _loadCalibrationFromDb();
+
+    // 2. Initialiser les notifications
+    final notifService = NotificationService();
+    await notifService.initialize();
+
+    // 3. Demander les permissions de notification (Android 13+)
+    await notifService.requestPermissions();
+
+    // 4. Track App Open
+    ref.read(analyticsServiceProvider).capture('app_opened');
+  }
+
+  /// Charge les données de calibrage depuis la base de données
+  /// pour initialiser le calibrationDataProvider au démarrage
+  Future<void> _loadCalibrationFromDb() async {
+    try {
+      final database = AppDatabase();
+      final settings = await database.select(database.settings).getSingleOrNull();
+      if (settings != null) {
+        ref.read(calibrationDataProvider.notifier).state = CalibrationData(
+          currency: settings.currency,
+          userName: settings.userName,
+        );
+      }
+    } catch (e) {
+      debugPrint('DEBUG: Error loading calibration from DB: $e');
+    }
   }
 
   @override

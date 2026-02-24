@@ -11,139 +11,92 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 100,
-    ),
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
   @override
   late final GeneratedColumnWithTypeConverter<AccountType, int> type =
-      GeneratedColumn<int>(
-        'type',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<AccountType>($AccountsTable.$convertertype);
-  static const VerificationMeta _currentBalanceMeta = const VerificationMeta(
-    'currentBalance',
-  );
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<AccountType>($AccountsTable.$convertertype);
+  static const VerificationMeta _currentBalanceMeta =
+      const VerificationMeta('currentBalance');
   @override
   late final GeneratedColumn<double> currentBalance = GeneratedColumn<double>(
-    'current_balance',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
-  );
+      'current_balance', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
   static const VerificationMeta _iconMeta = const VerificationMeta('icon');
   @override
   late final GeneratedColumn<String> icon = GeneratedColumn<String>(
-    'icon',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'icon', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<String> color = GeneratedColumn<String>(
-    'color',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _operatorMeta = const VerificationMeta(
-    'operator',
-  );
+      'color', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _operatorMeta =
+      const VerificationMeta('operator');
   @override
   late final GeneratedColumn<String> operator = GeneratedColumn<String>(
-    'operator',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isActiveMeta = const VerificationMeta(
-    'isActive',
-  );
+      'operator', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
   @override
   late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
-    'is_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_active" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    type,
-    currentBalance,
-    icon,
-    color,
-    operator,
-    isActive,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        name,
+        type,
+        currentBalance,
+        icon,
+        color,
+        operator,
+        isActive,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'accounts';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<Account> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<Account> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -151,62 +104,45 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
     }
     if (data.containsKey('name')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
     if (data.containsKey('current_balance')) {
       context.handle(
-        _currentBalanceMeta,
-        currentBalance.isAcceptableOrUnknown(
-          data['current_balance']!,
           _currentBalanceMeta,
-        ),
-      );
+          currentBalance.isAcceptableOrUnknown(
+              data['current_balance']!, _currentBalanceMeta));
     }
     if (data.containsKey('icon')) {
       context.handle(
-        _iconMeta,
-        icon.isAcceptableOrUnknown(data['icon']!, _iconMeta),
-      );
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     } else if (isInserting) {
       context.missing(_iconMeta);
     }
     if (data.containsKey('color')) {
       context.handle(
-        _colorMeta,
-        color.isAcceptableOrUnknown(data['color']!, _colorMeta),
-      );
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
     } else if (isInserting) {
       context.missing(_colorMeta);
     }
     if (data.containsKey('operator')) {
-      context.handle(
-        _operatorMeta,
-        operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta),
-      );
+      context.handle(_operatorMeta,
+          operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta));
     }
     if (data.containsKey('is_active')) {
-      context.handle(
-        _isActiveMeta,
-        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
-      );
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
@@ -219,48 +155,26 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
   Account map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Account(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      type: $AccountsTable.$convertertype.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}type'],
-        )!,
-      ),
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: $AccountsTable.$convertertype.fromSql(attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
       currentBalance: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}current_balance'],
-      )!,
-      icon: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}icon'],
-      )!,
-      color: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}color'],
-      )!,
-      operator: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}operator'],
-      ),
-      isActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_active'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}current_balance'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}color'])!,
+      operator: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operator']),
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
     );
   }
 
@@ -284,18 +198,17 @@ class Account extends DataClass implements Insertable<Account> {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const Account({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.currentBalance,
-    required this.icon,
-    required this.color,
-    this.operator,
-    required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  const Account(
+      {required this.id,
+      required this.name,
+      required this.type,
+      required this.currentBalance,
+      required this.icon,
+      required this.color,
+      this.operator,
+      required this.isActive,
+      required this.createdAt,
+      required this.updatedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -333,17 +246,14 @@ class Account extends DataClass implements Insertable<Account> {
     );
   }
 
-  factory Account.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory Account.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Account(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      type: $AccountsTable.$convertertype.fromJson(
-        serializer.fromJson<int>(json['type']),
-      ),
+      type: $AccountsTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
       currentBalance: serializer.fromJson<double>(json['currentBalance']),
       icon: serializer.fromJson<String>(json['icon']),
       color: serializer.fromJson<String>(json['color']),
@@ -359,9 +269,8 @@ class Account extends DataClass implements Insertable<Account> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'type': serializer.toJson<int>(
-        $AccountsTable.$convertertype.toJson(type),
-      ),
+      'type':
+          serializer.toJson<int>($AccountsTable.$convertertype.toJson(type)),
       'currentBalance': serializer.toJson<double>(currentBalance),
       'icon': serializer.toJson<String>(icon),
       'color': serializer.toJson<String>(color),
@@ -372,29 +281,29 @@ class Account extends DataClass implements Insertable<Account> {
     };
   }
 
-  Account copyWith({
-    int? id,
-    String? name,
-    AccountType? type,
-    double? currentBalance,
-    String? icon,
-    String? color,
-    Value<String?> operator = const Value.absent(),
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => Account(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    type: type ?? this.type,
-    currentBalance: currentBalance ?? this.currentBalance,
-    icon: icon ?? this.icon,
-    color: color ?? this.color,
-    operator: operator.present ? operator.value : this.operator,
-    isActive: isActive ?? this.isActive,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+  Account copyWith(
+          {int? id,
+          String? name,
+          AccountType? type,
+          double? currentBalance,
+          String? icon,
+          String? color,
+          Value<String?> operator = const Value.absent(),
+          bool? isActive,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      Account(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        currentBalance: currentBalance ?? this.currentBalance,
+        icon: icon ?? this.icon,
+        color: color ?? this.color,
+        operator: operator.present ? operator.value : this.operator,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
       id: data.id.present ? data.id.value : this.id,
@@ -430,18 +339,8 @@ class Account extends DataClass implements Insertable<Account> {
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    name,
-    type,
-    currentBalance,
-    icon,
-    color,
-    operator,
-    isActive,
-    createdAt,
-    updatedAt,
-  );
+  int get hashCode => Object.hash(id, name, type, currentBalance, icon, color,
+      operator, isActive, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -492,12 +391,12 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.isActive = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
-  }) : name = Value(name),
-       type = Value(type),
-       icon = Value(icon),
-       color = Value(color),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+  })  : name = Value(name),
+        type = Value(type),
+        icon = Value(icon),
+        color = Value(color),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
   static Insertable<Account> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -524,18 +423,17 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     });
   }
 
-  AccountsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? name,
-    Value<AccountType>? type,
-    Value<double>? currentBalance,
-    Value<String>? icon,
-    Value<String>? color,
-    Value<String?>? operator,
-    Value<bool>? isActive,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-  }) {
+  AccountsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<AccountType>? type,
+      Value<double>? currentBalance,
+      Value<String>? icon,
+      Value<String>? color,
+      Value<String?>? operator,
+      Value<bool>? isActive,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
     return AccountsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -560,9 +458,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       map['name'] = Variable<String>(name.value);
     }
     if (type.present) {
-      map['type'] = Variable<int>(
-        $AccountsTable.$convertertype.toSql(type.value),
-      );
+      map['type'] =
+          Variable<int>($AccountsTable.$convertertype.toSql(type.value));
     }
     if (currentBalance.present) {
       map['current_balance'] = Variable<double>(currentBalance.value);
@@ -615,102 +512,62 @@ class $CategoriesTable extends Categories
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 50,
-    ),
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
   static const VerificationMeta _iconMeta = const VerificationMeta('icon');
   @override
   late final GeneratedColumn<String> icon = GeneratedColumn<String>(
-    'icon',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'icon', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<String> color = GeneratedColumn<String>(
-    'color',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'color', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   late final GeneratedColumnWithTypeConverter<CategoryType, int> type =
-      GeneratedColumn<int>(
-        'type',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<CategoryType>($CategoriesTable.$convertertype);
-  static const VerificationMeta _isDefaultMeta = const VerificationMeta(
-    'isDefault',
-  );
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<CategoryType>($CategoriesTable.$convertertype);
+  static const VerificationMeta _isDefaultMeta =
+      const VerificationMeta('isDefault');
   @override
   late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
-    'is_default',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_default" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'is_default', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_default" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    icon,
-    color,
-    type,
-    isDefault,
-    createdAt,
-  ];
+  List<GeneratedColumn> get $columns =>
+      [id, name, icon, color, type, isDefault, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'categories';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<Category> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<Category> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -718,39 +575,29 @@ class $CategoriesTable extends Categories
     }
     if (data.containsKey('name')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
     if (data.containsKey('icon')) {
       context.handle(
-        _iconMeta,
-        icon.isAcceptableOrUnknown(data['icon']!, _iconMeta),
-      );
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
     } else if (isInserting) {
       context.missing(_iconMeta);
     }
     if (data.containsKey('color')) {
       context.handle(
-        _colorMeta,
-        color.isAcceptableOrUnknown(data['color']!, _colorMeta),
-      );
+          _colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
     } else if (isInserting) {
       context.missing(_colorMeta);
     }
     if (data.containsKey('is_default')) {
-      context.handle(
-        _isDefaultMeta,
-        isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
-      );
+      context.handle(_isDefaultMeta,
+          isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -763,36 +610,20 @@ class $CategoriesTable extends Categories
   Category map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Category(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      icon: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}icon'],
-      )!,
-      color: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}color'],
-      )!,
-      type: $CategoriesTable.$convertertype.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}type'],
-        )!,
-      ),
-      isDefault: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_default'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
+      color: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}color'])!,
+      type: $CategoriesTable.$convertertype.fromSql(attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
+      isDefault: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_default'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -813,15 +644,14 @@ class Category extends DataClass implements Insertable<Category> {
   final CategoryType type;
   final bool isDefault;
   final DateTime createdAt;
-  const Category({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.color,
-    required this.type,
-    required this.isDefault,
-    required this.createdAt,
-  });
+  const Category(
+      {required this.id,
+      required this.name,
+      required this.icon,
+      required this.color,
+      required this.type,
+      required this.isDefault,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -849,19 +679,16 @@ class Category extends DataClass implements Insertable<Category> {
     );
   }
 
-  factory Category.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory Category.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Category(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       icon: serializer.fromJson<String>(json['icon']),
       color: serializer.fromJson<String>(json['color']),
-      type: $CategoriesTable.$convertertype.fromJson(
-        serializer.fromJson<int>(json['type']),
-      ),
+      type: $CategoriesTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -874,31 +701,30 @@ class Category extends DataClass implements Insertable<Category> {
       'name': serializer.toJson<String>(name),
       'icon': serializer.toJson<String>(icon),
       'color': serializer.toJson<String>(color),
-      'type': serializer.toJson<int>(
-        $CategoriesTable.$convertertype.toJson(type),
-      ),
+      'type':
+          serializer.toJson<int>($CategoriesTable.$convertertype.toJson(type)),
       'isDefault': serializer.toJson<bool>(isDefault),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  Category copyWith({
-    int? id,
-    String? name,
-    String? icon,
-    String? color,
-    CategoryType? type,
-    bool? isDefault,
-    DateTime? createdAt,
-  }) => Category(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    icon: icon ?? this.icon,
-    color: color ?? this.color,
-    type: type ?? this.type,
-    isDefault: isDefault ?? this.isDefault,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  Category copyWith(
+          {int? id,
+          String? name,
+          String? icon,
+          String? color,
+          CategoryType? type,
+          bool? isDefault,
+          DateTime? createdAt}) =>
+      Category(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        icon: icon ?? this.icon,
+        color: color ?? this.color,
+        type: type ?? this.type,
+        isDefault: isDefault ?? this.isDefault,
+        createdAt: createdAt ?? this.createdAt,
+      );
   Category copyWithCompanion(CategoriesCompanion data) {
     return Category(
       id: data.id.present ? data.id.value : this.id,
@@ -966,11 +792,11 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     required CategoryType type,
     this.isDefault = const Value.absent(),
     required DateTime createdAt,
-  }) : name = Value(name),
-       icon = Value(icon),
-       color = Value(color),
-       type = Value(type),
-       createdAt = Value(createdAt);
+  })  : name = Value(name),
+        icon = Value(icon),
+        color = Value(color),
+        type = Value(type),
+        createdAt = Value(createdAt);
   static Insertable<Category> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -991,15 +817,14 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     });
   }
 
-  CategoriesCompanion copyWith({
-    Value<int>? id,
-    Value<String>? name,
-    Value<String>? icon,
-    Value<String>? color,
-    Value<CategoryType>? type,
-    Value<bool>? isDefault,
-    Value<DateTime>? createdAt,
-  }) {
+  CategoriesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String>? icon,
+      Value<String>? color,
+      Value<CategoryType>? type,
+      Value<bool>? isDefault,
+      Value<DateTime>? createdAt}) {
     return CategoriesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -1027,9 +852,8 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       map['color'] = Variable<String>(color.value);
     }
     if (type.present) {
-      map['type'] = Variable<int>(
-        $CategoriesTable.$convertertype.toSql(type.value),
-      );
+      map['type'] =
+          Variable<int>($CategoriesTable.$convertertype.toSql(type.value));
     }
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
@@ -1064,285 +888,192 @@ class $TransactionsTable extends Transactions
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
-    'amount',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
   @override
   late final GeneratedColumnWithTypeConverter<TransactionType, int> type =
-      GeneratedColumn<int>(
-        'type',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<TransactionType>($TransactionsTable.$convertertype);
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<TransactionType>($TransactionsTable.$convertertype);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
-    'date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
-    'categoryId',
-  );
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _categoryIdMeta =
+      const VerificationMeta('categoryId');
   @override
   late final GeneratedColumn<int> categoryId = GeneratedColumn<int>(
-    'category_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES categories (id)',
-    ),
-  );
-  static const VerificationMeta _accountIdMeta = const VerificationMeta(
-    'accountId',
-  );
+      'category_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES categories (id)'));
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
   @override
   late final GeneratedColumn<int> accountId = GeneratedColumn<int>(
-    'account_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES accounts (id)',
-    ),
-  );
-  static const VerificationMeta _toAccountIdMeta = const VerificationMeta(
-    'toAccountId',
-  );
+      'account_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES accounts (id)'));
+  static const VerificationMeta _toAccountIdMeta =
+      const VerificationMeta('toAccountId');
   @override
   late final GeneratedColumn<int> toAccountId = GeneratedColumn<int>(
-    'to_account_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES accounts (id)',
-    ),
-  );
-  static const VerificationMeta _feeAmountMeta = const VerificationMeta(
-    'feeAmount',
-  );
+      'to_account_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES accounts (id)'));
+  static const VerificationMeta _feeAmountMeta =
+      const VerificationMeta('feeAmount');
   @override
   late final GeneratedColumn<double> feeAmount = GeneratedColumn<double>(
-    'fee_amount',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isExceptionMeta = const VerificationMeta(
-    'isException',
-  );
+      'fee_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _isExceptionMeta =
+      const VerificationMeta('isException');
   @override
   late final GeneratedColumn<bool> isException = GeneratedColumn<bool>(
-    'is_exception',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_exception" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _scopeDurationMeta = const VerificationMeta(
-    'scopeDuration',
-  );
+      'is_exception', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_exception" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _scopeDurationMeta =
+      const VerificationMeta('scopeDuration');
   @override
   late final GeneratedColumn<int> scopeDuration = GeneratedColumn<int>(
-    'scope_duration',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _scopeTypeMeta = const VerificationMeta(
-    'scopeType',
-  );
+      'scope_duration', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _scopeTypeMeta =
+      const VerificationMeta('scopeType');
   @override
   late final GeneratedColumn<String> scopeType = GeneratedColumn<String>(
-    'scope_type',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _descriptionMeta = const VerificationMeta(
-    'description',
-  );
+      'scope_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
   @override
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
-    'description',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceMeta = const VerificationMeta('source');
   @override
   late final GeneratedColumn<String> source = GeneratedColumn<String>(
-    'source',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'source', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    amount,
-    type,
-    date,
-    categoryId,
-    accountId,
-    toAccountId,
-    feeAmount,
-    isException,
-    scopeDuration,
-    scopeType,
-    description,
-    source,
-    createdAt,
-  ];
+        id,
+        amount,
+        type,
+        date,
+        categoryId,
+        accountId,
+        toAccountId,
+        feeAmount,
+        isException,
+        scopeDuration,
+        scopeType,
+        description,
+        source,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'transactions';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<Transaction> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<Transaction> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('amount')) {
-      context.handle(
-        _amountMeta,
-        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
-      );
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
       context.missing(_amountMeta);
     }
     if (data.containsKey('date')) {
       context.handle(
-        _dateMeta,
-        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
-      );
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
     if (data.containsKey('category_id')) {
       context.handle(
-        _categoryIdMeta,
-        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
-      );
+          _categoryIdMeta,
+          categoryId.isAcceptableOrUnknown(
+              data['category_id']!, _categoryIdMeta));
     }
     if (data.containsKey('account_id')) {
-      context.handle(
-        _accountIdMeta,
-        accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta),
-      );
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
     } else if (isInserting) {
       context.missing(_accountIdMeta);
     }
     if (data.containsKey('to_account_id')) {
       context.handle(
-        _toAccountIdMeta,
-        toAccountId.isAcceptableOrUnknown(
-          data['to_account_id']!,
           _toAccountIdMeta,
-        ),
-      );
+          toAccountId.isAcceptableOrUnknown(
+              data['to_account_id']!, _toAccountIdMeta));
     }
     if (data.containsKey('fee_amount')) {
-      context.handle(
-        _feeAmountMeta,
-        feeAmount.isAcceptableOrUnknown(data['fee_amount']!, _feeAmountMeta),
-      );
+      context.handle(_feeAmountMeta,
+          feeAmount.isAcceptableOrUnknown(data['fee_amount']!, _feeAmountMeta));
     }
     if (data.containsKey('is_exception')) {
       context.handle(
-        _isExceptionMeta,
-        isException.isAcceptableOrUnknown(
-          data['is_exception']!,
           _isExceptionMeta,
-        ),
-      );
+          isException.isAcceptableOrUnknown(
+              data['is_exception']!, _isExceptionMeta));
     }
     if (data.containsKey('scope_duration')) {
       context.handle(
-        _scopeDurationMeta,
-        scopeDuration.isAcceptableOrUnknown(
-          data['scope_duration']!,
           _scopeDurationMeta,
-        ),
-      );
+          scopeDuration.isAcceptableOrUnknown(
+              data['scope_duration']!, _scopeDurationMeta));
     }
     if (data.containsKey('scope_type')) {
-      context.handle(
-        _scopeTypeMeta,
-        scopeType.isAcceptableOrUnknown(data['scope_type']!, _scopeTypeMeta),
-      );
+      context.handle(_scopeTypeMeta,
+          scopeType.isAcceptableOrUnknown(data['scope_type']!, _scopeTypeMeta));
     }
     if (data.containsKey('description')) {
       context.handle(
-        _descriptionMeta,
-        description.isAcceptableOrUnknown(
-          data['description']!,
           _descriptionMeta,
-        ),
-      );
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
     }
     if (data.containsKey('source')) {
-      context.handle(
-        _sourceMeta,
-        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
-      );
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -1355,64 +1086,35 @@ class $TransactionsTable extends Transactions
   Transaction map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Transaction(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      amount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}amount'],
-      )!,
-      type: $TransactionsTable.$convertertype.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}type'],
-        )!,
-      ),
-      date: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date'],
-      )!,
-      categoryId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}category_id'],
-      ),
-      accountId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}account_id'],
-      )!,
-      toAccountId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}to_account_id'],
-      ),
-      feeAmount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fee_amount'],
-      ),
-      isException: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_exception'],
-      )!,
-      scopeDuration: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}scope_duration'],
-      ),
-      scopeType: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}scope_type'],
-      ),
-      description: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}description'],
-      ),
-      source: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}source'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      type: $TransactionsTable.$convertertype.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      categoryId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}category_id']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}account_id'])!,
+      toAccountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}to_account_id']),
+      feeAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}fee_amount']),
+      isException: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_exception'])!,
+      scopeDuration: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}scope_duration']),
+      scopeType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scope_type']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -1440,31 +1142,29 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   final String? description;
   final String? source;
   final DateTime createdAt;
-  const Transaction({
-    required this.id,
-    required this.amount,
-    required this.type,
-    required this.date,
-    this.categoryId,
-    required this.accountId,
-    this.toAccountId,
-    this.feeAmount,
-    required this.isException,
-    this.scopeDuration,
-    this.scopeType,
-    this.description,
-    this.source,
-    required this.createdAt,
-  });
+  const Transaction(
+      {required this.id,
+      required this.amount,
+      required this.type,
+      required this.date,
+      this.categoryId,
+      required this.accountId,
+      this.toAccountId,
+      this.feeAmount,
+      required this.isException,
+      this.scopeDuration,
+      this.scopeType,
+      this.description,
+      this.source,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['amount'] = Variable<double>(amount);
     {
-      map['type'] = Variable<int>(
-        $TransactionsTable.$convertertype.toSql(type),
-      );
+      map['type'] =
+          Variable<int>($TransactionsTable.$convertertype.toSql(type));
     }
     map['date'] = Variable<DateTime>(date);
     if (!nullToAbsent || categoryId != null) {
@@ -1520,24 +1220,20 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
-      source: source == null && nullToAbsent
-          ? const Value.absent()
-          : Value(source),
+      source:
+          source == null && nullToAbsent ? const Value.absent() : Value(source),
       createdAt: Value(createdAt),
     );
   }
 
-  factory Transaction.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory Transaction.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Transaction(
       id: serializer.fromJson<int>(json['id']),
       amount: serializer.fromJson<double>(json['amount']),
-      type: $TransactionsTable.$convertertype.fromJson(
-        serializer.fromJson<int>(json['type']),
-      ),
+      type: $TransactionsTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
       date: serializer.fromJson<DateTime>(json['date']),
       categoryId: serializer.fromJson<int?>(json['categoryId']),
       accountId: serializer.fromJson<int>(json['accountId']),
@@ -1557,9 +1253,8 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'amount': serializer.toJson<double>(amount),
-      'type': serializer.toJson<int>(
-        $TransactionsTable.$convertertype.toJson(type),
-      ),
+      'type': serializer
+          .toJson<int>($TransactionsTable.$convertertype.toJson(type)),
       'date': serializer.toJson<DateTime>(date),
       'categoryId': serializer.toJson<int?>(categoryId),
       'accountId': serializer.toJson<int>(accountId),
@@ -1574,63 +1269,58 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     };
   }
 
-  Transaction copyWith({
-    int? id,
-    double? amount,
-    TransactionType? type,
-    DateTime? date,
-    Value<int?> categoryId = const Value.absent(),
-    int? accountId,
-    Value<int?> toAccountId = const Value.absent(),
-    Value<double?> feeAmount = const Value.absent(),
-    bool? isException,
-    Value<int?> scopeDuration = const Value.absent(),
-    Value<String?> scopeType = const Value.absent(),
-    Value<String?> description = const Value.absent(),
-    Value<String?> source = const Value.absent(),
-    DateTime? createdAt,
-  }) => Transaction(
-    id: id ?? this.id,
-    amount: amount ?? this.amount,
-    type: type ?? this.type,
-    date: date ?? this.date,
-    categoryId: categoryId.present ? categoryId.value : this.categoryId,
-    accountId: accountId ?? this.accountId,
-    toAccountId: toAccountId.present ? toAccountId.value : this.toAccountId,
-    feeAmount: feeAmount.present ? feeAmount.value : this.feeAmount,
-    isException: isException ?? this.isException,
-    scopeDuration: scopeDuration.present
-        ? scopeDuration.value
-        : this.scopeDuration,
-    scopeType: scopeType.present ? scopeType.value : this.scopeType,
-    description: description.present ? description.value : this.description,
-    source: source.present ? source.value : this.source,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  Transaction copyWith(
+          {int? id,
+          double? amount,
+          TransactionType? type,
+          DateTime? date,
+          Value<int?> categoryId = const Value.absent(),
+          int? accountId,
+          Value<int?> toAccountId = const Value.absent(),
+          Value<double?> feeAmount = const Value.absent(),
+          bool? isException,
+          Value<int?> scopeDuration = const Value.absent(),
+          Value<String?> scopeType = const Value.absent(),
+          Value<String?> description = const Value.absent(),
+          Value<String?> source = const Value.absent(),
+          DateTime? createdAt}) =>
+      Transaction(
+        id: id ?? this.id,
+        amount: amount ?? this.amount,
+        type: type ?? this.type,
+        date: date ?? this.date,
+        categoryId: categoryId.present ? categoryId.value : this.categoryId,
+        accountId: accountId ?? this.accountId,
+        toAccountId: toAccountId.present ? toAccountId.value : this.toAccountId,
+        feeAmount: feeAmount.present ? feeAmount.value : this.feeAmount,
+        isException: isException ?? this.isException,
+        scopeDuration:
+            scopeDuration.present ? scopeDuration.value : this.scopeDuration,
+        scopeType: scopeType.present ? scopeType.value : this.scopeType,
+        description: description.present ? description.value : this.description,
+        source: source.present ? source.value : this.source,
+        createdAt: createdAt ?? this.createdAt,
+      );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
       id: data.id.present ? data.id.value : this.id,
       amount: data.amount.present ? data.amount.value : this.amount,
       type: data.type.present ? data.type.value : this.type,
       date: data.date.present ? data.date.value : this.date,
-      categoryId: data.categoryId.present
-          ? data.categoryId.value
-          : this.categoryId,
+      categoryId:
+          data.categoryId.present ? data.categoryId.value : this.categoryId,
       accountId: data.accountId.present ? data.accountId.value : this.accountId,
-      toAccountId: data.toAccountId.present
-          ? data.toAccountId.value
-          : this.toAccountId,
+      toAccountId:
+          data.toAccountId.present ? data.toAccountId.value : this.toAccountId,
       feeAmount: data.feeAmount.present ? data.feeAmount.value : this.feeAmount,
-      isException: data.isException.present
-          ? data.isException.value
-          : this.isException,
+      isException:
+          data.isException.present ? data.isException.value : this.isException,
       scopeDuration: data.scopeDuration.present
           ? data.scopeDuration.value
           : this.scopeDuration,
       scopeType: data.scopeType.present ? data.scopeType.value : this.scopeType,
-      description: data.description.present
-          ? data.description.value
-          : this.description,
+      description:
+          data.description.present ? data.description.value : this.description,
       source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -1659,21 +1349,20 @@ class Transaction extends DataClass implements Insertable<Transaction> {
 
   @override
   int get hashCode => Object.hash(
-    id,
-    amount,
-    type,
-    date,
-    categoryId,
-    accountId,
-    toAccountId,
-    feeAmount,
-    isException,
-    scopeDuration,
-    scopeType,
-    description,
-    source,
-    createdAt,
-  );
+      id,
+      amount,
+      type,
+      date,
+      categoryId,
+      accountId,
+      toAccountId,
+      feeAmount,
+      isException,
+      scopeDuration,
+      scopeType,
+      description,
+      source,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1740,11 +1429,11 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.description = const Value.absent(),
     this.source = const Value.absent(),
     required DateTime createdAt,
-  }) : amount = Value(amount),
-       type = Value(type),
-       date = Value(date),
-       accountId = Value(accountId),
-       createdAt = Value(createdAt);
+  })  : amount = Value(amount),
+        type = Value(type),
+        date = Value(date),
+        accountId = Value(accountId),
+        createdAt = Value(createdAt);
   static Insertable<Transaction> custom({
     Expression<int>? id,
     Expression<double>? amount,
@@ -1779,22 +1468,21 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     });
   }
 
-  TransactionsCompanion copyWith({
-    Value<int>? id,
-    Value<double>? amount,
-    Value<TransactionType>? type,
-    Value<DateTime>? date,
-    Value<int?>? categoryId,
-    Value<int>? accountId,
-    Value<int?>? toAccountId,
-    Value<double?>? feeAmount,
-    Value<bool>? isException,
-    Value<int?>? scopeDuration,
-    Value<String?>? scopeType,
-    Value<String?>? description,
-    Value<String?>? source,
-    Value<DateTime>? createdAt,
-  }) {
+  TransactionsCompanion copyWith(
+      {Value<int>? id,
+      Value<double>? amount,
+      Value<TransactionType>? type,
+      Value<DateTime>? date,
+      Value<int?>? categoryId,
+      Value<int>? accountId,
+      Value<int?>? toAccountId,
+      Value<double?>? feeAmount,
+      Value<bool>? isException,
+      Value<int?>? scopeDuration,
+      Value<String?>? scopeType,
+      Value<String?>? description,
+      Value<String?>? source,
+      Value<DateTime>? createdAt}) {
     return TransactionsCompanion(
       id: id ?? this.id,
       amount: amount ?? this.amount,
@@ -1823,9 +1511,8 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       map['amount'] = Variable<double>(amount.value);
     }
     if (type.present) {
-      map['type'] = Variable<int>(
-        $TransactionsTable.$convertertype.toSql(type.value),
-      );
+      map['type'] =
+          Variable<int>($TransactionsTable.$convertertype.toSql(type.value));
     }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
@@ -1894,128 +1581,77 @@ class $RecurringChargesTable extends RecurringCharges
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 100,
-    ),
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
   @override
   late final GeneratedColumnWithTypeConverter<ChargeType, int> type =
-      GeneratedColumn<int>(
-        'type',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<ChargeType>($RecurringChargesTable.$convertertype);
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<ChargeType>($RecurringChargesTable.$convertertype);
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
-    'amount',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _dueDateMeta = const VerificationMeta(
-    'dueDate',
-  );
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _dueDateMeta =
+      const VerificationMeta('dueDate');
   @override
   late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
-    'due_date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'due_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   late final GeneratedColumnWithTypeConverter<ChargeCycle, int> cycle =
-      GeneratedColumn<int>(
-        'cycle',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: true,
-      ).withConverter<ChargeCycle>($RecurringChargesTable.$convertercycle);
+      GeneratedColumn<int>('cycle', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<ChargeCycle>($RecurringChargesTable.$convertercycle);
   static const VerificationMeta _isPaidMeta = const VerificationMeta('isPaid');
   @override
   late final GeneratedColumn<bool> isPaid = GeneratedColumn<bool>(
-    'is_paid',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_paid" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _isActiveMeta = const VerificationMeta(
-    'isActive',
-  );
+      'is_paid', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_paid" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
   @override
   late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
-    'is_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_active" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    name,
-    type,
-    amount,
-    dueDate,
-    cycle,
-    isPaid,
-    isActive,
-    createdAt,
-  ];
+  List<GeneratedColumn> get $columns =>
+      [id, name, type, amount, dueDate, cycle, isPaid, isActive, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'recurring_charges';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<RecurringCharge> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<RecurringCharge> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -2023,45 +1659,33 @@ class $RecurringChargesTable extends RecurringCharges
     }
     if (data.containsKey('name')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
     if (data.containsKey('amount')) {
-      context.handle(
-        _amountMeta,
-        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
-      );
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
       context.missing(_amountMeta);
     }
     if (data.containsKey('due_date')) {
-      context.handle(
-        _dueDateMeta,
-        dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
-      );
+      context.handle(_dueDateMeta,
+          dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta));
     } else if (isInserting) {
       context.missing(_dueDateMeta);
     }
     if (data.containsKey('is_paid')) {
-      context.handle(
-        _isPaidMeta,
-        isPaid.isAcceptableOrUnknown(data['is_paid']!, _isPaidMeta),
-      );
+      context.handle(_isPaidMeta,
+          isPaid.isAcceptableOrUnknown(data['is_paid']!, _isPaidMeta));
     }
     if (data.containsKey('is_active')) {
-      context.handle(
-        _isActiveMeta,
-        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
-      );
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -2074,46 +1698,26 @@ class $RecurringChargesTable extends RecurringCharges
   RecurringCharge map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RecurringCharge(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      type: $RecurringChargesTable.$convertertype.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}type'],
-        )!,
-      ),
-      amount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}amount'],
-      )!,
-      dueDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}due_date'],
-      )!,
-      cycle: $RecurringChargesTable.$convertercycle.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}cycle'],
-        )!,
-      ),
-      isPaid: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_paid'],
-      )!,
-      isActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_active'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: $RecurringChargesTable.$convertertype.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      dueDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}due_date'])!,
+      cycle: $RecurringChargesTable.$convertercycle.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}cycle'])!),
+      isPaid: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_paid'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -2138,33 +1742,30 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
   final bool isPaid;
   final bool isActive;
   final DateTime createdAt;
-  const RecurringCharge({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.amount,
-    required this.dueDate,
-    required this.cycle,
-    required this.isPaid,
-    required this.isActive,
-    required this.createdAt,
-  });
+  const RecurringCharge(
+      {required this.id,
+      required this.name,
+      required this.type,
+      required this.amount,
+      required this.dueDate,
+      required this.cycle,
+      required this.isPaid,
+      required this.isActive,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
     {
-      map['type'] = Variable<int>(
-        $RecurringChargesTable.$convertertype.toSql(type),
-      );
+      map['type'] =
+          Variable<int>($RecurringChargesTable.$convertertype.toSql(type));
     }
     map['amount'] = Variable<double>(amount);
     map['due_date'] = Variable<DateTime>(dueDate);
     {
-      map['cycle'] = Variable<int>(
-        $RecurringChargesTable.$convertercycle.toSql(cycle),
-      );
+      map['cycle'] =
+          Variable<int>($RecurringChargesTable.$convertercycle.toSql(cycle));
     }
     map['is_paid'] = Variable<bool>(isPaid);
     map['is_active'] = Variable<bool>(isActive);
@@ -2186,22 +1787,18 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
     );
   }
 
-  factory RecurringCharge.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory RecurringCharge.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RecurringCharge(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      type: $RecurringChargesTable.$convertertype.fromJson(
-        serializer.fromJson<int>(json['type']),
-      ),
+      type: $RecurringChargesTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
       amount: serializer.fromJson<double>(json['amount']),
       dueDate: serializer.fromJson<DateTime>(json['dueDate']),
-      cycle: $RecurringChargesTable.$convertercycle.fromJson(
-        serializer.fromJson<int>(json['cycle']),
-      ),
+      cycle: $RecurringChargesTable.$convertercycle
+          .fromJson(serializer.fromJson<int>(json['cycle'])),
       isPaid: serializer.fromJson<bool>(json['isPaid']),
       isActive: serializer.fromJson<bool>(json['isActive']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -2213,41 +1810,39 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'type': serializer.toJson<int>(
-        $RecurringChargesTable.$convertertype.toJson(type),
-      ),
+      'type': serializer
+          .toJson<int>($RecurringChargesTable.$convertertype.toJson(type)),
       'amount': serializer.toJson<double>(amount),
       'dueDate': serializer.toJson<DateTime>(dueDate),
-      'cycle': serializer.toJson<int>(
-        $RecurringChargesTable.$convertercycle.toJson(cycle),
-      ),
+      'cycle': serializer
+          .toJson<int>($RecurringChargesTable.$convertercycle.toJson(cycle)),
       'isPaid': serializer.toJson<bool>(isPaid),
       'isActive': serializer.toJson<bool>(isActive),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  RecurringCharge copyWith({
-    int? id,
-    String? name,
-    ChargeType? type,
-    double? amount,
-    DateTime? dueDate,
-    ChargeCycle? cycle,
-    bool? isPaid,
-    bool? isActive,
-    DateTime? createdAt,
-  }) => RecurringCharge(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    type: type ?? this.type,
-    amount: amount ?? this.amount,
-    dueDate: dueDate ?? this.dueDate,
-    cycle: cycle ?? this.cycle,
-    isPaid: isPaid ?? this.isPaid,
-    isActive: isActive ?? this.isActive,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  RecurringCharge copyWith(
+          {int? id,
+          String? name,
+          ChargeType? type,
+          double? amount,
+          DateTime? dueDate,
+          ChargeCycle? cycle,
+          bool? isPaid,
+          bool? isActive,
+          DateTime? createdAt}) =>
+      RecurringCharge(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        amount: amount ?? this.amount,
+        dueDate: dueDate ?? this.dueDate,
+        cycle: cycle ?? this.cycle,
+        isPaid: isPaid ?? this.isPaid,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+      );
   RecurringCharge copyWithCompanion(RecurringChargesCompanion data) {
     return RecurringCharge(
       id: data.id.present ? data.id.value : this.id,
@@ -2280,16 +1875,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
 
   @override
   int get hashCode => Object.hash(
-    id,
-    name,
-    type,
-    amount,
-    dueDate,
-    cycle,
-    isPaid,
-    isActive,
-    createdAt,
-  );
+      id, name, type, amount, dueDate, cycle, isPaid, isActive, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2336,12 +1922,12 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     this.isPaid = const Value.absent(),
     this.isActive = const Value.absent(),
     required DateTime createdAt,
-  }) : name = Value(name),
-       type = Value(type),
-       amount = Value(amount),
-       dueDate = Value(dueDate),
-       cycle = Value(cycle),
-       createdAt = Value(createdAt);
+  })  : name = Value(name),
+        type = Value(type),
+        amount = Value(amount),
+        dueDate = Value(dueDate),
+        cycle = Value(cycle),
+        createdAt = Value(createdAt);
   static Insertable<RecurringCharge> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -2366,17 +1952,16 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     });
   }
 
-  RecurringChargesCompanion copyWith({
-    Value<int>? id,
-    Value<String>? name,
-    Value<ChargeType>? type,
-    Value<double>? amount,
-    Value<DateTime>? dueDate,
-    Value<ChargeCycle>? cycle,
-    Value<bool>? isPaid,
-    Value<bool>? isActive,
-    Value<DateTime>? createdAt,
-  }) {
+  RecurringChargesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<ChargeType>? type,
+      Value<double>? amount,
+      Value<DateTime>? dueDate,
+      Value<ChargeCycle>? cycle,
+      Value<bool>? isPaid,
+      Value<bool>? isActive,
+      Value<DateTime>? createdAt}) {
     return RecurringChargesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -2401,8 +1986,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     }
     if (type.present) {
       map['type'] = Variable<int>(
-        $RecurringChargesTable.$convertertype.toSql(type.value),
-      );
+          $RecurringChargesTable.$convertertype.toSql(type.value));
     }
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
@@ -2412,8 +1996,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     }
     if (cycle.present) {
       map['cycle'] = Variable<int>(
-        $RecurringChargesTable.$convertercycle.toSql(cycle.value),
-      );
+          $RecurringChargesTable.$convertercycle.toSql(cycle.value));
     }
     if (isPaid.present) {
       map['is_paid'] = Variable<bool>(isPaid.value);
@@ -2453,197 +2036,236 @@ class $PendingTransactionsTable extends PendingTransactions
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _amountMeta = const VerificationMeta('amount');
   @override
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
-    'amount',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _operatorMeta = const VerificationMeta(
-    'operator',
-  );
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _operatorMeta =
+      const VerificationMeta('operator');
   @override
   late final GeneratedColumn<String> operator = GeneratedColumn<String>(
-    'operator',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'operator', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  late final GeneratedColumnWithTypeConverter<MomoTransactionType, int>
+      momoType = GeneratedColumn<int>('momo_type', aliasedName, false,
+              type: DriftSqlType.int,
+              requiredDuringInsert: false,
+              defaultValue: Constant(MomoTransactionType.unknown.index))
+          .withConverter<MomoTransactionType>(
+              $PendingTransactionsTable.$convertermomoType);
+  static const VerificationMeta _feeMeta = const VerificationMeta('fee');
+  @override
+  late final GeneratedColumn<double> fee = GeneratedColumn<double>(
+      'fee', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  static const VerificationMeta _balanceAfterMeta =
+      const VerificationMeta('balanceAfter');
+  @override
+  late final GeneratedColumn<double> balanceAfter = GeneratedColumn<double>(
+      'balance_after', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _counterpartMeta =
+      const VerificationMeta('counterpart');
+  @override
+  late final GeneratedColumn<String> counterpart = GeneratedColumn<String>(
+      'counterpart', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _counterpartPhoneMeta =
+      const VerificationMeta('counterpartPhone');
+  @override
+  late final GeneratedColumn<String> counterpartPhone = GeneratedColumn<String>(
+      'counterpart_phone', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _momoRefMeta =
+      const VerificationMeta('momoRef');
+  @override
+  late final GeneratedColumn<String> momoRef = GeneratedColumn<String>(
+      'momo_ref', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _transactionDateMeta =
+      const VerificationMeta('transactionDate');
+  @override
+  late final GeneratedColumn<DateTime> transactionDate =
+      GeneratedColumn<DateTime>('transaction_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _rawSmsMeta = const VerificationMeta('rawSms');
   @override
   late final GeneratedColumn<String> rawSms = GeneratedColumn<String>(
-    'raw_sms',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _smsDateMeta = const VerificationMeta(
-    'smsDate',
-  );
+      'raw_sms', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _smsDateMeta =
+      const VerificationMeta('smsDate');
   @override
   late final GeneratedColumn<DateTime> smsDate = GeneratedColumn<DateTime>(
-    'sms_date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
-    'transactionId',
-  );
+      'sms_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _transactionIdMeta =
+      const VerificationMeta('transactionId');
   @override
   late final GeneratedColumn<String> transactionId = GeneratedColumn<String>(
-    'transaction_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isProcessedMeta = const VerificationMeta(
-    'isProcessed',
-  );
+      'transaction_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isProcessedMeta =
+      const VerificationMeta('isProcessed');
   @override
   late final GeneratedColumn<bool> isProcessed = GeneratedColumn<bool>(
-    'is_processed',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_processed" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
+      'is_processed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_processed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _countsInBudgetMeta =
+      const VerificationMeta('countsInBudget');
+  @override
+  late final GeneratedColumn<bool> countsInBudget = GeneratedColumn<bool>(
+      'counts_in_budget', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("counts_in_budget" IN (0, 1))'),
+      defaultValue: const Constant(true));
   static const VerificationMeta _suggestedAccountIdMeta =
       const VerificationMeta('suggestedAccountId');
   @override
   late final GeneratedColumn<int> suggestedAccountId = GeneratedColumn<int>(
-    'suggested_account_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES accounts (id)',
-    ),
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'suggested_account_id', aliasedName, true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES accounts (id)'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    amount,
-    operator,
-    rawSms,
-    smsDate,
-    transactionId,
-    isProcessed,
-    suggestedAccountId,
-    createdAt,
-  ];
+        id,
+        amount,
+        operator,
+        momoType,
+        fee,
+        balanceAfter,
+        counterpart,
+        counterpartPhone,
+        momoRef,
+        transactionDate,
+        rawSms,
+        smsDate,
+        transactionId,
+        isProcessed,
+        countsInBudget,
+        suggestedAccountId,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'pending_transactions';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<PendingTransaction> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<PendingTransaction> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('amount')) {
-      context.handle(
-        _amountMeta,
-        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
-      );
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
       context.missing(_amountMeta);
     }
     if (data.containsKey('operator')) {
-      context.handle(
-        _operatorMeta,
-        operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta),
-      );
+      context.handle(_operatorMeta,
+          operator.isAcceptableOrUnknown(data['operator']!, _operatorMeta));
     } else if (isInserting) {
       context.missing(_operatorMeta);
     }
-    if (data.containsKey('raw_sms')) {
+    if (data.containsKey('fee')) {
       context.handle(
-        _rawSmsMeta,
-        rawSms.isAcceptableOrUnknown(data['raw_sms']!, _rawSmsMeta),
-      );
+          _feeMeta, fee.isAcceptableOrUnknown(data['fee']!, _feeMeta));
+    }
+    if (data.containsKey('balance_after')) {
+      context.handle(
+          _balanceAfterMeta,
+          balanceAfter.isAcceptableOrUnknown(
+              data['balance_after']!, _balanceAfterMeta));
+    }
+    if (data.containsKey('counterpart')) {
+      context.handle(
+          _counterpartMeta,
+          counterpart.isAcceptableOrUnknown(
+              data['counterpart']!, _counterpartMeta));
+    }
+    if (data.containsKey('counterpart_phone')) {
+      context.handle(
+          _counterpartPhoneMeta,
+          counterpartPhone.isAcceptableOrUnknown(
+              data['counterpart_phone']!, _counterpartPhoneMeta));
+    }
+    if (data.containsKey('momo_ref')) {
+      context.handle(_momoRefMeta,
+          momoRef.isAcceptableOrUnknown(data['momo_ref']!, _momoRefMeta));
+    }
+    if (data.containsKey('transaction_date')) {
+      context.handle(
+          _transactionDateMeta,
+          transactionDate.isAcceptableOrUnknown(
+              data['transaction_date']!, _transactionDateMeta));
+    }
+    if (data.containsKey('raw_sms')) {
+      context.handle(_rawSmsMeta,
+          rawSms.isAcceptableOrUnknown(data['raw_sms']!, _rawSmsMeta));
     } else if (isInserting) {
       context.missing(_rawSmsMeta);
     }
     if (data.containsKey('sms_date')) {
-      context.handle(
-        _smsDateMeta,
-        smsDate.isAcceptableOrUnknown(data['sms_date']!, _smsDateMeta),
-      );
+      context.handle(_smsDateMeta,
+          smsDate.isAcceptableOrUnknown(data['sms_date']!, _smsDateMeta));
     } else if (isInserting) {
       context.missing(_smsDateMeta);
     }
     if (data.containsKey('transaction_id')) {
       context.handle(
-        _transactionIdMeta,
-        transactionId.isAcceptableOrUnknown(
-          data['transaction_id']!,
           _transactionIdMeta,
-        ),
-      );
+          transactionId.isAcceptableOrUnknown(
+              data['transaction_id']!, _transactionIdMeta));
     }
     if (data.containsKey('is_processed')) {
       context.handle(
-        _isProcessedMeta,
-        isProcessed.isAcceptableOrUnknown(
-          data['is_processed']!,
           _isProcessedMeta,
-        ),
-      );
+          isProcessed.isAcceptableOrUnknown(
+              data['is_processed']!, _isProcessedMeta));
+    }
+    if (data.containsKey('counts_in_budget')) {
+      context.handle(
+          _countsInBudgetMeta,
+          countsInBudget.isAcceptableOrUnknown(
+              data['counts_in_budget']!, _countsInBudgetMeta));
     }
     if (data.containsKey('suggested_account_id')) {
       context.handle(
-        _suggestedAccountIdMeta,
-        suggestedAccountId.isAcceptableOrUnknown(
-          data['suggested_account_id']!,
           _suggestedAccountIdMeta,
-        ),
-      );
+          suggestedAccountId.isAcceptableOrUnknown(
+              data['suggested_account_id']!, _suggestedAccountIdMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -2656,42 +2278,41 @@ class $PendingTransactionsTable extends PendingTransactions
   PendingTransaction map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return PendingTransaction(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      amount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}amount'],
-      )!,
-      operator: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}operator'],
-      )!,
-      rawSms: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}raw_sms'],
-      )!,
-      smsDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}sms_date'],
-      )!,
-      transactionId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}transaction_id'],
-      ),
-      isProcessed: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_processed'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      operator: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operator'])!,
+      momoType: $PendingTransactionsTable.$convertermomoType.fromSql(
+          attachedDatabase.typeMapping
+              .read(DriftSqlType.int, data['${effectivePrefix}momo_type'])!),
+      fee: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}fee'])!,
+      balanceAfter: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}balance_after']),
+      counterpart: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}counterpart']),
+      counterpartPhone: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}counterpart_phone']),
+      momoRef: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}momo_ref']),
+      transactionDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}transaction_date']),
+      rawSms: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}raw_sms'])!,
+      smsDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}sms_date'])!,
+      transactionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}transaction_id']),
+      isProcessed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_processed'])!,
+      countsInBudget: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}counts_in_budget'])!,
       suggestedAccountId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}suggested_account_id'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+          DriftSqlType.int, data['${effectivePrefix}suggested_account_id']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -2699,6 +2320,9 @@ class $PendingTransactionsTable extends PendingTransactions
   $PendingTransactionsTable createAlias(String alias) {
     return $PendingTransactionsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<MomoTransactionType, int, int> $convertermomoType =
+      const EnumIndexConverter<MomoTransactionType>(MomoTransactionType.values);
 }
 
 class PendingTransaction extends DataClass
@@ -2706,35 +2330,71 @@ class PendingTransaction extends DataClass
   final int id;
   final double amount;
   final String operator;
+  final MomoTransactionType momoType;
+  final double fee;
+  final double? balanceAfter;
+  final String? counterpart;
+  final String? counterpartPhone;
+  final String? momoRef;
+  final DateTime? transactionDate;
   final String rawSms;
   final DateTime smsDate;
   final String? transactionId;
   final bool isProcessed;
+  final bool countsInBudget;
   final int? suggestedAccountId;
   final DateTime createdAt;
-  const PendingTransaction({
-    required this.id,
-    required this.amount,
-    required this.operator,
-    required this.rawSms,
-    required this.smsDate,
-    this.transactionId,
-    required this.isProcessed,
-    this.suggestedAccountId,
-    required this.createdAt,
-  });
+  const PendingTransaction(
+      {required this.id,
+      required this.amount,
+      required this.operator,
+      required this.momoType,
+      required this.fee,
+      this.balanceAfter,
+      this.counterpart,
+      this.counterpartPhone,
+      this.momoRef,
+      this.transactionDate,
+      required this.rawSms,
+      required this.smsDate,
+      this.transactionId,
+      required this.isProcessed,
+      required this.countsInBudget,
+      this.suggestedAccountId,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['amount'] = Variable<double>(amount);
     map['operator'] = Variable<String>(operator);
+    {
+      map['momo_type'] = Variable<int>(
+          $PendingTransactionsTable.$convertermomoType.toSql(momoType));
+    }
+    map['fee'] = Variable<double>(fee);
+    if (!nullToAbsent || balanceAfter != null) {
+      map['balance_after'] = Variable<double>(balanceAfter);
+    }
+    if (!nullToAbsent || counterpart != null) {
+      map['counterpart'] = Variable<String>(counterpart);
+    }
+    if (!nullToAbsent || counterpartPhone != null) {
+      map['counterpart_phone'] = Variable<String>(counterpartPhone);
+    }
+    if (!nullToAbsent || momoRef != null) {
+      map['momo_ref'] = Variable<String>(momoRef);
+    }
+    if (!nullToAbsent || transactionDate != null) {
+      map['transaction_date'] = Variable<DateTime>(transactionDate);
+    }
     map['raw_sms'] = Variable<String>(rawSms);
     map['sms_date'] = Variable<DateTime>(smsDate);
     if (!nullToAbsent || transactionId != null) {
       map['transaction_id'] = Variable<String>(transactionId);
     }
     map['is_processed'] = Variable<bool>(isProcessed);
+    map['counts_in_budget'] = Variable<bool>(countsInBudget);
     if (!nullToAbsent || suggestedAccountId != null) {
       map['suggested_account_id'] = Variable<int>(suggestedAccountId);
     }
@@ -2747,12 +2407,30 @@ class PendingTransaction extends DataClass
       id: Value(id),
       amount: Value(amount),
       operator: Value(operator),
+      momoType: Value(momoType),
+      fee: Value(fee),
+      balanceAfter: balanceAfter == null && nullToAbsent
+          ? const Value.absent()
+          : Value(balanceAfter),
+      counterpart: counterpart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(counterpart),
+      counterpartPhone: counterpartPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(counterpartPhone),
+      momoRef: momoRef == null && nullToAbsent
+          ? const Value.absent()
+          : Value(momoRef),
+      transactionDate: transactionDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionDate),
       rawSms: Value(rawSms),
       smsDate: Value(smsDate),
       transactionId: transactionId == null && nullToAbsent
           ? const Value.absent()
           : Value(transactionId),
       isProcessed: Value(isProcessed),
+      countsInBudget: Value(countsInBudget),
       suggestedAccountId: suggestedAccountId == null && nullToAbsent
           ? const Value.absent()
           : Value(suggestedAccountId),
@@ -2760,19 +2438,26 @@ class PendingTransaction extends DataClass
     );
   }
 
-  factory PendingTransaction.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory PendingTransaction.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PendingTransaction(
       id: serializer.fromJson<int>(json['id']),
       amount: serializer.fromJson<double>(json['amount']),
       operator: serializer.fromJson<String>(json['operator']),
+      momoType: $PendingTransactionsTable.$convertermomoType
+          .fromJson(serializer.fromJson<int>(json['momoType'])),
+      fee: serializer.fromJson<double>(json['fee']),
+      balanceAfter: serializer.fromJson<double?>(json['balanceAfter']),
+      counterpart: serializer.fromJson<String?>(json['counterpart']),
+      counterpartPhone: serializer.fromJson<String?>(json['counterpartPhone']),
+      momoRef: serializer.fromJson<String?>(json['momoRef']),
+      transactionDate: serializer.fromJson<DateTime?>(json['transactionDate']),
       rawSms: serializer.fromJson<String>(json['rawSms']),
       smsDate: serializer.fromJson<DateTime>(json['smsDate']),
       transactionId: serializer.fromJson<String?>(json['transactionId']),
       isProcessed: serializer.fromJson<bool>(json['isProcessed']),
+      countsInBudget: serializer.fromJson<bool>(json['countsInBudget']),
       suggestedAccountId: serializer.fromJson<int?>(json['suggestedAccountId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -2784,53 +2469,98 @@ class PendingTransaction extends DataClass
       'id': serializer.toJson<int>(id),
       'amount': serializer.toJson<double>(amount),
       'operator': serializer.toJson<String>(operator),
+      'momoType': serializer.toJson<int>(
+          $PendingTransactionsTable.$convertermomoType.toJson(momoType)),
+      'fee': serializer.toJson<double>(fee),
+      'balanceAfter': serializer.toJson<double?>(balanceAfter),
+      'counterpart': serializer.toJson<String?>(counterpart),
+      'counterpartPhone': serializer.toJson<String?>(counterpartPhone),
+      'momoRef': serializer.toJson<String?>(momoRef),
+      'transactionDate': serializer.toJson<DateTime?>(transactionDate),
       'rawSms': serializer.toJson<String>(rawSms),
       'smsDate': serializer.toJson<DateTime>(smsDate),
       'transactionId': serializer.toJson<String?>(transactionId),
       'isProcessed': serializer.toJson<bool>(isProcessed),
+      'countsInBudget': serializer.toJson<bool>(countsInBudget),
       'suggestedAccountId': serializer.toJson<int?>(suggestedAccountId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  PendingTransaction copyWith({
-    int? id,
-    double? amount,
-    String? operator,
-    String? rawSms,
-    DateTime? smsDate,
-    Value<String?> transactionId = const Value.absent(),
-    bool? isProcessed,
-    Value<int?> suggestedAccountId = const Value.absent(),
-    DateTime? createdAt,
-  }) => PendingTransaction(
-    id: id ?? this.id,
-    amount: amount ?? this.amount,
-    operator: operator ?? this.operator,
-    rawSms: rawSms ?? this.rawSms,
-    smsDate: smsDate ?? this.smsDate,
-    transactionId: transactionId.present
-        ? transactionId.value
-        : this.transactionId,
-    isProcessed: isProcessed ?? this.isProcessed,
-    suggestedAccountId: suggestedAccountId.present
-        ? suggestedAccountId.value
-        : this.suggestedAccountId,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  PendingTransaction copyWith(
+          {int? id,
+          double? amount,
+          String? operator,
+          MomoTransactionType? momoType,
+          double? fee,
+          Value<double?> balanceAfter = const Value.absent(),
+          Value<String?> counterpart = const Value.absent(),
+          Value<String?> counterpartPhone = const Value.absent(),
+          Value<String?> momoRef = const Value.absent(),
+          Value<DateTime?> transactionDate = const Value.absent(),
+          String? rawSms,
+          DateTime? smsDate,
+          Value<String?> transactionId = const Value.absent(),
+          bool? isProcessed,
+          bool? countsInBudget,
+          Value<int?> suggestedAccountId = const Value.absent(),
+          DateTime? createdAt}) =>
+      PendingTransaction(
+        id: id ?? this.id,
+        amount: amount ?? this.amount,
+        operator: operator ?? this.operator,
+        momoType: momoType ?? this.momoType,
+        fee: fee ?? this.fee,
+        balanceAfter:
+            balanceAfter.present ? balanceAfter.value : this.balanceAfter,
+        counterpart: counterpart.present ? counterpart.value : this.counterpart,
+        counterpartPhone: counterpartPhone.present
+            ? counterpartPhone.value
+            : this.counterpartPhone,
+        momoRef: momoRef.present ? momoRef.value : this.momoRef,
+        transactionDate: transactionDate.present
+            ? transactionDate.value
+            : this.transactionDate,
+        rawSms: rawSms ?? this.rawSms,
+        smsDate: smsDate ?? this.smsDate,
+        transactionId:
+            transactionId.present ? transactionId.value : this.transactionId,
+        isProcessed: isProcessed ?? this.isProcessed,
+        countsInBudget: countsInBudget ?? this.countsInBudget,
+        suggestedAccountId: suggestedAccountId.present
+            ? suggestedAccountId.value
+            : this.suggestedAccountId,
+        createdAt: createdAt ?? this.createdAt,
+      );
   PendingTransaction copyWithCompanion(PendingTransactionsCompanion data) {
     return PendingTransaction(
       id: data.id.present ? data.id.value : this.id,
       amount: data.amount.present ? data.amount.value : this.amount,
       operator: data.operator.present ? data.operator.value : this.operator,
+      momoType: data.momoType.present ? data.momoType.value : this.momoType,
+      fee: data.fee.present ? data.fee.value : this.fee,
+      balanceAfter: data.balanceAfter.present
+          ? data.balanceAfter.value
+          : this.balanceAfter,
+      counterpart:
+          data.counterpart.present ? data.counterpart.value : this.counterpart,
+      counterpartPhone: data.counterpartPhone.present
+          ? data.counterpartPhone.value
+          : this.counterpartPhone,
+      momoRef: data.momoRef.present ? data.momoRef.value : this.momoRef,
+      transactionDate: data.transactionDate.present
+          ? data.transactionDate.value
+          : this.transactionDate,
       rawSms: data.rawSms.present ? data.rawSms.value : this.rawSms,
       smsDate: data.smsDate.present ? data.smsDate.value : this.smsDate,
       transactionId: data.transactionId.present
           ? data.transactionId.value
           : this.transactionId,
-      isProcessed: data.isProcessed.present
-          ? data.isProcessed.value
-          : this.isProcessed,
+      isProcessed:
+          data.isProcessed.present ? data.isProcessed.value : this.isProcessed,
+      countsInBudget: data.countsInBudget.present
+          ? data.countsInBudget.value
+          : this.countsInBudget,
       suggestedAccountId: data.suggestedAccountId.present
           ? data.suggestedAccountId.value
           : this.suggestedAccountId,
@@ -2844,10 +2574,18 @@ class PendingTransaction extends DataClass
           ..write('id: $id, ')
           ..write('amount: $amount, ')
           ..write('operator: $operator, ')
+          ..write('momoType: $momoType, ')
+          ..write('fee: $fee, ')
+          ..write('balanceAfter: $balanceAfter, ')
+          ..write('counterpart: $counterpart, ')
+          ..write('counterpartPhone: $counterpartPhone, ')
+          ..write('momoRef: $momoRef, ')
+          ..write('transactionDate: $transactionDate, ')
           ..write('rawSms: $rawSms, ')
           ..write('smsDate: $smsDate, ')
           ..write('transactionId: $transactionId, ')
           ..write('isProcessed: $isProcessed, ')
+          ..write('countsInBudget: $countsInBudget, ')
           ..write('suggestedAccountId: $suggestedAccountId, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -2856,16 +2594,23 @@ class PendingTransaction extends DataClass
 
   @override
   int get hashCode => Object.hash(
-    id,
-    amount,
-    operator,
-    rawSms,
-    smsDate,
-    transactionId,
-    isProcessed,
-    suggestedAccountId,
-    createdAt,
-  );
+      id,
+      amount,
+      operator,
+      momoType,
+      fee,
+      balanceAfter,
+      counterpart,
+      counterpartPhone,
+      momoRef,
+      transactionDate,
+      rawSms,
+      smsDate,
+      transactionId,
+      isProcessed,
+      countsInBudget,
+      suggestedAccountId,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2873,10 +2618,18 @@ class PendingTransaction extends DataClass
           other.id == this.id &&
           other.amount == this.amount &&
           other.operator == this.operator &&
+          other.momoType == this.momoType &&
+          other.fee == this.fee &&
+          other.balanceAfter == this.balanceAfter &&
+          other.counterpart == this.counterpart &&
+          other.counterpartPhone == this.counterpartPhone &&
+          other.momoRef == this.momoRef &&
+          other.transactionDate == this.transactionDate &&
           other.rawSms == this.rawSms &&
           other.smsDate == this.smsDate &&
           other.transactionId == this.transactionId &&
           other.isProcessed == this.isProcessed &&
+          other.countsInBudget == this.countsInBudget &&
           other.suggestedAccountId == this.suggestedAccountId &&
           other.createdAt == this.createdAt);
 }
@@ -2885,20 +2638,36 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
   final Value<int> id;
   final Value<double> amount;
   final Value<String> operator;
+  final Value<MomoTransactionType> momoType;
+  final Value<double> fee;
+  final Value<double?> balanceAfter;
+  final Value<String?> counterpart;
+  final Value<String?> counterpartPhone;
+  final Value<String?> momoRef;
+  final Value<DateTime?> transactionDate;
   final Value<String> rawSms;
   final Value<DateTime> smsDate;
   final Value<String?> transactionId;
   final Value<bool> isProcessed;
+  final Value<bool> countsInBudget;
   final Value<int?> suggestedAccountId;
   final Value<DateTime> createdAt;
   const PendingTransactionsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
     this.operator = const Value.absent(),
+    this.momoType = const Value.absent(),
+    this.fee = const Value.absent(),
+    this.balanceAfter = const Value.absent(),
+    this.counterpart = const Value.absent(),
+    this.counterpartPhone = const Value.absent(),
+    this.momoRef = const Value.absent(),
+    this.transactionDate = const Value.absent(),
     this.rawSms = const Value.absent(),
     this.smsDate = const Value.absent(),
     this.transactionId = const Value.absent(),
     this.isProcessed = const Value.absent(),
+    this.countsInBudget = const Value.absent(),
     this.suggestedAccountId = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -2906,25 +2675,41 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
     this.id = const Value.absent(),
     required double amount,
     required String operator,
+    this.momoType = const Value.absent(),
+    this.fee = const Value.absent(),
+    this.balanceAfter = const Value.absent(),
+    this.counterpart = const Value.absent(),
+    this.counterpartPhone = const Value.absent(),
+    this.momoRef = const Value.absent(),
+    this.transactionDate = const Value.absent(),
     required String rawSms,
     required DateTime smsDate,
     this.transactionId = const Value.absent(),
     this.isProcessed = const Value.absent(),
+    this.countsInBudget = const Value.absent(),
     this.suggestedAccountId = const Value.absent(),
     required DateTime createdAt,
-  }) : amount = Value(amount),
-       operator = Value(operator),
-       rawSms = Value(rawSms),
-       smsDate = Value(smsDate),
-       createdAt = Value(createdAt);
+  })  : amount = Value(amount),
+        operator = Value(operator),
+        rawSms = Value(rawSms),
+        smsDate = Value(smsDate),
+        createdAt = Value(createdAt);
   static Insertable<PendingTransaction> custom({
     Expression<int>? id,
     Expression<double>? amount,
     Expression<String>? operator,
+    Expression<int>? momoType,
+    Expression<double>? fee,
+    Expression<double>? balanceAfter,
+    Expression<String>? counterpart,
+    Expression<String>? counterpartPhone,
+    Expression<String>? momoRef,
+    Expression<DateTime>? transactionDate,
     Expression<String>? rawSms,
     Expression<DateTime>? smsDate,
     Expression<String>? transactionId,
     Expression<bool>? isProcessed,
+    Expression<bool>? countsInBudget,
     Expression<int>? suggestedAccountId,
     Expression<DateTime>? createdAt,
   }) {
@@ -2932,35 +2717,58 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
       if (id != null) 'id': id,
       if (amount != null) 'amount': amount,
       if (operator != null) 'operator': operator,
+      if (momoType != null) 'momo_type': momoType,
+      if (fee != null) 'fee': fee,
+      if (balanceAfter != null) 'balance_after': balanceAfter,
+      if (counterpart != null) 'counterpart': counterpart,
+      if (counterpartPhone != null) 'counterpart_phone': counterpartPhone,
+      if (momoRef != null) 'momo_ref': momoRef,
+      if (transactionDate != null) 'transaction_date': transactionDate,
       if (rawSms != null) 'raw_sms': rawSms,
       if (smsDate != null) 'sms_date': smsDate,
       if (transactionId != null) 'transaction_id': transactionId,
       if (isProcessed != null) 'is_processed': isProcessed,
+      if (countsInBudget != null) 'counts_in_budget': countsInBudget,
       if (suggestedAccountId != null)
         'suggested_account_id': suggestedAccountId,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
 
-  PendingTransactionsCompanion copyWith({
-    Value<int>? id,
-    Value<double>? amount,
-    Value<String>? operator,
-    Value<String>? rawSms,
-    Value<DateTime>? smsDate,
-    Value<String?>? transactionId,
-    Value<bool>? isProcessed,
-    Value<int?>? suggestedAccountId,
-    Value<DateTime>? createdAt,
-  }) {
+  PendingTransactionsCompanion copyWith(
+      {Value<int>? id,
+      Value<double>? amount,
+      Value<String>? operator,
+      Value<MomoTransactionType>? momoType,
+      Value<double>? fee,
+      Value<double?>? balanceAfter,
+      Value<String?>? counterpart,
+      Value<String?>? counterpartPhone,
+      Value<String?>? momoRef,
+      Value<DateTime?>? transactionDate,
+      Value<String>? rawSms,
+      Value<DateTime>? smsDate,
+      Value<String?>? transactionId,
+      Value<bool>? isProcessed,
+      Value<bool>? countsInBudget,
+      Value<int?>? suggestedAccountId,
+      Value<DateTime>? createdAt}) {
     return PendingTransactionsCompanion(
       id: id ?? this.id,
       amount: amount ?? this.amount,
       operator: operator ?? this.operator,
+      momoType: momoType ?? this.momoType,
+      fee: fee ?? this.fee,
+      balanceAfter: balanceAfter ?? this.balanceAfter,
+      counterpart: counterpart ?? this.counterpart,
+      counterpartPhone: counterpartPhone ?? this.counterpartPhone,
+      momoRef: momoRef ?? this.momoRef,
+      transactionDate: transactionDate ?? this.transactionDate,
       rawSms: rawSms ?? this.rawSms,
       smsDate: smsDate ?? this.smsDate,
       transactionId: transactionId ?? this.transactionId,
       isProcessed: isProcessed ?? this.isProcessed,
+      countsInBudget: countsInBudget ?? this.countsInBudget,
       suggestedAccountId: suggestedAccountId ?? this.suggestedAccountId,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -2978,6 +2786,28 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
     if (operator.present) {
       map['operator'] = Variable<String>(operator.value);
     }
+    if (momoType.present) {
+      map['momo_type'] = Variable<int>(
+          $PendingTransactionsTable.$convertermomoType.toSql(momoType.value));
+    }
+    if (fee.present) {
+      map['fee'] = Variable<double>(fee.value);
+    }
+    if (balanceAfter.present) {
+      map['balance_after'] = Variable<double>(balanceAfter.value);
+    }
+    if (counterpart.present) {
+      map['counterpart'] = Variable<String>(counterpart.value);
+    }
+    if (counterpartPhone.present) {
+      map['counterpart_phone'] = Variable<String>(counterpartPhone.value);
+    }
+    if (momoRef.present) {
+      map['momo_ref'] = Variable<String>(momoRef.value);
+    }
+    if (transactionDate.present) {
+      map['transaction_date'] = Variable<DateTime>(transactionDate.value);
+    }
     if (rawSms.present) {
       map['raw_sms'] = Variable<String>(rawSms.value);
     }
@@ -2989,6 +2819,9 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
     }
     if (isProcessed.present) {
       map['is_processed'] = Variable<bool>(isProcessed.value);
+    }
+    if (countsInBudget.present) {
+      map['counts_in_budget'] = Variable<bool>(countsInBudget.value);
     }
     if (suggestedAccountId.present) {
       map['suggested_account_id'] = Variable<int>(suggestedAccountId.value);
@@ -3005,10 +2838,18 @@ class PendingTransactionsCompanion extends UpdateCompanion<PendingTransaction> {
           ..write('id: $id, ')
           ..write('amount: $amount, ')
           ..write('operator: $operator, ')
+          ..write('momoType: $momoType, ')
+          ..write('fee: $fee, ')
+          ..write('balanceAfter: $balanceAfter, ')
+          ..write('counterpart: $counterpart, ')
+          ..write('counterpartPhone: $counterpartPhone, ')
+          ..write('momoRef: $momoRef, ')
+          ..write('transactionDate: $transactionDate, ')
           ..write('rawSms: $rawSms, ')
           ..write('smsDate: $smsDate, ')
           ..write('transactionId: $transactionId, ')
           ..write('isProcessed: $isProcessed, ')
+          ..write('countsInBudget: $countsInBudget, ')
           ..write('suggestedAccountId: $suggestedAccountId, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -3025,368 +2866,255 @@ class $SettingsTable extends Settings
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _userNameMeta = const VerificationMeta(
-    'userName',
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _userNameMeta =
+      const VerificationMeta('userName');
   @override
   late final GeneratedColumn<String> userName = GeneratedColumn<String>(
-    'user_name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _currencyMeta = const VerificationMeta(
-    'currency',
-  );
+      'user_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _currencyMeta =
+      const VerificationMeta('currency');
   @override
   late final GeneratedColumn<String> currency = GeneratedColumn<String>(
-    'currency',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('FCFA'),
-  );
+      'currency', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('FCFA'));
   @override
   late final GeneratedColumnWithTypeConverter<FinancialCycle, int>
-  financialCycle = GeneratedColumn<int>(
-    'financial_cycle',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  ).withConverter<FinancialCycle>($SettingsTable.$converterfinancialCycle);
+      financialCycle = GeneratedColumn<int>(
+              'financial_cycle', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<FinancialCycle>(
+              $SettingsTable.$converterfinancialCycle);
   @override
   late final GeneratedColumnWithTypeConverter<TransportMode, int>
-  transportMode = GeneratedColumn<int>(
-    'transport_mode',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  ).withConverter<TransportMode>($SettingsTable.$convertertransportMode);
+      transportMode = GeneratedColumn<int>('transport_mode', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<TransportMode>($SettingsTable.$convertertransportMode);
   static const VerificationMeta _dailyTransportCostMeta =
       const VerificationMeta('dailyTransportCost');
   @override
   late final GeneratedColumn<double> dailyTransportCost =
-      GeneratedColumn<double>(
-        'daily_transport_cost',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
+      GeneratedColumn<double>('daily_transport_cost', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _transportDaysPerWeekMeta =
       const VerificationMeta('transportDaysPerWeek');
   @override
   late final GeneratedColumn<int> transportDaysPerWeek = GeneratedColumn<int>(
-    'transport_days_per_week',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
+      'transport_days_per_week', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _fixedTransportAmountMeta =
       const VerificationMeta('fixedTransportAmount');
   @override
   late final GeneratedColumn<double> fixedTransportAmount =
-      GeneratedColumn<double>(
-        'fixed_transport_amount',
-        aliasedName,
-        true,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _biometricEnabledMeta = const VerificationMeta(
-    'biometricEnabled',
-  );
+      GeneratedColumn<double>('fixed_transport_amount', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _biometricEnabledMeta =
+      const VerificationMeta('biometricEnabled');
   @override
   late final GeneratedColumn<bool> biometricEnabled = GeneratedColumn<bool>(
-    'biometric_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("biometric_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _pinEnabledMeta = const VerificationMeta(
-    'pinEnabled',
-  );
+      'biometric_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("biometric_enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _pinEnabledMeta =
+      const VerificationMeta('pinEnabled');
   @override
   late final GeneratedColumn<bool> pinEnabled = GeneratedColumn<bool>(
-    'pin_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("pin_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
+      'pin_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("pin_enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _discreteModeEnabledMeta =
       const VerificationMeta('discreteModeEnabled');
   @override
   late final GeneratedColumn<bool> discreteModeEnabled = GeneratedColumn<bool>(
-    'discrete_mode_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("discrete_mode_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _smsParsingEnabledMeta = const VerificationMeta(
-    'smsParsingEnabled',
-  );
+      'discrete_mode_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("discrete_mode_enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _smsParsingEnabledMeta =
+      const VerificationMeta('smsParsingEnabled');
   @override
   late final GeneratedColumn<bool> smsParsingEnabled = GeneratedColumn<bool>(
-    'sms_parsing_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("sms_parsing_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _savingsGoalMeta = const VerificationMeta(
-    'savingsGoal',
-  );
+      'sms_parsing_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("sms_parsing_enabled" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _savingsGoalMeta =
+      const VerificationMeta('savingsGoal');
   @override
   late final GeneratedColumn<double> savingsGoal = GeneratedColumn<double>(
-    'savings_goal',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
-  );
+      'savings_goal', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
   static const VerificationMeta _onboardingCompletedMeta =
       const VerificationMeta('onboardingCompleted');
   @override
   late final GeneratedColumn<bool> onboardingCompleted = GeneratedColumn<bool>(
-    'onboarding_completed',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("onboarding_completed" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _borderColorMeta = const VerificationMeta(
-    'borderColor',
-  );
+      'onboarding_completed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("onboarding_completed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _borderColorMeta =
+      const VerificationMeta('borderColor');
   @override
   late final GeneratedColumn<String> borderColor = GeneratedColumn<String>(
-    'border_color',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('#4CAF50'),
-  );
+      'border_color', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('#4CAF50'));
   @override
   late final GeneratedColumnWithTypeConverter<ThemeModePreference, int>
-  themeMode = GeneratedColumn<int>(
-    'theme_mode',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  ).withConverter<ThemeModePreference>($SettingsTable.$converterthemeMode);
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      themeMode = GeneratedColumn<int>('theme_mode', aliasedName, false,
+              type: DriftSqlType.int,
+              requiredDuringInsert: false,
+              defaultValue: const Constant(0))
+          .withConverter<ThemeModePreference>(
+              $SettingsTable.$converterthemeMode);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    userName,
-    currency,
-    financialCycle,
-    transportMode,
-    dailyTransportCost,
-    transportDaysPerWeek,
-    fixedTransportAmount,
-    biometricEnabled,
-    pinEnabled,
-    discreteModeEnabled,
-    smsParsingEnabled,
-    savingsGoal,
-    onboardingCompleted,
-    borderColor,
-    themeMode,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        userName,
+        currency,
+        financialCycle,
+        transportMode,
+        dailyTransportCost,
+        transportDaysPerWeek,
+        fixedTransportAmount,
+        biometricEnabled,
+        pinEnabled,
+        discreteModeEnabled,
+        smsParsingEnabled,
+        savingsGoal,
+        onboardingCompleted,
+        borderColor,
+        themeMode,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'settings';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<UserSettings> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<UserSettings> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('user_name')) {
-      context.handle(
-        _userNameMeta,
-        userName.isAcceptableOrUnknown(data['user_name']!, _userNameMeta),
-      );
+      context.handle(_userNameMeta,
+          userName.isAcceptableOrUnknown(data['user_name']!, _userNameMeta));
     } else if (isInserting) {
       context.missing(_userNameMeta);
     }
     if (data.containsKey('currency')) {
-      context.handle(
-        _currencyMeta,
-        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
-      );
+      context.handle(_currencyMeta,
+          currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta));
     }
     if (data.containsKey('daily_transport_cost')) {
       context.handle(
-        _dailyTransportCostMeta,
-        dailyTransportCost.isAcceptableOrUnknown(
-          data['daily_transport_cost']!,
           _dailyTransportCostMeta,
-        ),
-      );
+          dailyTransportCost.isAcceptableOrUnknown(
+              data['daily_transport_cost']!, _dailyTransportCostMeta));
     }
     if (data.containsKey('transport_days_per_week')) {
       context.handle(
-        _transportDaysPerWeekMeta,
-        transportDaysPerWeek.isAcceptableOrUnknown(
-          data['transport_days_per_week']!,
           _transportDaysPerWeekMeta,
-        ),
-      );
+          transportDaysPerWeek.isAcceptableOrUnknown(
+              data['transport_days_per_week']!, _transportDaysPerWeekMeta));
     }
     if (data.containsKey('fixed_transport_amount')) {
       context.handle(
-        _fixedTransportAmountMeta,
-        fixedTransportAmount.isAcceptableOrUnknown(
-          data['fixed_transport_amount']!,
           _fixedTransportAmountMeta,
-        ),
-      );
+          fixedTransportAmount.isAcceptableOrUnknown(
+              data['fixed_transport_amount']!, _fixedTransportAmountMeta));
     }
     if (data.containsKey('biometric_enabled')) {
       context.handle(
-        _biometricEnabledMeta,
-        biometricEnabled.isAcceptableOrUnknown(
-          data['biometric_enabled']!,
           _biometricEnabledMeta,
-        ),
-      );
+          biometricEnabled.isAcceptableOrUnknown(
+              data['biometric_enabled']!, _biometricEnabledMeta));
     }
     if (data.containsKey('pin_enabled')) {
       context.handle(
-        _pinEnabledMeta,
-        pinEnabled.isAcceptableOrUnknown(data['pin_enabled']!, _pinEnabledMeta),
-      );
+          _pinEnabledMeta,
+          pinEnabled.isAcceptableOrUnknown(
+              data['pin_enabled']!, _pinEnabledMeta));
     }
     if (data.containsKey('discrete_mode_enabled')) {
       context.handle(
-        _discreteModeEnabledMeta,
-        discreteModeEnabled.isAcceptableOrUnknown(
-          data['discrete_mode_enabled']!,
           _discreteModeEnabledMeta,
-        ),
-      );
+          discreteModeEnabled.isAcceptableOrUnknown(
+              data['discrete_mode_enabled']!, _discreteModeEnabledMeta));
     }
     if (data.containsKey('sms_parsing_enabled')) {
       context.handle(
-        _smsParsingEnabledMeta,
-        smsParsingEnabled.isAcceptableOrUnknown(
-          data['sms_parsing_enabled']!,
           _smsParsingEnabledMeta,
-        ),
-      );
+          smsParsingEnabled.isAcceptableOrUnknown(
+              data['sms_parsing_enabled']!, _smsParsingEnabledMeta));
     }
     if (data.containsKey('savings_goal')) {
       context.handle(
-        _savingsGoalMeta,
-        savingsGoal.isAcceptableOrUnknown(
-          data['savings_goal']!,
           _savingsGoalMeta,
-        ),
-      );
+          savingsGoal.isAcceptableOrUnknown(
+              data['savings_goal']!, _savingsGoalMeta));
     }
     if (data.containsKey('onboarding_completed')) {
       context.handle(
-        _onboardingCompletedMeta,
-        onboardingCompleted.isAcceptableOrUnknown(
-          data['onboarding_completed']!,
           _onboardingCompletedMeta,
-        ),
-      );
+          onboardingCompleted.isAcceptableOrUnknown(
+              data['onboarding_completed']!, _onboardingCompletedMeta));
     }
     if (data.containsKey('border_color')) {
       context.handle(
-        _borderColorMeta,
-        borderColor.isAcceptableOrUnknown(
-          data['border_color']!,
           _borderColorMeta,
-        ),
-      );
+          borderColor.isAcceptableOrUnknown(
+              data['border_color']!, _borderColorMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
@@ -3399,84 +3127,46 @@ class $SettingsTable extends Settings
   UserSettings map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return UserSettings(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      userName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_name'],
-      )!,
-      currency: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}currency'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      userName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_name'])!,
+      currency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency'])!,
       financialCycle: $SettingsTable.$converterfinancialCycle.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}financial_cycle'],
-        )!,
-      ),
+          attachedDatabase.typeMapping.read(
+              DriftSqlType.int, data['${effectivePrefix}financial_cycle'])!),
       transportMode: $SettingsTable.$convertertransportMode.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}transport_mode'],
-        )!,
-      ),
+          attachedDatabase.typeMapping.read(
+              DriftSqlType.int, data['${effectivePrefix}transport_mode'])!),
       dailyTransportCost: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}daily_transport_cost'],
-      ),
+          DriftSqlType.double, data['${effectivePrefix}daily_transport_cost']),
       transportDaysPerWeek: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}transport_days_per_week'],
-      ),
+          DriftSqlType.int, data['${effectivePrefix}transport_days_per_week']),
       fixedTransportAmount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}fixed_transport_amount'],
-      ),
+          DriftSqlType.double,
+          data['${effectivePrefix}fixed_transport_amount']),
       biometricEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}biometric_enabled'],
-      )!,
-      pinEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}pin_enabled'],
-      )!,
+          DriftSqlType.bool, data['${effectivePrefix}biometric_enabled'])!,
+      pinEnabled: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}pin_enabled'])!,
       discreteModeEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}discrete_mode_enabled'],
-      )!,
+          DriftSqlType.bool, data['${effectivePrefix}discrete_mode_enabled'])!,
       smsParsingEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}sms_parsing_enabled'],
-      )!,
-      savingsGoal: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}savings_goal'],
-      )!,
+          DriftSqlType.bool, data['${effectivePrefix}sms_parsing_enabled'])!,
+      savingsGoal: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}savings_goal'])!,
       onboardingCompleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}onboarding_completed'],
-      )!,
-      borderColor: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}border_color'],
-      ),
-      themeMode: $SettingsTable.$converterthemeMode.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}theme_mode'],
-        )!,
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
+          DriftSqlType.bool, data['${effectivePrefix}onboarding_completed'])!,
+      borderColor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}border_color']),
+      themeMode: $SettingsTable.$converterthemeMode.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}theme_mode'])!),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
     );
   }
 
@@ -3512,26 +3202,25 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
   final ThemeModePreference themeMode;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const UserSettings({
-    required this.id,
-    required this.userName,
-    required this.currency,
-    required this.financialCycle,
-    required this.transportMode,
-    this.dailyTransportCost,
-    this.transportDaysPerWeek,
-    this.fixedTransportAmount,
-    required this.biometricEnabled,
-    required this.pinEnabled,
-    required this.discreteModeEnabled,
-    required this.smsParsingEnabled,
-    required this.savingsGoal,
-    required this.onboardingCompleted,
-    this.borderColor,
-    required this.themeMode,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  const UserSettings(
+      {required this.id,
+      required this.userName,
+      required this.currency,
+      required this.financialCycle,
+      required this.transportMode,
+      this.dailyTransportCost,
+      this.transportDaysPerWeek,
+      this.fixedTransportAmount,
+      required this.biometricEnabled,
+      required this.pinEnabled,
+      required this.discreteModeEnabled,
+      required this.smsParsingEnabled,
+      required this.savingsGoal,
+      required this.onboardingCompleted,
+      this.borderColor,
+      required this.themeMode,
+      required this.createdAt,
+      required this.updatedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3540,13 +3229,11 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     map['currency'] = Variable<String>(currency);
     {
       map['financial_cycle'] = Variable<int>(
-        $SettingsTable.$converterfinancialCycle.toSql(financialCycle),
-      );
+          $SettingsTable.$converterfinancialCycle.toSql(financialCycle));
     }
     {
       map['transport_mode'] = Variable<int>(
-        $SettingsTable.$convertertransportMode.toSql(transportMode),
-      );
+          $SettingsTable.$convertertransportMode.toSql(transportMode));
     }
     if (!nullToAbsent || dailyTransportCost != null) {
       map['daily_transport_cost'] = Variable<double>(dailyTransportCost);
@@ -3567,9 +3254,8 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       map['border_color'] = Variable<String>(borderColor);
     }
     {
-      map['theme_mode'] = Variable<int>(
-        $SettingsTable.$converterthemeMode.toSql(themeMode),
-      );
+      map['theme_mode'] =
+          Variable<int>($SettingsTable.$converterthemeMode.toSql(themeMode));
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -3607,44 +3293,34 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
     );
   }
 
-  factory UserSettings.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory UserSettings.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserSettings(
       id: serializer.fromJson<int>(json['id']),
       userName: serializer.fromJson<String>(json['userName']),
       currency: serializer.fromJson<String>(json['currency']),
-      financialCycle: $SettingsTable.$converterfinancialCycle.fromJson(
-        serializer.fromJson<int>(json['financialCycle']),
-      ),
-      transportMode: $SettingsTable.$convertertransportMode.fromJson(
-        serializer.fromJson<int>(json['transportMode']),
-      ),
-      dailyTransportCost: serializer.fromJson<double?>(
-        json['dailyTransportCost'],
-      ),
-      transportDaysPerWeek: serializer.fromJson<int?>(
-        json['transportDaysPerWeek'],
-      ),
-      fixedTransportAmount: serializer.fromJson<double?>(
-        json['fixedTransportAmount'],
-      ),
+      financialCycle: $SettingsTable.$converterfinancialCycle
+          .fromJson(serializer.fromJson<int>(json['financialCycle'])),
+      transportMode: $SettingsTable.$convertertransportMode
+          .fromJson(serializer.fromJson<int>(json['transportMode'])),
+      dailyTransportCost:
+          serializer.fromJson<double?>(json['dailyTransportCost']),
+      transportDaysPerWeek:
+          serializer.fromJson<int?>(json['transportDaysPerWeek']),
+      fixedTransportAmount:
+          serializer.fromJson<double?>(json['fixedTransportAmount']),
       biometricEnabled: serializer.fromJson<bool>(json['biometricEnabled']),
       pinEnabled: serializer.fromJson<bool>(json['pinEnabled']),
-      discreteModeEnabled: serializer.fromJson<bool>(
-        json['discreteModeEnabled'],
-      ),
+      discreteModeEnabled:
+          serializer.fromJson<bool>(json['discreteModeEnabled']),
       smsParsingEnabled: serializer.fromJson<bool>(json['smsParsingEnabled']),
       savingsGoal: serializer.fromJson<double>(json['savingsGoal']),
-      onboardingCompleted: serializer.fromJson<bool>(
-        json['onboardingCompleted'],
-      ),
+      onboardingCompleted:
+          serializer.fromJson<bool>(json['onboardingCompleted']),
       borderColor: serializer.fromJson<String?>(json['borderColor']),
-      themeMode: $SettingsTable.$converterthemeMode.fromJson(
-        serializer.fromJson<int>(json['themeMode']),
-      ),
+      themeMode: $SettingsTable.$converterthemeMode
+          .fromJson(serializer.fromJson<int>(json['themeMode'])),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -3657,11 +3333,9 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       'userName': serializer.toJson<String>(userName),
       'currency': serializer.toJson<String>(currency),
       'financialCycle': serializer.toJson<int>(
-        $SettingsTable.$converterfinancialCycle.toJson(financialCycle),
-      ),
+          $SettingsTable.$converterfinancialCycle.toJson(financialCycle)),
       'transportMode': serializer.toJson<int>(
-        $SettingsTable.$convertertransportMode.toJson(transportMode),
-      ),
+          $SettingsTable.$convertertransportMode.toJson(transportMode)),
       'dailyTransportCost': serializer.toJson<double?>(dailyTransportCost),
       'transportDaysPerWeek': serializer.toJson<int?>(transportDaysPerWeek),
       'fixedTransportAmount': serializer.toJson<double?>(fixedTransportAmount),
@@ -3672,59 +3346,58 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       'savingsGoal': serializer.toJson<double>(savingsGoal),
       'onboardingCompleted': serializer.toJson<bool>(onboardingCompleted),
       'borderColor': serializer.toJson<String?>(borderColor),
-      'themeMode': serializer.toJson<int>(
-        $SettingsTable.$converterthemeMode.toJson(themeMode),
-      ),
+      'themeMode': serializer
+          .toJson<int>($SettingsTable.$converterthemeMode.toJson(themeMode)),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
-  UserSettings copyWith({
-    int? id,
-    String? userName,
-    String? currency,
-    FinancialCycle? financialCycle,
-    TransportMode? transportMode,
-    Value<double?> dailyTransportCost = const Value.absent(),
-    Value<int?> transportDaysPerWeek = const Value.absent(),
-    Value<double?> fixedTransportAmount = const Value.absent(),
-    bool? biometricEnabled,
-    bool? pinEnabled,
-    bool? discreteModeEnabled,
-    bool? smsParsingEnabled,
-    double? savingsGoal,
-    bool? onboardingCompleted,
-    Value<String?> borderColor = const Value.absent(),
-    ThemeModePreference? themeMode,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => UserSettings(
-    id: id ?? this.id,
-    userName: userName ?? this.userName,
-    currency: currency ?? this.currency,
-    financialCycle: financialCycle ?? this.financialCycle,
-    transportMode: transportMode ?? this.transportMode,
-    dailyTransportCost: dailyTransportCost.present
-        ? dailyTransportCost.value
-        : this.dailyTransportCost,
-    transportDaysPerWeek: transportDaysPerWeek.present
-        ? transportDaysPerWeek.value
-        : this.transportDaysPerWeek,
-    fixedTransportAmount: fixedTransportAmount.present
-        ? fixedTransportAmount.value
-        : this.fixedTransportAmount,
-    biometricEnabled: biometricEnabled ?? this.biometricEnabled,
-    pinEnabled: pinEnabled ?? this.pinEnabled,
-    discreteModeEnabled: discreteModeEnabled ?? this.discreteModeEnabled,
-    smsParsingEnabled: smsParsingEnabled ?? this.smsParsingEnabled,
-    savingsGoal: savingsGoal ?? this.savingsGoal,
-    onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
-    borderColor: borderColor.present ? borderColor.value : this.borderColor,
-    themeMode: themeMode ?? this.themeMode,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+  UserSettings copyWith(
+          {int? id,
+          String? userName,
+          String? currency,
+          FinancialCycle? financialCycle,
+          TransportMode? transportMode,
+          Value<double?> dailyTransportCost = const Value.absent(),
+          Value<int?> transportDaysPerWeek = const Value.absent(),
+          Value<double?> fixedTransportAmount = const Value.absent(),
+          bool? biometricEnabled,
+          bool? pinEnabled,
+          bool? discreteModeEnabled,
+          bool? smsParsingEnabled,
+          double? savingsGoal,
+          bool? onboardingCompleted,
+          Value<String?> borderColor = const Value.absent(),
+          ThemeModePreference? themeMode,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      UserSettings(
+        id: id ?? this.id,
+        userName: userName ?? this.userName,
+        currency: currency ?? this.currency,
+        financialCycle: financialCycle ?? this.financialCycle,
+        transportMode: transportMode ?? this.transportMode,
+        dailyTransportCost: dailyTransportCost.present
+            ? dailyTransportCost.value
+            : this.dailyTransportCost,
+        transportDaysPerWeek: transportDaysPerWeek.present
+            ? transportDaysPerWeek.value
+            : this.transportDaysPerWeek,
+        fixedTransportAmount: fixedTransportAmount.present
+            ? fixedTransportAmount.value
+            : this.fixedTransportAmount,
+        biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+        pinEnabled: pinEnabled ?? this.pinEnabled,
+        discreteModeEnabled: discreteModeEnabled ?? this.discreteModeEnabled,
+        smsParsingEnabled: smsParsingEnabled ?? this.smsParsingEnabled,
+        savingsGoal: savingsGoal ?? this.savingsGoal,
+        onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+        borderColor: borderColor.present ? borderColor.value : this.borderColor,
+        themeMode: themeMode ?? this.themeMode,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
   UserSettings copyWithCompanion(SettingsCompanion data) {
     return UserSettings(
       id: data.id.present ? data.id.value : this.id,
@@ -3748,24 +3421,21 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
       biometricEnabled: data.biometricEnabled.present
           ? data.biometricEnabled.value
           : this.biometricEnabled,
-      pinEnabled: data.pinEnabled.present
-          ? data.pinEnabled.value
-          : this.pinEnabled,
+      pinEnabled:
+          data.pinEnabled.present ? data.pinEnabled.value : this.pinEnabled,
       discreteModeEnabled: data.discreteModeEnabled.present
           ? data.discreteModeEnabled.value
           : this.discreteModeEnabled,
       smsParsingEnabled: data.smsParsingEnabled.present
           ? data.smsParsingEnabled.value
           : this.smsParsingEnabled,
-      savingsGoal: data.savingsGoal.present
-          ? data.savingsGoal.value
-          : this.savingsGoal,
+      savingsGoal:
+          data.savingsGoal.present ? data.savingsGoal.value : this.savingsGoal,
       onboardingCompleted: data.onboardingCompleted.present
           ? data.onboardingCompleted.value
           : this.onboardingCompleted,
-      borderColor: data.borderColor.present
-          ? data.borderColor.value
-          : this.borderColor,
+      borderColor:
+          data.borderColor.present ? data.borderColor.value : this.borderColor,
       themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3799,25 +3469,24 @@ class UserSettings extends DataClass implements Insertable<UserSettings> {
 
   @override
   int get hashCode => Object.hash(
-    id,
-    userName,
-    currency,
-    financialCycle,
-    transportMode,
-    dailyTransportCost,
-    transportDaysPerWeek,
-    fixedTransportAmount,
-    biometricEnabled,
-    pinEnabled,
-    discreteModeEnabled,
-    smsParsingEnabled,
-    savingsGoal,
-    onboardingCompleted,
-    borderColor,
-    themeMode,
-    createdAt,
-    updatedAt,
-  );
+      id,
+      userName,
+      currency,
+      financialCycle,
+      transportMode,
+      dailyTransportCost,
+      transportDaysPerWeek,
+      fixedTransportAmount,
+      biometricEnabled,
+      pinEnabled,
+      discreteModeEnabled,
+      smsParsingEnabled,
+      savingsGoal,
+      onboardingCompleted,
+      borderColor,
+      themeMode,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3900,11 +3569,11 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     this.themeMode = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
-  }) : userName = Value(userName),
-       financialCycle = Value(financialCycle),
-       transportMode = Value(transportMode),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+  })  : userName = Value(userName),
+        financialCycle = Value(financialCycle),
+        transportMode = Value(transportMode),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
   static Insertable<UserSettings> custom({
     Expression<int>? id,
     Expression<String>? userName,
@@ -3952,26 +3621,25 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     });
   }
 
-  SettingsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? userName,
-    Value<String>? currency,
-    Value<FinancialCycle>? financialCycle,
-    Value<TransportMode>? transportMode,
-    Value<double?>? dailyTransportCost,
-    Value<int?>? transportDaysPerWeek,
-    Value<double?>? fixedTransportAmount,
-    Value<bool>? biometricEnabled,
-    Value<bool>? pinEnabled,
-    Value<bool>? discreteModeEnabled,
-    Value<bool>? smsParsingEnabled,
-    Value<double>? savingsGoal,
-    Value<bool>? onboardingCompleted,
-    Value<String?>? borderColor,
-    Value<ThemeModePreference>? themeMode,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-  }) {
+  SettingsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? userName,
+      Value<String>? currency,
+      Value<FinancialCycle>? financialCycle,
+      Value<TransportMode>? transportMode,
+      Value<double?>? dailyTransportCost,
+      Value<int?>? transportDaysPerWeek,
+      Value<double?>? fixedTransportAmount,
+      Value<bool>? biometricEnabled,
+      Value<bool>? pinEnabled,
+      Value<bool>? discreteModeEnabled,
+      Value<bool>? smsParsingEnabled,
+      Value<double>? savingsGoal,
+      Value<bool>? onboardingCompleted,
+      Value<String?>? borderColor,
+      Value<ThemeModePreference>? themeMode,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
     return SettingsCompanion(
       id: id ?? this.id,
       userName: userName ?? this.userName,
@@ -4008,26 +3676,22 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     }
     if (financialCycle.present) {
       map['financial_cycle'] = Variable<int>(
-        $SettingsTable.$converterfinancialCycle.toSql(financialCycle.value),
-      );
+          $SettingsTable.$converterfinancialCycle.toSql(financialCycle.value));
     }
     if (transportMode.present) {
       map['transport_mode'] = Variable<int>(
-        $SettingsTable.$convertertransportMode.toSql(transportMode.value),
-      );
+          $SettingsTable.$convertertransportMode.toSql(transportMode.value));
     }
     if (dailyTransportCost.present) {
       map['daily_transport_cost'] = Variable<double>(dailyTransportCost.value);
     }
     if (transportDaysPerWeek.present) {
-      map['transport_days_per_week'] = Variable<int>(
-        transportDaysPerWeek.value,
-      );
+      map['transport_days_per_week'] =
+          Variable<int>(transportDaysPerWeek.value);
     }
     if (fixedTransportAmount.present) {
-      map['fixed_transport_amount'] = Variable<double>(
-        fixedTransportAmount.value,
-      );
+      map['fixed_transport_amount'] =
+          Variable<double>(fixedTransportAmount.value);
     }
     if (biometricEnabled.present) {
       map['biometric_enabled'] = Variable<bool>(biometricEnabled.value);
@@ -4052,8 +3716,7 @@ class SettingsCompanion extends UpdateCompanion<UserSettings> {
     }
     if (themeMode.present) {
       map['theme_mode'] = Variable<int>(
-        $SettingsTable.$converterthemeMode.toSql(themeMode.value),
-      );
+          $SettingsTable.$converterthemeMode.toSql(themeMode.value));
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -4099,178 +3762,113 @@ class $IncomePatternsTable extends IncomePatterns
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _estimatedWeeklyIncomeMeta =
       const VerificationMeta('estimatedWeeklyIncome');
   @override
   late final GeneratedColumn<double> estimatedWeeklyIncome =
-      GeneratedColumn<double>(
-        'estimated_weekly_income',
-        aliasedName,
-        false,
-        type: DriftSqlType.double,
-        requiredDuringInsert: true,
-      );
-  static const VerificationMeta _minimumObservedMeta = const VerificationMeta(
-    'minimumObserved',
-  );
+      GeneratedColumn<double>('estimated_weekly_income', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _minimumObservedMeta =
+      const VerificationMeta('minimumObserved');
   @override
   late final GeneratedColumn<double> minimumObserved = GeneratedColumn<double>(
-    'minimum_observed',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _maximumObservedMeta = const VerificationMeta(
-    'maximumObserved',
-  );
+      'minimum_observed', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _maximumObservedMeta =
+      const VerificationMeta('maximumObserved');
   @override
   late final GeneratedColumn<double> maximumObserved = GeneratedColumn<double>(
-    'maximum_observed',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _averageObservedMeta = const VerificationMeta(
-    'averageObserved',
-  );
+      'maximum_observed', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _averageObservedMeta =
+      const VerificationMeta('averageObserved');
   @override
   late final GeneratedColumn<double> averageObserved = GeneratedColumn<double>(
-    'average_observed',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _varianceMeta = const VerificationMeta(
-    'variance',
-  );
+      'average_observed', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _varianceMeta =
+      const VerificationMeta('variance');
   @override
   late final GeneratedColumn<double> variance = GeneratedColumn<double>(
-    'variance',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isRegularMeta = const VerificationMeta(
-    'isRegular',
-  );
+      'variance', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _isRegularMeta =
+      const VerificationMeta('isRegular');
   @override
   late final GeneratedColumn<bool> isRegular = GeneratedColumn<bool>(
-    'is_regular',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_regular" IN (0, 1))',
-    ),
-  );
-  static const VerificationMeta _transactionCountMeta = const VerificationMeta(
-    'transactionCount',
-  );
+      'is_regular', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_regular" IN (0, 1))'));
+  static const VerificationMeta _transactionCountMeta =
+      const VerificationMeta('transactionCount');
   @override
   late final GeneratedColumn<int> transactionCount = GeneratedColumn<int>(
-    'transaction_count',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
+      'transaction_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _analysisWindowDaysMeta =
       const VerificationMeta('analysisWindowDays');
   @override
   late final GeneratedColumn<int> analysisWindowDays = GeneratedColumn<int>(
-    'analysis_window_days',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(90),
-  );
-  static const VerificationMeta _frequencyMeta = const VerificationMeta(
-    'frequency',
-  );
+      'analysis_window_days', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(90));
+  static const VerificationMeta _frequencyMeta =
+      const VerificationMeta('frequency');
   @override
   late final GeneratedColumn<String> frequency = GeneratedColumn<String>(
-    'frequency',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _nextPredictedDateMeta = const VerificationMeta(
-    'nextPredictedDate',
-  );
+      'frequency', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nextPredictedDateMeta =
+      const VerificationMeta('nextPredictedDate');
   @override
   late final GeneratedColumn<DateTime> nextPredictedDate =
-      GeneratedColumn<DateTime>(
-        'next_predicted_date',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      GeneratedColumn<DateTime>('next_predicted_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    estimatedWeeklyIncome,
-    minimumObserved,
-    maximumObserved,
-    averageObserved,
-    variance,
-    isRegular,
-    transactionCount,
-    analysisWindowDays,
-    frequency,
-    nextPredictedDate,
-    createdAt,
-    updatedAt,
-  ];
+        id,
+        estimatedWeeklyIncome,
+        minimumObserved,
+        maximumObserved,
+        averageObserved,
+        variance,
+        isRegular,
+        transactionCount,
+        analysisWindowDays,
+        frequency,
+        nextPredictedDate,
+        createdAt,
+        updatedAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'income_patterns';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<IncomePattern> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<IncomePattern> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -4278,114 +3876,83 @@ class $IncomePatternsTable extends IncomePatterns
     }
     if (data.containsKey('estimated_weekly_income')) {
       context.handle(
-        _estimatedWeeklyIncomeMeta,
-        estimatedWeeklyIncome.isAcceptableOrUnknown(
-          data['estimated_weekly_income']!,
           _estimatedWeeklyIncomeMeta,
-        ),
-      );
+          estimatedWeeklyIncome.isAcceptableOrUnknown(
+              data['estimated_weekly_income']!, _estimatedWeeklyIncomeMeta));
     } else if (isInserting) {
       context.missing(_estimatedWeeklyIncomeMeta);
     }
     if (data.containsKey('minimum_observed')) {
       context.handle(
-        _minimumObservedMeta,
-        minimumObserved.isAcceptableOrUnknown(
-          data['minimum_observed']!,
           _minimumObservedMeta,
-        ),
-      );
+          minimumObserved.isAcceptableOrUnknown(
+              data['minimum_observed']!, _minimumObservedMeta));
     } else if (isInserting) {
       context.missing(_minimumObservedMeta);
     }
     if (data.containsKey('maximum_observed')) {
       context.handle(
-        _maximumObservedMeta,
-        maximumObserved.isAcceptableOrUnknown(
-          data['maximum_observed']!,
           _maximumObservedMeta,
-        ),
-      );
+          maximumObserved.isAcceptableOrUnknown(
+              data['maximum_observed']!, _maximumObservedMeta));
     } else if (isInserting) {
       context.missing(_maximumObservedMeta);
     }
     if (data.containsKey('average_observed')) {
       context.handle(
-        _averageObservedMeta,
-        averageObserved.isAcceptableOrUnknown(
-          data['average_observed']!,
           _averageObservedMeta,
-        ),
-      );
+          averageObserved.isAcceptableOrUnknown(
+              data['average_observed']!, _averageObservedMeta));
     } else if (isInserting) {
       context.missing(_averageObservedMeta);
     }
     if (data.containsKey('variance')) {
-      context.handle(
-        _varianceMeta,
-        variance.isAcceptableOrUnknown(data['variance']!, _varianceMeta),
-      );
+      context.handle(_varianceMeta,
+          variance.isAcceptableOrUnknown(data['variance']!, _varianceMeta));
     } else if (isInserting) {
       context.missing(_varianceMeta);
     }
     if (data.containsKey('is_regular')) {
-      context.handle(
-        _isRegularMeta,
-        isRegular.isAcceptableOrUnknown(data['is_regular']!, _isRegularMeta),
-      );
+      context.handle(_isRegularMeta,
+          isRegular.isAcceptableOrUnknown(data['is_regular']!, _isRegularMeta));
     } else if (isInserting) {
       context.missing(_isRegularMeta);
     }
     if (data.containsKey('transaction_count')) {
       context.handle(
-        _transactionCountMeta,
-        transactionCount.isAcceptableOrUnknown(
-          data['transaction_count']!,
           _transactionCountMeta,
-        ),
-      );
+          transactionCount.isAcceptableOrUnknown(
+              data['transaction_count']!, _transactionCountMeta));
     } else if (isInserting) {
       context.missing(_transactionCountMeta);
     }
     if (data.containsKey('analysis_window_days')) {
       context.handle(
-        _analysisWindowDaysMeta,
-        analysisWindowDays.isAcceptableOrUnknown(
-          data['analysis_window_days']!,
           _analysisWindowDaysMeta,
-        ),
-      );
+          analysisWindowDays.isAcceptableOrUnknown(
+              data['analysis_window_days']!, _analysisWindowDaysMeta));
     }
     if (data.containsKey('frequency')) {
-      context.handle(
-        _frequencyMeta,
-        frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta),
-      );
+      context.handle(_frequencyMeta,
+          frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta));
     } else if (isInserting) {
       context.missing(_frequencyMeta);
     }
     if (data.containsKey('next_predicted_date')) {
       context.handle(
-        _nextPredictedDateMeta,
-        nextPredictedDate.isAcceptableOrUnknown(
-          data['next_predicted_date']!,
           _nextPredictedDateMeta,
-        ),
-      );
+          nextPredictedDate.isAcceptableOrUnknown(
+              data['next_predicted_date']!, _nextPredictedDateMeta));
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
@@ -4398,58 +3965,33 @@ class $IncomePatternsTable extends IncomePatterns
   IncomePattern map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return IncomePattern(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       estimatedWeeklyIncome: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}estimated_weekly_income'],
-      )!,
+          DriftSqlType.double,
+          data['${effectivePrefix}estimated_weekly_income'])!,
       minimumObserved: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}minimum_observed'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}minimum_observed'])!,
       maximumObserved: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}maximum_observed'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}maximum_observed'])!,
       averageObserved: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}average_observed'],
-      )!,
-      variance: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}variance'],
-      )!,
-      isRegular: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_regular'],
-      )!,
-      transactionCount: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}transaction_count'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}average_observed'])!,
+      variance: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}variance'])!,
+      isRegular: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_regular'])!,
+      transactionCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}transaction_count'])!,
       analysisWindowDays: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}analysis_window_days'],
-      )!,
-      frequency: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}frequency'],
-      )!,
+          DriftSqlType.int, data['${effectivePrefix}analysis_window_days'])!,
+      frequency: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}frequency'])!,
       nextPredictedDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}next_predicted_date'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
+          DriftSqlType.dateTime, data['${effectivePrefix}next_predicted_date']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
     );
   }
 
@@ -4473,21 +4015,20 @@ class IncomePattern extends DataClass implements Insertable<IncomePattern> {
   final DateTime? nextPredictedDate;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const IncomePattern({
-    required this.id,
-    required this.estimatedWeeklyIncome,
-    required this.minimumObserved,
-    required this.maximumObserved,
-    required this.averageObserved,
-    required this.variance,
-    required this.isRegular,
-    required this.transactionCount,
-    required this.analysisWindowDays,
-    required this.frequency,
-    this.nextPredictedDate,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  const IncomePattern(
+      {required this.id,
+      required this.estimatedWeeklyIncome,
+      required this.minimumObserved,
+      required this.maximumObserved,
+      required this.averageObserved,
+      required this.variance,
+      required this.isRegular,
+      required this.transactionCount,
+      required this.analysisWindowDays,
+      required this.frequency,
+      this.nextPredictedDate,
+      required this.createdAt,
+      required this.updatedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -4529,16 +4070,13 @@ class IncomePattern extends DataClass implements Insertable<IncomePattern> {
     );
   }
 
-  factory IncomePattern.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory IncomePattern.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return IncomePattern(
       id: serializer.fromJson<int>(json['id']),
-      estimatedWeeklyIncome: serializer.fromJson<double>(
-        json['estimatedWeeklyIncome'],
-      ),
+      estimatedWeeklyIncome:
+          serializer.fromJson<double>(json['estimatedWeeklyIncome']),
       minimumObserved: serializer.fromJson<double>(json['minimumObserved']),
       maximumObserved: serializer.fromJson<double>(json['maximumObserved']),
       averageObserved: serializer.fromJson<double>(json['averageObserved']),
@@ -4547,9 +4085,8 @@ class IncomePattern extends DataClass implements Insertable<IncomePattern> {
       transactionCount: serializer.fromJson<int>(json['transactionCount']),
       analysisWindowDays: serializer.fromJson<int>(json['analysisWindowDays']),
       frequency: serializer.fromJson<String>(json['frequency']),
-      nextPredictedDate: serializer.fromJson<DateTime?>(
-        json['nextPredictedDate'],
-      ),
+      nextPredictedDate:
+          serializer.fromJson<DateTime?>(json['nextPredictedDate']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -4574,37 +4111,38 @@ class IncomePattern extends DataClass implements Insertable<IncomePattern> {
     };
   }
 
-  IncomePattern copyWith({
-    int? id,
-    double? estimatedWeeklyIncome,
-    double? minimumObserved,
-    double? maximumObserved,
-    double? averageObserved,
-    double? variance,
-    bool? isRegular,
-    int? transactionCount,
-    int? analysisWindowDays,
-    String? frequency,
-    Value<DateTime?> nextPredictedDate = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => IncomePattern(
-    id: id ?? this.id,
-    estimatedWeeklyIncome: estimatedWeeklyIncome ?? this.estimatedWeeklyIncome,
-    minimumObserved: minimumObserved ?? this.minimumObserved,
-    maximumObserved: maximumObserved ?? this.maximumObserved,
-    averageObserved: averageObserved ?? this.averageObserved,
-    variance: variance ?? this.variance,
-    isRegular: isRegular ?? this.isRegular,
-    transactionCount: transactionCount ?? this.transactionCount,
-    analysisWindowDays: analysisWindowDays ?? this.analysisWindowDays,
-    frequency: frequency ?? this.frequency,
-    nextPredictedDate: nextPredictedDate.present
-        ? nextPredictedDate.value
-        : this.nextPredictedDate,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+  IncomePattern copyWith(
+          {int? id,
+          double? estimatedWeeklyIncome,
+          double? minimumObserved,
+          double? maximumObserved,
+          double? averageObserved,
+          double? variance,
+          bool? isRegular,
+          int? transactionCount,
+          int? analysisWindowDays,
+          String? frequency,
+          Value<DateTime?> nextPredictedDate = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      IncomePattern(
+        id: id ?? this.id,
+        estimatedWeeklyIncome:
+            estimatedWeeklyIncome ?? this.estimatedWeeklyIncome,
+        minimumObserved: minimumObserved ?? this.minimumObserved,
+        maximumObserved: maximumObserved ?? this.maximumObserved,
+        averageObserved: averageObserved ?? this.averageObserved,
+        variance: variance ?? this.variance,
+        isRegular: isRegular ?? this.isRegular,
+        transactionCount: transactionCount ?? this.transactionCount,
+        analysisWindowDays: analysisWindowDays ?? this.analysisWindowDays,
+        frequency: frequency ?? this.frequency,
+        nextPredictedDate: nextPredictedDate.present
+            ? nextPredictedDate.value
+            : this.nextPredictedDate,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
   IncomePattern copyWithCompanion(IncomePatternsCompanion data) {
     return IncomePattern(
       id: data.id.present ? data.id.value : this.id,
@@ -4659,20 +4197,19 @@ class IncomePattern extends DataClass implements Insertable<IncomePattern> {
 
   @override
   int get hashCode => Object.hash(
-    id,
-    estimatedWeeklyIncome,
-    minimumObserved,
-    maximumObserved,
-    averageObserved,
-    variance,
-    isRegular,
-    transactionCount,
-    analysisWindowDays,
-    frequency,
-    nextPredictedDate,
-    createdAt,
-    updatedAt,
-  );
+      id,
+      estimatedWeeklyIncome,
+      minimumObserved,
+      maximumObserved,
+      averageObserved,
+      variance,
+      isRegular,
+      transactionCount,
+      analysisWindowDays,
+      frequency,
+      nextPredictedDate,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4735,16 +4272,16 @@ class IncomePatternsCompanion extends UpdateCompanion<IncomePattern> {
     this.nextPredictedDate = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
-  }) : estimatedWeeklyIncome = Value(estimatedWeeklyIncome),
-       minimumObserved = Value(minimumObserved),
-       maximumObserved = Value(maximumObserved),
-       averageObserved = Value(averageObserved),
-       variance = Value(variance),
-       isRegular = Value(isRegular),
-       transactionCount = Value(transactionCount),
-       frequency = Value(frequency),
-       createdAt = Value(createdAt),
-       updatedAt = Value(updatedAt);
+  })  : estimatedWeeklyIncome = Value(estimatedWeeklyIncome),
+        minimumObserved = Value(minimumObserved),
+        maximumObserved = Value(maximumObserved),
+        averageObserved = Value(averageObserved),
+        variance = Value(variance),
+        isRegular = Value(isRegular),
+        transactionCount = Value(transactionCount),
+        frequency = Value(frequency),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
   static Insertable<IncomePattern> custom({
     Expression<int>? id,
     Expression<double>? estimatedWeeklyIncome,
@@ -4779,21 +4316,20 @@ class IncomePatternsCompanion extends UpdateCompanion<IncomePattern> {
     });
   }
 
-  IncomePatternsCompanion copyWith({
-    Value<int>? id,
-    Value<double>? estimatedWeeklyIncome,
-    Value<double>? minimumObserved,
-    Value<double>? maximumObserved,
-    Value<double>? averageObserved,
-    Value<double>? variance,
-    Value<bool>? isRegular,
-    Value<int>? transactionCount,
-    Value<int>? analysisWindowDays,
-    Value<String>? frequency,
-    Value<DateTime?>? nextPredictedDate,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-  }) {
+  IncomePatternsCompanion copyWith(
+      {Value<int>? id,
+      Value<double>? estimatedWeeklyIncome,
+      Value<double>? minimumObserved,
+      Value<double>? maximumObserved,
+      Value<double>? averageObserved,
+      Value<double>? variance,
+      Value<bool>? isRegular,
+      Value<int>? transactionCount,
+      Value<int>? analysisWindowDays,
+      Value<String>? frequency,
+      Value<DateTime?>? nextPredictedDate,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
     return IncomePatternsCompanion(
       id: id ?? this.id,
       estimatedWeeklyIncome:
@@ -4819,9 +4355,8 @@ class IncomePatternsCompanion extends UpdateCompanion<IncomePattern> {
       map['id'] = Variable<int>(id.value);
     }
     if (estimatedWeeklyIncome.present) {
-      map['estimated_weekly_income'] = Variable<double>(
-        estimatedWeeklyIncome.value,
-      );
+      map['estimated_weekly_income'] =
+          Variable<double>(estimatedWeeklyIncome.value);
     }
     if (minimumObserved.present) {
       map['minimum_observed'] = Variable<double>(minimumObserved.value);
@@ -4888,140 +4423,90 @@ class $InsightsTable extends Insights with TableInfo<$InsightsTable, Insight> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
-    'type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _totalAmountMeta = const VerificationMeta(
-    'totalAmount',
-  );
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _totalAmountMeta =
+      const VerificationMeta('totalAmount');
   @override
   late final GeneratedColumn<double> totalAmount = GeneratedColumn<double>(
-    'total_amount',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _transactionCountMeta = const VerificationMeta(
-    'transactionCount',
-  );
+      'total_amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _transactionCountMeta =
+      const VerificationMeta('transactionCount');
   @override
   late final GeneratedColumn<int> transactionCount = GeneratedColumn<int>(
-    'transaction_count',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _categoryNamesMeta = const VerificationMeta(
-    'categoryNames',
-  );
+      'transaction_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _categoryNamesMeta =
+      const VerificationMeta('categoryNames');
   @override
   late final GeneratedColumn<String> categoryNames = GeneratedColumn<String>(
-    'category_names',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+      'category_names', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _percentageOfAvailableMeta =
       const VerificationMeta('percentageOfAvailable');
   @override
   late final GeneratedColumn<double> percentageOfAvailable =
-      GeneratedColumn<double>(
-        'percentage_of_available',
-        aliasedName,
-        false,
-        type: DriftSqlType.double,
-        requiredDuringInsert: true,
-      );
-  static const VerificationMeta _isDismissedMeta = const VerificationMeta(
-    'isDismissed',
-  );
+      GeneratedColumn<double>('percentage_of_available', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _isDismissedMeta =
+      const VerificationMeta('isDismissed');
   @override
   late final GeneratedColumn<bool> isDismissed = GeneratedColumn<bool>(
-    'is_dismissed',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_dismissed" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _detectedAtMeta = const VerificationMeta(
-    'detectedAt',
-  );
+      'is_dismissed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_dismissed" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _detectedAtMeta =
+      const VerificationMeta('detectedAt');
   @override
   late final GeneratedColumn<DateTime> detectedAt = GeneratedColumn<DateTime>(
-    'detected_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
-    'expiresAt',
-  );
+      'detected_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _expiresAtMeta =
+      const VerificationMeta('expiresAt');
   @override
   late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
-    'expires_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'expires_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    type,
-    totalAmount,
-    transactionCount,
-    categoryNames,
-    percentageOfAvailable,
-    isDismissed,
-    detectedAt,
-    expiresAt,
-    createdAt,
-  ];
+        id,
+        type,
+        totalAmount,
+        transactionCount,
+        categoryNames,
+        percentageOfAvailable,
+        isDismissed,
+        detectedAt,
+        expiresAt,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'insights';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<Insight> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<Insight> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -5029,86 +4514,65 @@ class $InsightsTable extends Insights with TableInfo<$InsightsTable, Insight> {
     }
     if (data.containsKey('type')) {
       context.handle(
-        _typeMeta,
-        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
-      );
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
     if (data.containsKey('total_amount')) {
       context.handle(
-        _totalAmountMeta,
-        totalAmount.isAcceptableOrUnknown(
-          data['total_amount']!,
           _totalAmountMeta,
-        ),
-      );
+          totalAmount.isAcceptableOrUnknown(
+              data['total_amount']!, _totalAmountMeta));
     } else if (isInserting) {
       context.missing(_totalAmountMeta);
     }
     if (data.containsKey('transaction_count')) {
       context.handle(
-        _transactionCountMeta,
-        transactionCount.isAcceptableOrUnknown(
-          data['transaction_count']!,
           _transactionCountMeta,
-        ),
-      );
+          transactionCount.isAcceptableOrUnknown(
+              data['transaction_count']!, _transactionCountMeta));
     } else if (isInserting) {
       context.missing(_transactionCountMeta);
     }
     if (data.containsKey('category_names')) {
       context.handle(
-        _categoryNamesMeta,
-        categoryNames.isAcceptableOrUnknown(
-          data['category_names']!,
           _categoryNamesMeta,
-        ),
-      );
+          categoryNames.isAcceptableOrUnknown(
+              data['category_names']!, _categoryNamesMeta));
     } else if (isInserting) {
       context.missing(_categoryNamesMeta);
     }
     if (data.containsKey('percentage_of_available')) {
       context.handle(
-        _percentageOfAvailableMeta,
-        percentageOfAvailable.isAcceptableOrUnknown(
-          data['percentage_of_available']!,
           _percentageOfAvailableMeta,
-        ),
-      );
+          percentageOfAvailable.isAcceptableOrUnknown(
+              data['percentage_of_available']!, _percentageOfAvailableMeta));
     } else if (isInserting) {
       context.missing(_percentageOfAvailableMeta);
     }
     if (data.containsKey('is_dismissed')) {
       context.handle(
-        _isDismissedMeta,
-        isDismissed.isAcceptableOrUnknown(
-          data['is_dismissed']!,
           _isDismissedMeta,
-        ),
-      );
+          isDismissed.isAcceptableOrUnknown(
+              data['is_dismissed']!, _isDismissedMeta));
     }
     if (data.containsKey('detected_at')) {
       context.handle(
-        _detectedAtMeta,
-        detectedAt.isAcceptableOrUnknown(data['detected_at']!, _detectedAtMeta),
-      );
+          _detectedAtMeta,
+          detectedAt.isAcceptableOrUnknown(
+              data['detected_at']!, _detectedAtMeta));
     } else if (isInserting) {
       context.missing(_detectedAtMeta);
     }
     if (data.containsKey('expires_at')) {
-      context.handle(
-        _expiresAtMeta,
-        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
-      );
+      context.handle(_expiresAtMeta,
+          expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta));
     } else if (isInserting) {
       context.missing(_expiresAtMeta);
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -5121,46 +4585,27 @@ class $InsightsTable extends Insights with TableInfo<$InsightsTable, Insight> {
   Insight map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Insight(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      type: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}type'],
-      )!,
-      totalAmount: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}total_amount'],
-      )!,
-      transactionCount: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}transaction_count'],
-      )!,
-      categoryNames: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}category_names'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      totalAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
+      transactionCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}transaction_count'])!,
+      categoryNames: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_names'])!,
       percentageOfAvailable: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}percentage_of_available'],
-      )!,
-      isDismissed: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_dismissed'],
-      )!,
-      detectedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}detected_at'],
-      )!,
-      expiresAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}expires_at'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+          DriftSqlType.double,
+          data['${effectivePrefix}percentage_of_available'])!,
+      isDismissed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_dismissed'])!,
+      detectedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}detected_at'])!,
+      expiresAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}expires_at'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -5181,18 +4626,17 @@ class Insight extends DataClass implements Insertable<Insight> {
   final DateTime detectedAt;
   final DateTime expiresAt;
   final DateTime createdAt;
-  const Insight({
-    required this.id,
-    required this.type,
-    required this.totalAmount,
-    required this.transactionCount,
-    required this.categoryNames,
-    required this.percentageOfAvailable,
-    required this.isDismissed,
-    required this.detectedAt,
-    required this.expiresAt,
-    required this.createdAt,
-  });
+  const Insight(
+      {required this.id,
+      required this.type,
+      required this.totalAmount,
+      required this.transactionCount,
+      required this.categoryNames,
+      required this.percentageOfAvailable,
+      required this.isDismissed,
+      required this.detectedAt,
+      required this.expiresAt,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5224,10 +4668,8 @@ class Insight extends DataClass implements Insertable<Insight> {
     );
   }
 
-  factory Insight.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory Insight.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Insight(
       id: serializer.fromJson<int>(json['id']),
@@ -5235,9 +4677,8 @@ class Insight extends DataClass implements Insertable<Insight> {
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
       transactionCount: serializer.fromJson<int>(json['transactionCount']),
       categoryNames: serializer.fromJson<String>(json['categoryNames']),
-      percentageOfAvailable: serializer.fromJson<double>(
-        json['percentageOfAvailable'],
-      ),
+      percentageOfAvailable:
+          serializer.fromJson<double>(json['percentageOfAvailable']),
       isDismissed: serializer.fromJson<bool>(json['isDismissed']),
       detectedAt: serializer.fromJson<DateTime>(json['detectedAt']),
       expiresAt: serializer.fromJson<DateTime>(json['expiresAt']),
@@ -5261,36 +4702,36 @@ class Insight extends DataClass implements Insertable<Insight> {
     };
   }
 
-  Insight copyWith({
-    int? id,
-    String? type,
-    double? totalAmount,
-    int? transactionCount,
-    String? categoryNames,
-    double? percentageOfAvailable,
-    bool? isDismissed,
-    DateTime? detectedAt,
-    DateTime? expiresAt,
-    DateTime? createdAt,
-  }) => Insight(
-    id: id ?? this.id,
-    type: type ?? this.type,
-    totalAmount: totalAmount ?? this.totalAmount,
-    transactionCount: transactionCount ?? this.transactionCount,
-    categoryNames: categoryNames ?? this.categoryNames,
-    percentageOfAvailable: percentageOfAvailable ?? this.percentageOfAvailable,
-    isDismissed: isDismissed ?? this.isDismissed,
-    detectedAt: detectedAt ?? this.detectedAt,
-    expiresAt: expiresAt ?? this.expiresAt,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  Insight copyWith(
+          {int? id,
+          String? type,
+          double? totalAmount,
+          int? transactionCount,
+          String? categoryNames,
+          double? percentageOfAvailable,
+          bool? isDismissed,
+          DateTime? detectedAt,
+          DateTime? expiresAt,
+          DateTime? createdAt}) =>
+      Insight(
+        id: id ?? this.id,
+        type: type ?? this.type,
+        totalAmount: totalAmount ?? this.totalAmount,
+        transactionCount: transactionCount ?? this.transactionCount,
+        categoryNames: categoryNames ?? this.categoryNames,
+        percentageOfAvailable:
+            percentageOfAvailable ?? this.percentageOfAvailable,
+        isDismissed: isDismissed ?? this.isDismissed,
+        detectedAt: detectedAt ?? this.detectedAt,
+        expiresAt: expiresAt ?? this.expiresAt,
+        createdAt: createdAt ?? this.createdAt,
+      );
   Insight copyWithCompanion(InsightsCompanion data) {
     return Insight(
       id: data.id.present ? data.id.value : this.id,
       type: data.type.present ? data.type.value : this.type,
-      totalAmount: data.totalAmount.present
-          ? data.totalAmount.value
-          : this.totalAmount,
+      totalAmount:
+          data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
       transactionCount: data.transactionCount.present
           ? data.transactionCount.value
           : this.transactionCount,
@@ -5300,12 +4741,10 @@ class Insight extends DataClass implements Insertable<Insight> {
       percentageOfAvailable: data.percentageOfAvailable.present
           ? data.percentageOfAvailable.value
           : this.percentageOfAvailable,
-      isDismissed: data.isDismissed.present
-          ? data.isDismissed.value
-          : this.isDismissed,
-      detectedAt: data.detectedAt.present
-          ? data.detectedAt.value
-          : this.detectedAt,
+      isDismissed:
+          data.isDismissed.present ? data.isDismissed.value : this.isDismissed,
+      detectedAt:
+          data.detectedAt.present ? data.detectedAt.value : this.detectedAt,
       expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -5330,17 +4769,16 @@ class Insight extends DataClass implements Insertable<Insight> {
 
   @override
   int get hashCode => Object.hash(
-    id,
-    type,
-    totalAmount,
-    transactionCount,
-    categoryNames,
-    percentageOfAvailable,
-    isDismissed,
-    detectedAt,
-    expiresAt,
-    createdAt,
-  );
+      id,
+      type,
+      totalAmount,
+      transactionCount,
+      categoryNames,
+      percentageOfAvailable,
+      isDismissed,
+      detectedAt,
+      expiresAt,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5391,14 +4829,14 @@ class InsightsCompanion extends UpdateCompanion<Insight> {
     required DateTime detectedAt,
     required DateTime expiresAt,
     required DateTime createdAt,
-  }) : type = Value(type),
-       totalAmount = Value(totalAmount),
-       transactionCount = Value(transactionCount),
-       categoryNames = Value(categoryNames),
-       percentageOfAvailable = Value(percentageOfAvailable),
-       detectedAt = Value(detectedAt),
-       expiresAt = Value(expiresAt),
-       createdAt = Value(createdAt);
+  })  : type = Value(type),
+        totalAmount = Value(totalAmount),
+        transactionCount = Value(transactionCount),
+        categoryNames = Value(categoryNames),
+        percentageOfAvailable = Value(percentageOfAvailable),
+        detectedAt = Value(detectedAt),
+        expiresAt = Value(expiresAt),
+        createdAt = Value(createdAt);
   static Insertable<Insight> custom({
     Expression<int>? id,
     Expression<String>? type,
@@ -5426,18 +4864,17 @@ class InsightsCompanion extends UpdateCompanion<Insight> {
     });
   }
 
-  InsightsCompanion copyWith({
-    Value<int>? id,
-    Value<String>? type,
-    Value<double>? totalAmount,
-    Value<int>? transactionCount,
-    Value<String>? categoryNames,
-    Value<double>? percentageOfAvailable,
-    Value<bool>? isDismissed,
-    Value<DateTime>? detectedAt,
-    Value<DateTime>? expiresAt,
-    Value<DateTime>? createdAt,
-  }) {
+  InsightsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? type,
+      Value<double>? totalAmount,
+      Value<int>? transactionCount,
+      Value<String>? categoryNames,
+      Value<double>? percentageOfAvailable,
+      Value<bool>? isDismissed,
+      Value<DateTime>? detectedAt,
+      Value<DateTime>? expiresAt,
+      Value<DateTime>? createdAt}) {
     return InsightsCompanion(
       id: id ?? this.id,
       type: type ?? this.type,
@@ -5472,9 +4909,8 @@ class InsightsCompanion extends UpdateCompanion<Insight> {
       map['category_names'] = Variable<String>(categoryNames.value);
     }
     if (percentageOfAvailable.present) {
-      map['percentage_of_available'] = Variable<double>(
-        percentageOfAvailable.value,
-      );
+      map['percentage_of_available'] =
+          Variable<double>(percentageOfAvailable.value);
     }
     if (isDismissed.present) {
       map['is_dismissed'] = Variable<bool>(isDismissed.value);
@@ -5518,115 +4954,73 @@ class $BehavioralProfilesTable extends BehavioralProfiles
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _spendingFrequencyMeta = const VerificationMeta(
-    'spendingFrequency',
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _spendingFrequencyMeta =
+      const VerificationMeta('spendingFrequency');
   @override
   late final GeneratedColumn<double> spendingFrequency =
-      GeneratedColumn<double>(
-        'spending_frequency',
-        aliasedName,
-        false,
-        type: DriftSqlType.double,
-        requiredDuringInsert: true,
-      );
-  static const VerificationMeta _hourlyPatternMeta = const VerificationMeta(
-    'hourlyPattern',
-  );
+      GeneratedColumn<double>('spending_frequency', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _hourlyPatternMeta =
+      const VerificationMeta('hourlyPattern');
   @override
   late final GeneratedColumn<String> hourlyPattern = GeneratedColumn<String>(
-    'hourly_pattern',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _overrunCountMeta = const VerificationMeta(
-    'overrunCount',
-  );
+      'hourly_pattern', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _overrunCountMeta =
+      const VerificationMeta('overrunCount');
   @override
   late final GeneratedColumn<int> overrunCount = GeneratedColumn<int>(
-    'overrun_count',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _averageOverrunMeta = const VerificationMeta(
-    'averageOverrun',
-  );
+      'overrun_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _averageOverrunMeta =
+      const VerificationMeta('averageOverrun');
   @override
   late final GeneratedColumn<double> averageOverrun = GeneratedColumn<double>(
-    'average_overrun',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _advisoryLevelMeta = const VerificationMeta(
-    'advisoryLevel',
-  );
+      'average_overrun', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _advisoryLevelMeta =
+      const VerificationMeta('advisoryLevel');
   @override
   late final GeneratedColumn<String> advisoryLevel = GeneratedColumn<String>(
-    'advisory_level',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _lastUpdatedMeta = const VerificationMeta(
-    'lastUpdated',
-  );
+      'advisory_level', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lastUpdatedMeta =
+      const VerificationMeta('lastUpdated');
   @override
   late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
-    'last_updated',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+      'last_updated', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    spendingFrequency,
-    hourlyPattern,
-    overrunCount,
-    averageOverrun,
-    advisoryLevel,
-    lastUpdated,
-    createdAt,
-  ];
+        id,
+        spendingFrequency,
+        hourlyPattern,
+        overrunCount,
+        averageOverrun,
+        advisoryLevel,
+        lastUpdated,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'behavioral_profiles';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<BehavioralProfile> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<BehavioralProfile> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -5634,75 +5028,55 @@ class $BehavioralProfilesTable extends BehavioralProfiles
     }
     if (data.containsKey('spending_frequency')) {
       context.handle(
-        _spendingFrequencyMeta,
-        spendingFrequency.isAcceptableOrUnknown(
-          data['spending_frequency']!,
           _spendingFrequencyMeta,
-        ),
-      );
+          spendingFrequency.isAcceptableOrUnknown(
+              data['spending_frequency']!, _spendingFrequencyMeta));
     } else if (isInserting) {
       context.missing(_spendingFrequencyMeta);
     }
     if (data.containsKey('hourly_pattern')) {
       context.handle(
-        _hourlyPatternMeta,
-        hourlyPattern.isAcceptableOrUnknown(
-          data['hourly_pattern']!,
           _hourlyPatternMeta,
-        ),
-      );
+          hourlyPattern.isAcceptableOrUnknown(
+              data['hourly_pattern']!, _hourlyPatternMeta));
     } else if (isInserting) {
       context.missing(_hourlyPatternMeta);
     }
     if (data.containsKey('overrun_count')) {
       context.handle(
-        _overrunCountMeta,
-        overrunCount.isAcceptableOrUnknown(
-          data['overrun_count']!,
           _overrunCountMeta,
-        ),
-      );
+          overrunCount.isAcceptableOrUnknown(
+              data['overrun_count']!, _overrunCountMeta));
     } else if (isInserting) {
       context.missing(_overrunCountMeta);
     }
     if (data.containsKey('average_overrun')) {
       context.handle(
-        _averageOverrunMeta,
-        averageOverrun.isAcceptableOrUnknown(
-          data['average_overrun']!,
           _averageOverrunMeta,
-        ),
-      );
+          averageOverrun.isAcceptableOrUnknown(
+              data['average_overrun']!, _averageOverrunMeta));
     } else if (isInserting) {
       context.missing(_averageOverrunMeta);
     }
     if (data.containsKey('advisory_level')) {
       context.handle(
-        _advisoryLevelMeta,
-        advisoryLevel.isAcceptableOrUnknown(
-          data['advisory_level']!,
           _advisoryLevelMeta,
-        ),
-      );
+          advisoryLevel.isAcceptableOrUnknown(
+              data['advisory_level']!, _advisoryLevelMeta));
     } else if (isInserting) {
       context.missing(_advisoryLevelMeta);
     }
     if (data.containsKey('last_updated')) {
       context.handle(
-        _lastUpdatedMeta,
-        lastUpdated.isAcceptableOrUnknown(
-          data['last_updated']!,
           _lastUpdatedMeta,
-        ),
-      );
+          lastUpdated.isAcceptableOrUnknown(
+              data['last_updated']!, _lastUpdatedMeta));
     } else if (isInserting) {
       context.missing(_lastUpdatedMeta);
     }
     if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
@@ -5715,38 +5089,22 @@ class $BehavioralProfilesTable extends BehavioralProfiles
   BehavioralProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return BehavioralProfile(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       spendingFrequency: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}spending_frequency'],
-      )!,
-      hourlyPattern: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}hourly_pattern'],
-      )!,
-      overrunCount: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}overrun_count'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}spending_frequency'])!,
+      hourlyPattern: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}hourly_pattern'])!,
+      overrunCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}overrun_count'])!,
       averageOverrun: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}average_overrun'],
-      )!,
-      advisoryLevel: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}advisory_level'],
-      )!,
-      lastUpdated: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_updated'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
+          DriftSqlType.double, data['${effectivePrefix}average_overrun'])!,
+      advisoryLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}advisory_level'])!,
+      lastUpdated: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -5766,16 +5124,15 @@ class BehavioralProfile extends DataClass
   final String advisoryLevel;
   final DateTime lastUpdated;
   final DateTime createdAt;
-  const BehavioralProfile({
-    required this.id,
-    required this.spendingFrequency,
-    required this.hourlyPattern,
-    required this.overrunCount,
-    required this.averageOverrun,
-    required this.advisoryLevel,
-    required this.lastUpdated,
-    required this.createdAt,
-  });
+  const BehavioralProfile(
+      {required this.id,
+      required this.spendingFrequency,
+      required this.hourlyPattern,
+      required this.overrunCount,
+      required this.averageOverrun,
+      required this.advisoryLevel,
+      required this.lastUpdated,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5803,10 +5160,8 @@ class BehavioralProfile extends DataClass
     );
   }
 
-  factory BehavioralProfile.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory BehavioralProfile.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BehavioralProfile(
       id: serializer.fromJson<int>(json['id']),
@@ -5834,25 +5189,25 @@ class BehavioralProfile extends DataClass
     };
   }
 
-  BehavioralProfile copyWith({
-    int? id,
-    double? spendingFrequency,
-    String? hourlyPattern,
-    int? overrunCount,
-    double? averageOverrun,
-    String? advisoryLevel,
-    DateTime? lastUpdated,
-    DateTime? createdAt,
-  }) => BehavioralProfile(
-    id: id ?? this.id,
-    spendingFrequency: spendingFrequency ?? this.spendingFrequency,
-    hourlyPattern: hourlyPattern ?? this.hourlyPattern,
-    overrunCount: overrunCount ?? this.overrunCount,
-    averageOverrun: averageOverrun ?? this.averageOverrun,
-    advisoryLevel: advisoryLevel ?? this.advisoryLevel,
-    lastUpdated: lastUpdated ?? this.lastUpdated,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  BehavioralProfile copyWith(
+          {int? id,
+          double? spendingFrequency,
+          String? hourlyPattern,
+          int? overrunCount,
+          double? averageOverrun,
+          String? advisoryLevel,
+          DateTime? lastUpdated,
+          DateTime? createdAt}) =>
+      BehavioralProfile(
+        id: id ?? this.id,
+        spendingFrequency: spendingFrequency ?? this.spendingFrequency,
+        hourlyPattern: hourlyPattern ?? this.hourlyPattern,
+        overrunCount: overrunCount ?? this.overrunCount,
+        averageOverrun: averageOverrun ?? this.averageOverrun,
+        advisoryLevel: advisoryLevel ?? this.advisoryLevel,
+        lastUpdated: lastUpdated ?? this.lastUpdated,
+        createdAt: createdAt ?? this.createdAt,
+      );
   BehavioralProfile copyWithCompanion(BehavioralProfilesCompanion data) {
     return BehavioralProfile(
       id: data.id.present ? data.id.value : this.id,
@@ -5871,9 +5226,8 @@ class BehavioralProfile extends DataClass
       advisoryLevel: data.advisoryLevel.present
           ? data.advisoryLevel.value
           : this.advisoryLevel,
-      lastUpdated: data.lastUpdated.present
-          ? data.lastUpdated.value
-          : this.lastUpdated,
+      lastUpdated:
+          data.lastUpdated.present ? data.lastUpdated.value : this.lastUpdated,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -5894,16 +5248,8 @@ class BehavioralProfile extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    spendingFrequency,
-    hourlyPattern,
-    overrunCount,
-    averageOverrun,
-    advisoryLevel,
-    lastUpdated,
-    createdAt,
-  );
+  int get hashCode => Object.hash(id, spendingFrequency, hourlyPattern,
+      overrunCount, averageOverrun, advisoryLevel, lastUpdated, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5946,13 +5292,13 @@ class BehavioralProfilesCompanion extends UpdateCompanion<BehavioralProfile> {
     required String advisoryLevel,
     required DateTime lastUpdated,
     required DateTime createdAt,
-  }) : spendingFrequency = Value(spendingFrequency),
-       hourlyPattern = Value(hourlyPattern),
-       overrunCount = Value(overrunCount),
-       averageOverrun = Value(averageOverrun),
-       advisoryLevel = Value(advisoryLevel),
-       lastUpdated = Value(lastUpdated),
-       createdAt = Value(createdAt);
+  })  : spendingFrequency = Value(spendingFrequency),
+        hourlyPattern = Value(hourlyPattern),
+        overrunCount = Value(overrunCount),
+        averageOverrun = Value(averageOverrun),
+        advisoryLevel = Value(advisoryLevel),
+        lastUpdated = Value(lastUpdated),
+        createdAt = Value(createdAt);
   static Insertable<BehavioralProfile> custom({
     Expression<int>? id,
     Expression<double>? spendingFrequency,
@@ -5975,16 +5321,15 @@ class BehavioralProfilesCompanion extends UpdateCompanion<BehavioralProfile> {
     });
   }
 
-  BehavioralProfilesCompanion copyWith({
-    Value<int>? id,
-    Value<double>? spendingFrequency,
-    Value<String>? hourlyPattern,
-    Value<int>? overrunCount,
-    Value<double>? averageOverrun,
-    Value<String>? advisoryLevel,
-    Value<DateTime>? lastUpdated,
-    Value<DateTime>? createdAt,
-  }) {
+  BehavioralProfilesCompanion copyWith(
+      {Value<int>? id,
+      Value<double>? spendingFrequency,
+      Value<String>? hourlyPattern,
+      Value<int>? overrunCount,
+      Value<double>? averageOverrun,
+      Value<String>? advisoryLevel,
+      Value<DateTime>? lastUpdated,
+      Value<DateTime>? createdAt}) {
     return BehavioralProfilesCompanion(
       id: id ?? this.id,
       spendingFrequency: spendingFrequency ?? this.spendingFrequency,
@@ -6050,9 +5395,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AccountsTable accounts = $AccountsTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $TransactionsTable transactions = $TransactionsTable(this);
-  late final $RecurringChargesTable recurringCharges = $RecurringChargesTable(
-    this,
-  );
+  late final $RecurringChargesTable recurringCharges =
+      $RecurringChargesTable(this);
   late final $PendingTransactionsTable pendingTransactions =
       $PendingTransactionsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
@@ -6061,92 +5405,77 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BehavioralProfilesTable behavioralProfiles =
       $BehavioralProfilesTable(this);
   late final AccountsDao accountsDao = AccountsDao(this as AppDatabase);
-  late final TransactionsDao transactionsDao = TransactionsDao(
-    this as AppDatabase,
-  );
+  late final TransactionsDao transactionsDao =
+      TransactionsDao(this as AppDatabase);
   late final CategoriesDao categoriesDao = CategoriesDao(this as AppDatabase);
-  late final RecurringChargesDao recurringChargesDao = RecurringChargesDao(
-    this as AppDatabase,
-  );
+  late final RecurringChargesDao recurringChargesDao =
+      RecurringChargesDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    accounts,
-    categories,
-    transactions,
-    recurringCharges,
-    pendingTransactions,
-    settings,
-    incomePatterns,
-    insights,
-    behavioralProfiles,
-  ];
+        accounts,
+        categories,
+        transactions,
+        recurringCharges,
+        pendingTransactions,
+        settings,
+        incomePatterns,
+        insights,
+        behavioralProfiles
+      ];
   @override
   DriftDatabaseOptions get options =>
       const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
 
-typedef $$AccountsTableCreateCompanionBuilder =
-    AccountsCompanion Function({
-      Value<int> id,
-      required String name,
-      required AccountType type,
-      Value<double> currentBalance,
-      required String icon,
-      required String color,
-      Value<String?> operator,
-      Value<bool> isActive,
-      required DateTime createdAt,
-      required DateTime updatedAt,
-    });
-typedef $$AccountsTableUpdateCompanionBuilder =
-    AccountsCompanion Function({
-      Value<int> id,
-      Value<String> name,
-      Value<AccountType> type,
-      Value<double> currentBalance,
-      Value<String> icon,
-      Value<String> color,
-      Value<String?> operator,
-      Value<bool> isActive,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-    });
+typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
+  Value<int> id,
+  required String name,
+  required AccountType type,
+  Value<double> currentBalance,
+  required String icon,
+  required String color,
+  Value<String?> operator,
+  Value<bool> isActive,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<AccountType> type,
+  Value<double> currentBalance,
+  Value<String> icon,
+  Value<String> color,
+  Value<String?> operator,
+  Value<bool> isActive,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
 
 final class $$AccountsTableReferences
     extends BaseReferences<_$AppDatabase, $AccountsTable, Account> {
   $$AccountsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<
-    $PendingTransactionsTable,
-    List<PendingTransaction>
-  >
-  _pendingTransactionsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.pendingTransactions,
-        aliasName: $_aliasNameGenerator(
-          db.accounts.id,
-          db.pendingTransactions.suggestedAccountId,
-        ),
-      );
+  static MultiTypedResultKey<$PendingTransactionsTable,
+      List<PendingTransaction>> _pendingTransactionsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.pendingTransactions,
+          aliasName: $_aliasNameGenerator(
+              db.accounts.id, db.pendingTransactions.suggestedAccountId));
 
   $$PendingTransactionsTableProcessedTableManager get pendingTransactionsRefs {
-    final manager =
-        $$PendingTransactionsTableTableManager(
-          $_db,
-          $_db.pendingTransactions,
-        ).filter(
-          (f) => f.suggestedAccountId.id.sqlEquals($_itemColumn<int>('id')!),
-        );
+    final manager = $$PendingTransactionsTableTableManager(
+            $_db, $_db.pendingTransactions)
+        .filter(
+            (f) => f.suggestedAccountId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(
-      _pendingTransactionsRefsTable($_db),
-    );
+    final cache =
+        $_typedResult.readTableOrNull(_pendingTransactionsRefsTable($_db));
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -6160,78 +5489,56 @@ class $$AccountsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<AccountType, AccountType, int> get type =>
       $composableBuilder(
-        column: $table.type,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+          column: $table.type,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<double> get currentBalance => $composableBuilder(
-    column: $table.currentBalance,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.currentBalance,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get icon => $composableBuilder(
-    column: $table.icon,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get color => $composableBuilder(
-    column: $table.color,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.color, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get operator => $composableBuilder(
-    column: $table.operator,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.operator, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
   Expression<bool> pendingTransactionsRefs(
-    Expression<bool> Function($$PendingTransactionsTableFilterComposer f) f,
-  ) {
+      Expression<bool> Function($$PendingTransactionsTableFilterComposer f) f) {
     final $$PendingTransactionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.pendingTransactions,
-      getReferencedColumn: (t) => t.suggestedAccountId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PendingTransactionsTableFilterComposer(
-            $db: $db,
-            $table: $db.pendingTransactions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.pendingTransactions,
+        getReferencedColumn: (t) => t.suggestedAccountId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PendingTransactionsTableFilterComposer(
+              $db: $db,
+              $table: $db.pendingTransactions,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -6246,54 +5553,35 @@ class $$AccountsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get currentBalance => $composableBuilder(
-    column: $table.currentBalance,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.currentBalance,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get icon => $composableBuilder(
-    column: $table.icon,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get color => $composableBuilder(
-    column: $table.color,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.color, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get operator => $composableBuilder(
-    column: $table.operator,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.operator, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountsTableAnnotationComposer
@@ -6315,9 +5603,7 @@ class $$AccountsTableAnnotationComposer
       $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<double> get currentBalance => $composableBuilder(
-    column: $table.currentBalance,
-    builder: (column) => column,
-  );
+      column: $table.currentBalance, builder: (column) => column);
 
   GeneratedColumn<String> get icon =>
       $composableBuilder(column: $table.icon, builder: (column) => column);
@@ -6338,50 +5624,43 @@ class $$AccountsTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   Expression<T> pendingTransactionsRefs<T extends Object>(
-    Expression<T> Function($$PendingTransactionsTableAnnotationComposer a) f,
-  ) {
+      Expression<T> Function($$PendingTransactionsTableAnnotationComposer a)
+          f) {
     final $$PendingTransactionsTableAnnotationComposer composer =
         $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.pendingTransactions,
-          getReferencedColumn: (t) => t.suggestedAccountId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$PendingTransactionsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.pendingTransactions,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.pendingTransactions,
+            getReferencedColumn: (t) => t.suggestedAccountId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$PendingTransactionsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.pendingTransactions,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
 
-class $$AccountsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $AccountsTable,
-          Account,
-          $$AccountsTableFilterComposer,
-          $$AccountsTableOrderingComposer,
-          $$AccountsTableAnnotationComposer,
-          $$AccountsTableCreateCompanionBuilder,
-          $$AccountsTableUpdateCompanionBuilder,
-          (Account, $$AccountsTableReferences),
-          Account,
-          PrefetchHooks Function({bool pendingTransactionsRefs})
-        > {
+class $$AccountsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AccountsTable,
+    Account,
+    $$AccountsTableFilterComposer,
+    $$AccountsTableOrderingComposer,
+    $$AccountsTableAnnotationComposer,
+    $$AccountsTableCreateCompanionBuilder,
+    $$AccountsTableUpdateCompanionBuilder,
+    (Account, $$AccountsTableReferences),
+    Account,
+    PrefetchHooks Function({bool pendingTransactionsRefs})> {
   $$AccountsTableTableManager(_$AppDatabase db, $AccountsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -6390,157 +5669,135 @@ class $$AccountsTableTableManager
               $$AccountsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$AccountsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<AccountType> type = const Value.absent(),
-                Value<double> currentBalance = const Value.absent(),
-                Value<String> icon = const Value.absent(),
-                Value<String> color = const Value.absent(),
-                Value<String?> operator = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => AccountsCompanion(
-                id: id,
-                name: name,
-                type: type,
-                currentBalance: currentBalance,
-                icon: icon,
-                color: color,
-                operator: operator,
-                isActive: isActive,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required AccountType type,
-                Value<double> currentBalance = const Value.absent(),
-                required String icon,
-                required String color,
-                Value<String?> operator = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                required DateTime createdAt,
-                required DateTime updatedAt,
-              }) => AccountsCompanion.insert(
-                id: id,
-                name: name,
-                type: type,
-                currentBalance: currentBalance,
-                icon: icon,
-                color: color,
-                operator: operator,
-                isActive: isActive,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<AccountType> type = const Value.absent(),
+            Value<double> currentBalance = const Value.absent(),
+            Value<String> icon = const Value.absent(),
+            Value<String> color = const Value.absent(),
+            Value<String?> operator = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              AccountsCompanion(
+            id: id,
+            name: name,
+            type: type,
+            currentBalance: currentBalance,
+            icon: icon,
+            color: color,
+            operator: operator,
+            isActive: isActive,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            required AccountType type,
+            Value<double> currentBalance = const Value.absent(),
+            required String icon,
+            required String color,
+            Value<String?> operator = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              AccountsCompanion.insert(
+            id: id,
+            name: name,
+            type: type,
+            currentBalance: currentBalance,
+            icon: icon,
+            color: color,
+            operator: operator,
+            isActive: isActive,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$AccountsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) =>
+                  (e.readTable(table), $$AccountsTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: ({pendingTransactionsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (pendingTransactionsRefs) db.pendingTransactions,
+                if (pendingTransactionsRefs) db.pendingTransactions
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (pendingTransactionsRefs)
-                    await $_getPrefetchedData<
-                      Account,
-                      $AccountsTable,
-                      PendingTransaction
-                    >(
-                      currentTable: table,
-                      referencedTable: $$AccountsTableReferences
-                          ._pendingTransactionsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$AccountsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).pendingTransactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.suggestedAccountId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
+                    await $_getPrefetchedData<Account, $AccountsTable,
+                            PendingTransaction>(
+                        currentTable: table,
+                        referencedTable: $$AccountsTableReferences
+                            ._pendingTransactionsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AccountsTableReferences(db, table, p0)
+                                .pendingTransactionsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.suggestedAccountId == item.id),
+                        typedResults: items)
                 ];
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$AccountsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $AccountsTable,
-      Account,
-      $$AccountsTableFilterComposer,
-      $$AccountsTableOrderingComposer,
-      $$AccountsTableAnnotationComposer,
-      $$AccountsTableCreateCompanionBuilder,
-      $$AccountsTableUpdateCompanionBuilder,
-      (Account, $$AccountsTableReferences),
-      Account,
-      PrefetchHooks Function({bool pendingTransactionsRefs})
-    >;
-typedef $$CategoriesTableCreateCompanionBuilder =
-    CategoriesCompanion Function({
-      Value<int> id,
-      required String name,
-      required String icon,
-      required String color,
-      required CategoryType type,
-      Value<bool> isDefault,
-      required DateTime createdAt,
-    });
-typedef $$CategoriesTableUpdateCompanionBuilder =
-    CategoriesCompanion Function({
-      Value<int> id,
-      Value<String> name,
-      Value<String> icon,
-      Value<String> color,
-      Value<CategoryType> type,
-      Value<bool> isDefault,
-      Value<DateTime> createdAt,
-    });
+typedef $$AccountsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AccountsTable,
+    Account,
+    $$AccountsTableFilterComposer,
+    $$AccountsTableOrderingComposer,
+    $$AccountsTableAnnotationComposer,
+    $$AccountsTableCreateCompanionBuilder,
+    $$AccountsTableUpdateCompanionBuilder,
+    (Account, $$AccountsTableReferences),
+    Account,
+    PrefetchHooks Function({bool pendingTransactionsRefs})>;
+typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
+  Value<int> id,
+  required String name,
+  required String icon,
+  required String color,
+  required CategoryType type,
+  Value<bool> isDefault,
+  required DateTime createdAt,
+});
+typedef $$CategoriesTableUpdateCompanionBuilder = CategoriesCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<String> icon,
+  Value<String> color,
+  Value<CategoryType> type,
+  Value<bool> isDefault,
+  Value<DateTime> createdAt,
+});
 
 final class $$CategoriesTableReferences
     extends BaseReferences<_$AppDatabase, $CategoriesTable, Category> {
   $$CategoriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$TransactionsTable, List<Transaction>>
-  _transactionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.transactions,
-    aliasName: $_aliasNameGenerator(
-      db.categories.id,
-      db.transactions.categoryId,
-    ),
-  );
+      _transactionsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.transactions,
+              aliasName: $_aliasNameGenerator(
+                  db.categories.id, db.transactions.categoryId));
 
   $$TransactionsTableProcessedTableManager get transactionsRefs {
-    final manager = $$TransactionsTableTableManager(
-      $_db,
-      $_db.transactions,
-    ).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<int>('id')!));
+    final manager = $$TransactionsTableTableManager($_db, $_db.transactions)
+        .filter((f) => f.categoryId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_transactionsRefsTable($_db));
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -6554,63 +5811,46 @@ class $$CategoriesTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get icon => $composableBuilder(
-    column: $table.icon,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.icon, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get color => $composableBuilder(
-    column: $table.color,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.color, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<CategoryType, CategoryType, int> get type =>
       $composableBuilder(
-        column: $table.type,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+          column: $table.type,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isDefault, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   Expression<bool> transactionsRefs(
-    Expression<bool> Function($$TransactionsTableFilterComposer f) f,
-  ) {
+      Expression<bool> Function($$TransactionsTableFilterComposer f) f) {
     final $$TransactionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.transactions,
-      getReferencedColumn: (t) => t.categoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TransactionsTableFilterComposer(
-            $db: $db,
-            $table: $db.transactions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.transactions,
+        getReferencedColumn: (t) => t.categoryId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TransactionsTableFilterComposer(
+              $db: $db,
+              $table: $db.transactions,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -6625,39 +5865,25 @@ class $$CategoriesTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get icon => $composableBuilder(
-    column: $table.icon,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get color => $composableBuilder(
-    column: $table.color,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.color, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isDefault => $composableBuilder(
-    column: $table.isDefault,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isDefault, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$CategoriesTableAnnotationComposer
@@ -6691,49 +5917,41 @@ class $$CategoriesTableAnnotationComposer
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   Expression<T> transactionsRefs<T extends Object>(
-    Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
-  ) {
+      Expression<T> Function($$TransactionsTableAnnotationComposer a) f) {
     final $$TransactionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.transactions,
-      getReferencedColumn: (t) => t.categoryId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TransactionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.transactions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.transactions,
+        getReferencedColumn: (t) => t.categoryId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TransactionsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.transactions,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
 
-class $$CategoriesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $CategoriesTable,
-          Category,
-          $$CategoriesTableFilterComposer,
-          $$CategoriesTableOrderingComposer,
-          $$CategoriesTableAnnotationComposer,
-          $$CategoriesTableCreateCompanionBuilder,
-          $$CategoriesTableUpdateCompanionBuilder,
-          (Category, $$CategoriesTableReferences),
-          Category,
-          PrefetchHooks Function({bool transactionsRefs})
-        > {
+class $$CategoriesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CategoriesTable,
+    Category,
+    $$CategoriesTableFilterComposer,
+    $$CategoriesTableOrderingComposer,
+    $$CategoriesTableAnnotationComposer,
+    $$CategoriesTableCreateCompanionBuilder,
+    $$CategoriesTableUpdateCompanionBuilder,
+    (Category, $$CategoriesTableReferences),
+    Category,
+    PrefetchHooks Function({bool transactionsRefs})> {
   $$CategoriesTableTableManager(_$AppDatabase db, $CategoriesTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -6742,49 +5960,47 @@ class $$CategoriesTableTableManager
               $$CategoriesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$CategoriesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String> icon = const Value.absent(),
-                Value<String> color = const Value.absent(),
-                Value<CategoryType> type = const Value.absent(),
-                Value<bool> isDefault = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => CategoriesCompanion(
-                id: id,
-                name: name,
-                icon: icon,
-                color: color,
-                type: type,
-                isDefault: isDefault,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required String icon,
-                required String color,
-                required CategoryType type,
-                Value<bool> isDefault = const Value.absent(),
-                required DateTime createdAt,
-              }) => CategoriesCompanion.insert(
-                id: id,
-                name: name,
-                icon: icon,
-                color: color,
-                type: type,
-                isDefault: isDefault,
-                createdAt: createdAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> icon = const Value.absent(),
+            Value<String> color = const Value.absent(),
+            Value<CategoryType> type = const Value.absent(),
+            Value<bool> isDefault = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              CategoriesCompanion(
+            id: id,
+            name: name,
+            icon: icon,
+            color: color,
+            type: type,
+            isDefault: isDefault,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            required String icon,
+            required String color,
+            required CategoryType type,
+            Value<bool> isDefault = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              CategoriesCompanion.insert(
+            id: id,
+            name: name,
+            icon: icon,
+            color: color,
+            type: type,
+            isDefault: isDefault,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$CategoriesTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (
+                    e.readTable(table),
+                    $$CategoriesTableReferences(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: ({transactionsRefs = false}) {
             return PrefetchHooks(
@@ -6794,80 +6010,71 @@ class $$CategoriesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (transactionsRefs)
-                    await $_getPrefetchedData<
-                      Category,
-                      $CategoriesTable,
-                      Transaction
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CategoriesTableReferences
-                          ._transactionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$CategoriesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.categoryId == item.id),
-                      typedResults: items,
-                    ),
+                    await $_getPrefetchedData<Category, $CategoriesTable,
+                            Transaction>(
+                        currentTable: table,
+                        referencedTable: $$CategoriesTableReferences
+                            ._transactionsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CategoriesTableReferences(db, table, p0)
+                                .transactionsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.categoryId == item.id),
+                        typedResults: items)
                 ];
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$CategoriesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $CategoriesTable,
-      Category,
-      $$CategoriesTableFilterComposer,
-      $$CategoriesTableOrderingComposer,
-      $$CategoriesTableAnnotationComposer,
-      $$CategoriesTableCreateCompanionBuilder,
-      $$CategoriesTableUpdateCompanionBuilder,
-      (Category, $$CategoriesTableReferences),
-      Category,
-      PrefetchHooks Function({bool transactionsRefs})
-    >;
-typedef $$TransactionsTableCreateCompanionBuilder =
-    TransactionsCompanion Function({
-      Value<int> id,
-      required double amount,
-      required TransactionType type,
-      required DateTime date,
-      Value<int?> categoryId,
-      required int accountId,
-      Value<int?> toAccountId,
-      Value<double?> feeAmount,
-      Value<bool> isException,
-      Value<int?> scopeDuration,
-      Value<String?> scopeType,
-      Value<String?> description,
-      Value<String?> source,
-      required DateTime createdAt,
-    });
-typedef $$TransactionsTableUpdateCompanionBuilder =
-    TransactionsCompanion Function({
-      Value<int> id,
-      Value<double> amount,
-      Value<TransactionType> type,
-      Value<DateTime> date,
-      Value<int?> categoryId,
-      Value<int> accountId,
-      Value<int?> toAccountId,
-      Value<double?> feeAmount,
-      Value<bool> isException,
-      Value<int?> scopeDuration,
-      Value<String?> scopeType,
-      Value<String?> description,
-      Value<String?> source,
-      Value<DateTime> createdAt,
-    });
+typedef $$CategoriesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CategoriesTable,
+    Category,
+    $$CategoriesTableFilterComposer,
+    $$CategoriesTableOrderingComposer,
+    $$CategoriesTableAnnotationComposer,
+    $$CategoriesTableCreateCompanionBuilder,
+    $$CategoriesTableUpdateCompanionBuilder,
+    (Category, $$CategoriesTableReferences),
+    Category,
+    PrefetchHooks Function({bool transactionsRefs})>;
+typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
+    Function({
+  Value<int> id,
+  required double amount,
+  required TransactionType type,
+  required DateTime date,
+  Value<int?> categoryId,
+  required int accountId,
+  Value<int?> toAccountId,
+  Value<double?> feeAmount,
+  Value<bool> isException,
+  Value<int?> scopeDuration,
+  Value<String?> scopeType,
+  Value<String?> description,
+  Value<String?> source,
+  required DateTime createdAt,
+});
+typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
+    Function({
+  Value<int> id,
+  Value<double> amount,
+  Value<TransactionType> type,
+  Value<DateTime> date,
+  Value<int?> categoryId,
+  Value<int> accountId,
+  Value<int?> toAccountId,
+  Value<double?> feeAmount,
+  Value<bool> isException,
+  Value<int?> scopeDuration,
+  Value<String?> scopeType,
+  Value<String?> description,
+  Value<String?> source,
+  Value<DateTime> createdAt,
+});
 
 final class $$TransactionsTableReferences
     extends BaseReferences<_$AppDatabase, $TransactionsTable, Transaction> {
@@ -6875,59 +6082,47 @@ final class $$TransactionsTableReferences
 
   static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
       db.categories.createAlias(
-        $_aliasNameGenerator(db.transactions.categoryId, db.categories.id),
-      );
+          $_aliasNameGenerator(db.transactions.categoryId, db.categories.id));
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<int>('category_id');
     if ($_column == null) return null;
-    final manager = $$CategoriesTableTableManager(
-      $_db,
-      $_db.categories,
-    ).filter((f) => f.id.sqlEquals($_column));
+    final manager = $$CategoriesTableTableManager($_db, $_db.categories)
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $AccountsTable _accountIdTable(_$AppDatabase db) =>
       db.accounts.createAlias(
-        $_aliasNameGenerator(db.transactions.accountId, db.accounts.id),
-      );
+          $_aliasNameGenerator(db.transactions.accountId, db.accounts.id));
 
   $$AccountsTableProcessedTableManager get accountId {
     final $_column = $_itemColumn<int>('account_id')!;
 
-    final manager = $$AccountsTableTableManager(
-      $_db,
-      $_db.accounts,
-    ).filter((f) => f.id.sqlEquals($_column));
+    final manager = $$AccountsTableTableManager($_db, $_db.accounts)
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_accountIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $AccountsTable _toAccountIdTable(_$AppDatabase db) =>
       db.accounts.createAlias(
-        $_aliasNameGenerator(db.transactions.toAccountId, db.accounts.id),
-      );
+          $_aliasNameGenerator(db.transactions.toAccountId, db.accounts.id));
 
   $$AccountsTableProcessedTableManager? get toAccountId {
     final $_column = $_itemColumn<int>('to_account_id');
     if ($_column == null) return null;
-    final manager = $$AccountsTableTableManager(
-      $_db,
-      $_db.accounts,
-    ).filter((f) => f.id.sqlEquals($_column));
+    final manager = $$AccountsTableTableManager($_db, $_db.accounts)
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_toAccountIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
@@ -6941,127 +6136,97 @@ class $$TransactionsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.amount, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<TransactionType, TransactionType, int>
-  get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+      get type => $composableBuilder(
+          column: $table.type,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<DateTime> get date => $composableBuilder(
-    column: $table.date,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.date, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get feeAmount => $composableBuilder(
-    column: $table.feeAmount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.feeAmount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isException => $composableBuilder(
-    column: $table.isException,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isException, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get scopeDuration => $composableBuilder(
-    column: $table.scopeDuration,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.scopeDuration, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get scopeType => $composableBuilder(
-    column: $table.scopeType,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.scopeType, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get description => $composableBuilder(
-    column: $table.description,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.description, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get source => $composableBuilder(
-    column: $table.source,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.source, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   $$CategoriesTableFilterComposer get categoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.categoryId,
-      referencedTable: $db.categories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CategoriesTableFilterComposer(
-            $db: $db,
-            $table: $db.categories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categories,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoriesTableFilterComposer(
+              $db: $db,
+              $table: $db.categories,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableFilterComposer get accountId {
     final $$AccountsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.accountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableFilterComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableFilterComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableFilterComposer get toAccountId {
     final $$AccountsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.toAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableFilterComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.toAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableFilterComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -7076,126 +6241,96 @@ class $$TransactionsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get date => $composableBuilder(
-    column: $table.date,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.date, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get feeAmount => $composableBuilder(
-    column: $table.feeAmount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.feeAmount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isException => $composableBuilder(
-    column: $table.isException,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isException, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get scopeDuration => $composableBuilder(
-    column: $table.scopeDuration,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.scopeDuration,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get scopeType => $composableBuilder(
-    column: $table.scopeType,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.scopeType, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get description => $composableBuilder(
-    column: $table.description,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.description, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get source => $composableBuilder(
-    column: $table.source,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.source, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   $$CategoriesTableOrderingComposer get categoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.categoryId,
-      referencedTable: $db.categories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CategoriesTableOrderingComposer(
-            $db: $db,
-            $table: $db.categories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categories,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoriesTableOrderingComposer(
+              $db: $db,
+              $table: $db.categories,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableOrderingComposer get accountId {
     final $$AccountsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.accountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableOrderingComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableOrderingComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableOrderingComposer get toAccountId {
     final $$AccountsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.toAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableOrderingComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.toAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableOrderingComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -7225,22 +6360,16 @@ class $$TransactionsTableAnnotationComposer
       $composableBuilder(column: $table.feeAmount, builder: (column) => column);
 
   GeneratedColumn<bool> get isException => $composableBuilder(
-    column: $table.isException,
-    builder: (column) => column,
-  );
+      column: $table.isException, builder: (column) => column);
 
   GeneratedColumn<int> get scopeDuration => $composableBuilder(
-    column: $table.scopeDuration,
-    builder: (column) => column,
-  );
+      column: $table.scopeDuration, builder: (column) => column);
 
   GeneratedColumn<String> get scopeType =>
       $composableBuilder(column: $table.scopeType, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
-    column: $table.description,
-    builder: (column) => column,
-  );
+      column: $table.description, builder: (column) => column);
 
   GeneratedColumn<String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
@@ -7250,96 +6379,80 @@ class $$TransactionsTableAnnotationComposer
 
   $$CategoriesTableAnnotationComposer get categoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.categoryId,
-      referencedTable: $db.categories,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CategoriesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.categories,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categories,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoriesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.categories,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableAnnotationComposer get accountId {
     final $$AccountsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.accountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$AccountsTableAnnotationComposer get toAccountId {
     final $$AccountsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.toAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.toAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
 
-class $$TransactionsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $TransactionsTable,
-          Transaction,
-          $$TransactionsTableFilterComposer,
-          $$TransactionsTableOrderingComposer,
-          $$TransactionsTableAnnotationComposer,
-          $$TransactionsTableCreateCompanionBuilder,
-          $$TransactionsTableUpdateCompanionBuilder,
-          (Transaction, $$TransactionsTableReferences),
-          Transaction,
-          PrefetchHooks Function({
-            bool categoryId,
-            bool accountId,
-            bool toAccountId,
-          })
-        > {
+class $$TransactionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TransactionsTable,
+    Transaction,
+    $$TransactionsTableFilterComposer,
+    $$TransactionsTableOrderingComposer,
+    $$TransactionsTableAnnotationComposer,
+    $$TransactionsTableCreateCompanionBuilder,
+    $$TransactionsTableUpdateCompanionBuilder,
+    (Transaction, $$TransactionsTableReferences),
+    Transaction,
+    PrefetchHooks Function(
+        {bool categoryId, bool accountId, bool toAccountId})> {
   $$TransactionsTableTableManager(_$AppDatabase db, $TransactionsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -7348,198 +6461,172 @@ class $$TransactionsTableTableManager
               $$TransactionsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$TransactionsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<double> amount = const Value.absent(),
-                Value<TransactionType> type = const Value.absent(),
-                Value<DateTime> date = const Value.absent(),
-                Value<int?> categoryId = const Value.absent(),
-                Value<int> accountId = const Value.absent(),
-                Value<int?> toAccountId = const Value.absent(),
-                Value<double?> feeAmount = const Value.absent(),
-                Value<bool> isException = const Value.absent(),
-                Value<int?> scopeDuration = const Value.absent(),
-                Value<String?> scopeType = const Value.absent(),
-                Value<String?> description = const Value.absent(),
-                Value<String?> source = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => TransactionsCompanion(
-                id: id,
-                amount: amount,
-                type: type,
-                date: date,
-                categoryId: categoryId,
-                accountId: accountId,
-                toAccountId: toAccountId,
-                feeAmount: feeAmount,
-                isException: isException,
-                scopeDuration: scopeDuration,
-                scopeType: scopeType,
-                description: description,
-                source: source,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required double amount,
-                required TransactionType type,
-                required DateTime date,
-                Value<int?> categoryId = const Value.absent(),
-                required int accountId,
-                Value<int?> toAccountId = const Value.absent(),
-                Value<double?> feeAmount = const Value.absent(),
-                Value<bool> isException = const Value.absent(),
-                Value<int?> scopeDuration = const Value.absent(),
-                Value<String?> scopeType = const Value.absent(),
-                Value<String?> description = const Value.absent(),
-                Value<String?> source = const Value.absent(),
-                required DateTime createdAt,
-              }) => TransactionsCompanion.insert(
-                id: id,
-                amount: amount,
-                type: type,
-                date: date,
-                categoryId: categoryId,
-                accountId: accountId,
-                toAccountId: toAccountId,
-                feeAmount: feeAmount,
-                isException: isException,
-                scopeDuration: scopeDuration,
-                scopeType: scopeType,
-                description: description,
-                source: source,
-                createdAt: createdAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<TransactionType> type = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+            Value<int?> categoryId = const Value.absent(),
+            Value<int> accountId = const Value.absent(),
+            Value<int?> toAccountId = const Value.absent(),
+            Value<double?> feeAmount = const Value.absent(),
+            Value<bool> isException = const Value.absent(),
+            Value<int?> scopeDuration = const Value.absent(),
+            Value<String?> scopeType = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              TransactionsCompanion(
+            id: id,
+            amount: amount,
+            type: type,
+            date: date,
+            categoryId: categoryId,
+            accountId: accountId,
+            toAccountId: toAccountId,
+            feeAmount: feeAmount,
+            isException: isException,
+            scopeDuration: scopeDuration,
+            scopeType: scopeType,
+            description: description,
+            source: source,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required double amount,
+            required TransactionType type,
+            required DateTime date,
+            Value<int?> categoryId = const Value.absent(),
+            required int accountId,
+            Value<int?> toAccountId = const Value.absent(),
+            Value<double?> feeAmount = const Value.absent(),
+            Value<bool> isException = const Value.absent(),
+            Value<int?> scopeDuration = const Value.absent(),
+            Value<String?> scopeType = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> source = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              TransactionsCompanion.insert(
+            id: id,
+            amount: amount,
+            type: type,
+            date: date,
+            categoryId: categoryId,
+            accountId: accountId,
+            toAccountId: toAccountId,
+            feeAmount: feeAmount,
+            isException: isException,
+            scopeDuration: scopeDuration,
+            scopeType: scopeType,
+            description: description,
+            source: source,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$TransactionsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (
+                    e.readTable(table),
+                    $$TransactionsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback:
-              ({categoryId = false, accountId = false, toAccountId = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (categoryId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.categoryId,
-                                    referencedTable:
-                                        $$TransactionsTableReferences
-                                            ._categoryIdTable(db),
-                                    referencedColumn:
-                                        $$TransactionsTableReferences
-                                            ._categoryIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-                        if (accountId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.accountId,
-                                    referencedTable:
-                                        $$TransactionsTableReferences
-                                            ._accountIdTable(db),
-                                    referencedColumn:
-                                        $$TransactionsTableReferences
-                                            ._accountIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-                        if (toAccountId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.toAccountId,
-                                    referencedTable:
-                                        $$TransactionsTableReferences
-                                            ._toAccountIdTable(db),
-                                    referencedColumn:
-                                        $$TransactionsTableReferences
-                                            ._toAccountIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
+          prefetchHooksCallback: (
+              {categoryId = false, accountId = false, toAccountId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (categoryId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.categoryId,
+                    referencedTable:
+                        $$TransactionsTableReferences._categoryIdTable(db),
+                    referencedColumn:
+                        $$TransactionsTableReferences._categoryIdTable(db).id,
+                  ) as T;
+                }
+                if (accountId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.accountId,
+                    referencedTable:
+                        $$TransactionsTableReferences._accountIdTable(db),
+                    referencedColumn:
+                        $$TransactionsTableReferences._accountIdTable(db).id,
+                  ) as T;
+                }
+                if (toAccountId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.toAccountId,
+                    referencedTable:
+                        $$TransactionsTableReferences._toAccountIdTable(db),
+                    referencedColumn:
+                        $$TransactionsTableReferences._toAccountIdTable(db).id,
+                  ) as T;
+                }
 
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [];
-                  },
-                );
+                return state;
               },
-        ),
-      );
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
 }
 
-typedef $$TransactionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $TransactionsTable,
-      Transaction,
-      $$TransactionsTableFilterComposer,
-      $$TransactionsTableOrderingComposer,
-      $$TransactionsTableAnnotationComposer,
-      $$TransactionsTableCreateCompanionBuilder,
-      $$TransactionsTableUpdateCompanionBuilder,
-      (Transaction, $$TransactionsTableReferences),
-      Transaction,
-      PrefetchHooks Function({
-        bool categoryId,
-        bool accountId,
-        bool toAccountId,
-      })
-    >;
-typedef $$RecurringChargesTableCreateCompanionBuilder =
-    RecurringChargesCompanion Function({
-      Value<int> id,
-      required String name,
-      required ChargeType type,
-      required double amount,
-      required DateTime dueDate,
-      required ChargeCycle cycle,
-      Value<bool> isPaid,
-      Value<bool> isActive,
-      required DateTime createdAt,
-    });
-typedef $$RecurringChargesTableUpdateCompanionBuilder =
-    RecurringChargesCompanion Function({
-      Value<int> id,
-      Value<String> name,
-      Value<ChargeType> type,
-      Value<double> amount,
-      Value<DateTime> dueDate,
-      Value<ChargeCycle> cycle,
-      Value<bool> isPaid,
-      Value<bool> isActive,
-      Value<DateTime> createdAt,
-    });
+typedef $$TransactionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TransactionsTable,
+    Transaction,
+    $$TransactionsTableFilterComposer,
+    $$TransactionsTableOrderingComposer,
+    $$TransactionsTableAnnotationComposer,
+    $$TransactionsTableCreateCompanionBuilder,
+    $$TransactionsTableUpdateCompanionBuilder,
+    (Transaction, $$TransactionsTableReferences),
+    Transaction,
+    PrefetchHooks Function(
+        {bool categoryId, bool accountId, bool toAccountId})>;
+typedef $$RecurringChargesTableCreateCompanionBuilder
+    = RecurringChargesCompanion Function({
+  Value<int> id,
+  required String name,
+  required ChargeType type,
+  required double amount,
+  required DateTime dueDate,
+  required ChargeCycle cycle,
+  Value<bool> isPaid,
+  Value<bool> isActive,
+  required DateTime createdAt,
+});
+typedef $$RecurringChargesTableUpdateCompanionBuilder
+    = RecurringChargesCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<ChargeType> type,
+  Value<double> amount,
+  Value<DateTime> dueDate,
+  Value<ChargeCycle> cycle,
+  Value<bool> isPaid,
+  Value<bool> isActive,
+  Value<DateTime> createdAt,
+});
 
 class $$RecurringChargesTableFilterComposer
     extends Composer<_$AppDatabase, $RecurringChargesTable> {
@@ -7551,51 +6638,35 @@ class $$RecurringChargesTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.name, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<ChargeType, ChargeType, int> get type =>
       $composableBuilder(
-        column: $table.type,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+          column: $table.type,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.amount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get dueDate => $composableBuilder(
-    column: $table.dueDate,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.dueDate, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<ChargeCycle, ChargeCycle, int> get cycle =>
       $composableBuilder(
-        column: $table.cycle,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+          column: $table.cycle,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<bool> get isPaid => $composableBuilder(
-    column: $table.isPaid,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isPaid, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$RecurringChargesTableOrderingComposer
@@ -7608,49 +6679,31 @@ class $$RecurringChargesTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.name, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get dueDate => $composableBuilder(
-    column: $table.dueDate,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.dueDate, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get cycle => $composableBuilder(
-    column: $table.cycle,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.cycle, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isPaid => $composableBuilder(
-    column: $table.isPaid,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isPaid, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$RecurringChargesTableAnnotationComposer
@@ -7690,33 +6743,24 @@ class $$RecurringChargesTableAnnotationComposer
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
-class $$RecurringChargesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $RecurringChargesTable,
-          RecurringCharge,
-          $$RecurringChargesTableFilterComposer,
-          $$RecurringChargesTableOrderingComposer,
-          $$RecurringChargesTableAnnotationComposer,
-          $$RecurringChargesTableCreateCompanionBuilder,
-          $$RecurringChargesTableUpdateCompanionBuilder,
-          (
-            RecurringCharge,
-            BaseReferences<
-              _$AppDatabase,
-              $RecurringChargesTable,
-              RecurringCharge
-            >,
-          ),
-          RecurringCharge,
-          PrefetchHooks Function()
-        > {
+class $$RecurringChargesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RecurringChargesTable,
+    RecurringCharge,
+    $$RecurringChargesTableFilterComposer,
+    $$RecurringChargesTableOrderingComposer,
+    $$RecurringChargesTableAnnotationComposer,
+    $$RecurringChargesTableCreateCompanionBuilder,
+    $$RecurringChargesTableUpdateCompanionBuilder,
+    (
+      RecurringCharge,
+      BaseReferences<_$AppDatabase, $RecurringChargesTable, RecurringCharge>
+    ),
+    RecurringCharge,
+    PrefetchHooks Function()> {
   $$RecurringChargesTableTableManager(
-    _$AppDatabase db,
-    $RecurringChargesTable table,
-  ) : super(
-        TableManagerState(
+      _$AppDatabase db, $RecurringChargesTable table)
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -7725,133 +6769,131 @@ class $$RecurringChargesTableTableManager
               $$RecurringChargesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$RecurringChargesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<ChargeType> type = const Value.absent(),
-                Value<double> amount = const Value.absent(),
-                Value<DateTime> dueDate = const Value.absent(),
-                Value<ChargeCycle> cycle = const Value.absent(),
-                Value<bool> isPaid = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => RecurringChargesCompanion(
-                id: id,
-                name: name,
-                type: type,
-                amount: amount,
-                dueDate: dueDate,
-                cycle: cycle,
-                isPaid: isPaid,
-                isActive: isActive,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String name,
-                required ChargeType type,
-                required double amount,
-                required DateTime dueDate,
-                required ChargeCycle cycle,
-                Value<bool> isPaid = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                required DateTime createdAt,
-              }) => RecurringChargesCompanion.insert(
-                id: id,
-                name: name,
-                type: type,
-                amount: amount,
-                dueDate: dueDate,
-                cycle: cycle,
-                isPaid: isPaid,
-                isActive: isActive,
-                createdAt: createdAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<ChargeType> type = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime> dueDate = const Value.absent(),
+            Value<ChargeCycle> cycle = const Value.absent(),
+            Value<bool> isPaid = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              RecurringChargesCompanion(
+            id: id,
+            name: name,
+            type: type,
+            amount: amount,
+            dueDate: dueDate,
+            cycle: cycle,
+            isPaid: isPaid,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            required ChargeType type,
+            required double amount,
+            required DateTime dueDate,
+            required ChargeCycle cycle,
+            Value<bool> isPaid = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              RecurringChargesCompanion.insert(
+            id: id,
+            name: name,
+            type: type,
+            amount: amount,
+            dueDate: dueDate,
+            cycle: cycle,
+            isPaid: isPaid,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
-        ),
-      );
+        ));
 }
 
-typedef $$RecurringChargesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $RecurringChargesTable,
+typedef $$RecurringChargesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $RecurringChargesTable,
+    RecurringCharge,
+    $$RecurringChargesTableFilterComposer,
+    $$RecurringChargesTableOrderingComposer,
+    $$RecurringChargesTableAnnotationComposer,
+    $$RecurringChargesTableCreateCompanionBuilder,
+    $$RecurringChargesTableUpdateCompanionBuilder,
+    (
       RecurringCharge,
-      $$RecurringChargesTableFilterComposer,
-      $$RecurringChargesTableOrderingComposer,
-      $$RecurringChargesTableAnnotationComposer,
-      $$RecurringChargesTableCreateCompanionBuilder,
-      $$RecurringChargesTableUpdateCompanionBuilder,
-      (
-        RecurringCharge,
-        BaseReferences<_$AppDatabase, $RecurringChargesTable, RecurringCharge>,
-      ),
-      RecurringCharge,
-      PrefetchHooks Function()
-    >;
-typedef $$PendingTransactionsTableCreateCompanionBuilder =
-    PendingTransactionsCompanion Function({
-      Value<int> id,
-      required double amount,
-      required String operator,
-      required String rawSms,
-      required DateTime smsDate,
-      Value<String?> transactionId,
-      Value<bool> isProcessed,
-      Value<int?> suggestedAccountId,
-      required DateTime createdAt,
-    });
-typedef $$PendingTransactionsTableUpdateCompanionBuilder =
-    PendingTransactionsCompanion Function({
-      Value<int> id,
-      Value<double> amount,
-      Value<String> operator,
-      Value<String> rawSms,
-      Value<DateTime> smsDate,
-      Value<String?> transactionId,
-      Value<bool> isProcessed,
-      Value<int?> suggestedAccountId,
-      Value<DateTime> createdAt,
-    });
+      BaseReferences<_$AppDatabase, $RecurringChargesTable, RecurringCharge>
+    ),
+    RecurringCharge,
+    PrefetchHooks Function()>;
+typedef $$PendingTransactionsTableCreateCompanionBuilder
+    = PendingTransactionsCompanion Function({
+  Value<int> id,
+  required double amount,
+  required String operator,
+  Value<MomoTransactionType> momoType,
+  Value<double> fee,
+  Value<double?> balanceAfter,
+  Value<String?> counterpart,
+  Value<String?> counterpartPhone,
+  Value<String?> momoRef,
+  Value<DateTime?> transactionDate,
+  required String rawSms,
+  required DateTime smsDate,
+  Value<String?> transactionId,
+  Value<bool> isProcessed,
+  Value<bool> countsInBudget,
+  Value<int?> suggestedAccountId,
+  required DateTime createdAt,
+});
+typedef $$PendingTransactionsTableUpdateCompanionBuilder
+    = PendingTransactionsCompanion Function({
+  Value<int> id,
+  Value<double> amount,
+  Value<String> operator,
+  Value<MomoTransactionType> momoType,
+  Value<double> fee,
+  Value<double?> balanceAfter,
+  Value<String?> counterpart,
+  Value<String?> counterpartPhone,
+  Value<String?> momoRef,
+  Value<DateTime?> transactionDate,
+  Value<String> rawSms,
+  Value<DateTime> smsDate,
+  Value<String?> transactionId,
+  Value<bool> isProcessed,
+  Value<bool> countsInBudget,
+  Value<int?> suggestedAccountId,
+  Value<DateTime> createdAt,
+});
 
-final class $$PendingTransactionsTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $PendingTransactionsTable,
-          PendingTransaction
-        > {
+final class $$PendingTransactionsTableReferences extends BaseReferences<
+    _$AppDatabase, $PendingTransactionsTable, PendingTransaction> {
   $$PendingTransactionsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+      super.$_db, super.$_table, super.$_typedResult);
 
   static $AccountsTable _suggestedAccountIdTable(_$AppDatabase db) =>
-      db.accounts.createAlias(
-        $_aliasNameGenerator(
-          db.pendingTransactions.suggestedAccountId,
-          db.accounts.id,
-        ),
-      );
+      db.accounts.createAlias($_aliasNameGenerator(
+          db.pendingTransactions.suggestedAccountId, db.accounts.id));
 
   $$AccountsTableProcessedTableManager? get suggestedAccountId {
     final $_column = $_itemColumn<int>('suggested_account_id');
     if ($_column == null) return null;
-    final manager = $$AccountsTableTableManager(
-      $_db,
-      $_db.accounts,
-    ).filter((f) => f.id.sqlEquals($_column));
+    final manager = $$AccountsTableTableManager($_db, $_db.accounts)
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_suggestedAccountIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
@@ -7865,65 +6907,75 @@ class $$PendingTransactionsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.amount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get operator => $composableBuilder(
-    column: $table.operator,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.operator, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<MomoTransactionType, MomoTransactionType, int>
+      get momoType => $composableBuilder(
+          column: $table.momoType,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<double> get fee => $composableBuilder(
+      column: $table.fee, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get balanceAfter => $composableBuilder(
+      column: $table.balanceAfter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get counterpart => $composableBuilder(
+      column: $table.counterpart, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get counterpartPhone => $composableBuilder(
+      column: $table.counterpartPhone,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get momoRef => $composableBuilder(
+      column: $table.momoRef, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get rawSms => $composableBuilder(
-    column: $table.rawSms,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.rawSms, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get smsDate => $composableBuilder(
-    column: $table.smsDate,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.smsDate, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get transactionId => $composableBuilder(
-    column: $table.transactionId,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.transactionId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isProcessed => $composableBuilder(
-    column: $table.isProcessed,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isProcessed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get countsInBudget => $composableBuilder(
+      column: $table.countsInBudget,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   $$AccountsTableFilterComposer get suggestedAccountId {
     final $$AccountsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.suggestedAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableFilterComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.suggestedAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableFilterComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -7938,65 +6990,75 @@ class $$PendingTransactionsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get amount => $composableBuilder(
-    column: $table.amount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get operator => $composableBuilder(
-    column: $table.operator,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.operator, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get momoType => $composableBuilder(
+      column: $table.momoType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get fee => $composableBuilder(
+      column: $table.fee, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get balanceAfter => $composableBuilder(
+      column: $table.balanceAfter,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get counterpart => $composableBuilder(
+      column: $table.counterpart, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get counterpartPhone => $composableBuilder(
+      column: $table.counterpartPhone,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get momoRef => $composableBuilder(
+      column: $table.momoRef, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get rawSms => $composableBuilder(
-    column: $table.rawSms,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.rawSms, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get smsDate => $composableBuilder(
-    column: $table.smsDate,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.smsDate, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get transactionId => $composableBuilder(
-    column: $table.transactionId,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.transactionId,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isProcessed => $composableBuilder(
-    column: $table.isProcessed,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isProcessed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get countsInBudget => $composableBuilder(
+      column: $table.countsInBudget,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   $$AccountsTableOrderingComposer get suggestedAccountId {
     final $$AccountsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.suggestedAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableOrderingComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.suggestedAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableOrderingComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -8019,6 +7081,27 @@ class $$PendingTransactionsTableAnnotationComposer
   GeneratedColumn<String> get operator =>
       $composableBuilder(column: $table.operator, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<MomoTransactionType, int> get momoType =>
+      $composableBuilder(column: $table.momoType, builder: (column) => column);
+
+  GeneratedColumn<double> get fee =>
+      $composableBuilder(column: $table.fee, builder: (column) => column);
+
+  GeneratedColumn<double> get balanceAfter => $composableBuilder(
+      column: $table.balanceAfter, builder: (column) => column);
+
+  GeneratedColumn<String> get counterpart => $composableBuilder(
+      column: $table.counterpart, builder: (column) => column);
+
+  GeneratedColumn<String> get counterpartPhone => $composableBuilder(
+      column: $table.counterpartPhone, builder: (column) => column);
+
+  GeneratedColumn<String> get momoRef =>
+      $composableBuilder(column: $table.momoRef, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get transactionDate => $composableBuilder(
+      column: $table.transactionDate, builder: (column) => column);
+
   GeneratedColumn<String> get rawSms =>
       $composableBuilder(column: $table.rawSms, builder: (column) => column);
 
@@ -8026,135 +7109,151 @@ class $$PendingTransactionsTableAnnotationComposer
       $composableBuilder(column: $table.smsDate, builder: (column) => column);
 
   GeneratedColumn<String> get transactionId => $composableBuilder(
-    column: $table.transactionId,
-    builder: (column) => column,
-  );
+      column: $table.transactionId, builder: (column) => column);
 
   GeneratedColumn<bool> get isProcessed => $composableBuilder(
-    column: $table.isProcessed,
-    builder: (column) => column,
-  );
+      column: $table.isProcessed, builder: (column) => column);
+
+  GeneratedColumn<bool> get countsInBudget => $composableBuilder(
+      column: $table.countsInBudget, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   $$AccountsTableAnnotationComposer get suggestedAccountId {
     final $$AccountsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.suggestedAccountId,
-      referencedTable: $db.accounts,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AccountsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.accounts,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.suggestedAccountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
 
-class $$PendingTransactionsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $PendingTransactionsTable,
-          PendingTransaction,
-          $$PendingTransactionsTableFilterComposer,
-          $$PendingTransactionsTableOrderingComposer,
-          $$PendingTransactionsTableAnnotationComposer,
-          $$PendingTransactionsTableCreateCompanionBuilder,
-          $$PendingTransactionsTableUpdateCompanionBuilder,
-          (PendingTransaction, $$PendingTransactionsTableReferences),
-          PendingTransaction,
-          PrefetchHooks Function({bool suggestedAccountId})
-        > {
+class $$PendingTransactionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PendingTransactionsTable,
+    PendingTransaction,
+    $$PendingTransactionsTableFilterComposer,
+    $$PendingTransactionsTableOrderingComposer,
+    $$PendingTransactionsTableAnnotationComposer,
+    $$PendingTransactionsTableCreateCompanionBuilder,
+    $$PendingTransactionsTableUpdateCompanionBuilder,
+    (PendingTransaction, $$PendingTransactionsTableReferences),
+    PendingTransaction,
+    PrefetchHooks Function({bool suggestedAccountId})> {
   $$PendingTransactionsTableTableManager(
-    _$AppDatabase db,
-    $PendingTransactionsTable table,
-  ) : super(
-        TableManagerState(
+      _$AppDatabase db, $PendingTransactionsTable table)
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
               $$PendingTransactionsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
               $$PendingTransactionsTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
+                  $db: db, $table: table),
           createComputedFieldComposer: () =>
               $$PendingTransactionsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<double> amount = const Value.absent(),
-                Value<String> operator = const Value.absent(),
-                Value<String> rawSms = const Value.absent(),
-                Value<DateTime> smsDate = const Value.absent(),
-                Value<String?> transactionId = const Value.absent(),
-                Value<bool> isProcessed = const Value.absent(),
-                Value<int?> suggestedAccountId = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => PendingTransactionsCompanion(
-                id: id,
-                amount: amount,
-                operator: operator,
-                rawSms: rawSms,
-                smsDate: smsDate,
-                transactionId: transactionId,
-                isProcessed: isProcessed,
-                suggestedAccountId: suggestedAccountId,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required double amount,
-                required String operator,
-                required String rawSms,
-                required DateTime smsDate,
-                Value<String?> transactionId = const Value.absent(),
-                Value<bool> isProcessed = const Value.absent(),
-                Value<int?> suggestedAccountId = const Value.absent(),
-                required DateTime createdAt,
-              }) => PendingTransactionsCompanion.insert(
-                id: id,
-                amount: amount,
-                operator: operator,
-                rawSms: rawSms,
-                smsDate: smsDate,
-                transactionId: transactionId,
-                isProcessed: isProcessed,
-                suggestedAccountId: suggestedAccountId,
-                createdAt: createdAt,
-              ),
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<String> operator = const Value.absent(),
+            Value<MomoTransactionType> momoType = const Value.absent(),
+            Value<double> fee = const Value.absent(),
+            Value<double?> balanceAfter = const Value.absent(),
+            Value<String?> counterpart = const Value.absent(),
+            Value<String?> counterpartPhone = const Value.absent(),
+            Value<String?> momoRef = const Value.absent(),
+            Value<DateTime?> transactionDate = const Value.absent(),
+            Value<String> rawSms = const Value.absent(),
+            Value<DateTime> smsDate = const Value.absent(),
+            Value<String?> transactionId = const Value.absent(),
+            Value<bool> isProcessed = const Value.absent(),
+            Value<bool> countsInBudget = const Value.absent(),
+            Value<int?> suggestedAccountId = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              PendingTransactionsCompanion(
+            id: id,
+            amount: amount,
+            operator: operator,
+            momoType: momoType,
+            fee: fee,
+            balanceAfter: balanceAfter,
+            counterpart: counterpart,
+            counterpartPhone: counterpartPhone,
+            momoRef: momoRef,
+            transactionDate: transactionDate,
+            rawSms: rawSms,
+            smsDate: smsDate,
+            transactionId: transactionId,
+            isProcessed: isProcessed,
+            countsInBudget: countsInBudget,
+            suggestedAccountId: suggestedAccountId,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required double amount,
+            required String operator,
+            Value<MomoTransactionType> momoType = const Value.absent(),
+            Value<double> fee = const Value.absent(),
+            Value<double?> balanceAfter = const Value.absent(),
+            Value<String?> counterpart = const Value.absent(),
+            Value<String?> counterpartPhone = const Value.absent(),
+            Value<String?> momoRef = const Value.absent(),
+            Value<DateTime?> transactionDate = const Value.absent(),
+            required String rawSms,
+            required DateTime smsDate,
+            Value<String?> transactionId = const Value.absent(),
+            Value<bool> isProcessed = const Value.absent(),
+            Value<bool> countsInBudget = const Value.absent(),
+            Value<int?> suggestedAccountId = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              PendingTransactionsCompanion.insert(
+            id: id,
+            amount: amount,
+            operator: operator,
+            momoType: momoType,
+            fee: fee,
+            balanceAfter: balanceAfter,
+            counterpart: counterpart,
+            counterpartPhone: counterpartPhone,
+            momoRef: momoRef,
+            transactionDate: transactionDate,
+            rawSms: rawSms,
+            smsDate: smsDate,
+            transactionId: transactionId,
+            isProcessed: isProcessed,
+            countsInBudget: countsInBudget,
+            suggestedAccountId: suggestedAccountId,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$PendingTransactionsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (
+                    e.readTable(table),
+                    $$PendingTransactionsTableReferences(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: ({suggestedAccountId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
+              addJoins: <
+                  T extends TableManagerState<
                       dynamic,
                       dynamic,
                       dynamic,
@@ -8165,92 +7264,81 @@ class $$PendingTransactionsTableTableManager
                       dynamic,
                       dynamic,
                       dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (suggestedAccountId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.suggestedAccountId,
-                                referencedTable:
-                                    $$PendingTransactionsTableReferences
-                                        ._suggestedAccountIdTable(db),
-                                referencedColumn:
-                                    $$PendingTransactionsTableReferences
-                                        ._suggestedAccountIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
+                      dynamic>>(state) {
+                if (suggestedAccountId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.suggestedAccountId,
+                    referencedTable: $$PendingTransactionsTableReferences
+                        ._suggestedAccountIdTable(db),
+                    referencedColumn: $$PendingTransactionsTableReferences
+                        ._suggestedAccountIdTable(db)
+                        .id,
+                  ) as T;
+                }
 
-                    return state;
-                  },
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [];
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$PendingTransactionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $PendingTransactionsTable,
-      PendingTransaction,
-      $$PendingTransactionsTableFilterComposer,
-      $$PendingTransactionsTableOrderingComposer,
-      $$PendingTransactionsTableAnnotationComposer,
-      $$PendingTransactionsTableCreateCompanionBuilder,
-      $$PendingTransactionsTableUpdateCompanionBuilder,
-      (PendingTransaction, $$PendingTransactionsTableReferences),
-      PendingTransaction,
-      PrefetchHooks Function({bool suggestedAccountId})
-    >;
-typedef $$SettingsTableCreateCompanionBuilder =
-    SettingsCompanion Function({
-      Value<int> id,
-      required String userName,
-      Value<String> currency,
-      required FinancialCycle financialCycle,
-      required TransportMode transportMode,
-      Value<double?> dailyTransportCost,
-      Value<int?> transportDaysPerWeek,
-      Value<double?> fixedTransportAmount,
-      Value<bool> biometricEnabled,
-      Value<bool> pinEnabled,
-      Value<bool> discreteModeEnabled,
-      Value<bool> smsParsingEnabled,
-      Value<double> savingsGoal,
-      Value<bool> onboardingCompleted,
-      Value<String?> borderColor,
-      Value<ThemeModePreference> themeMode,
-      required DateTime createdAt,
-      required DateTime updatedAt,
-    });
-typedef $$SettingsTableUpdateCompanionBuilder =
-    SettingsCompanion Function({
-      Value<int> id,
-      Value<String> userName,
-      Value<String> currency,
-      Value<FinancialCycle> financialCycle,
-      Value<TransportMode> transportMode,
-      Value<double?> dailyTransportCost,
-      Value<int?> transportDaysPerWeek,
-      Value<double?> fixedTransportAmount,
-      Value<bool> biometricEnabled,
-      Value<bool> pinEnabled,
-      Value<bool> discreteModeEnabled,
-      Value<bool> smsParsingEnabled,
-      Value<double> savingsGoal,
-      Value<bool> onboardingCompleted,
-      Value<String?> borderColor,
-      Value<ThemeModePreference> themeMode,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-    });
+typedef $$PendingTransactionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PendingTransactionsTable,
+    PendingTransaction,
+    $$PendingTransactionsTableFilterComposer,
+    $$PendingTransactionsTableOrderingComposer,
+    $$PendingTransactionsTableAnnotationComposer,
+    $$PendingTransactionsTableCreateCompanionBuilder,
+    $$PendingTransactionsTableUpdateCompanionBuilder,
+    (PendingTransaction, $$PendingTransactionsTableReferences),
+    PendingTransaction,
+    PrefetchHooks Function({bool suggestedAccountId})>;
+typedef $$SettingsTableCreateCompanionBuilder = SettingsCompanion Function({
+  Value<int> id,
+  required String userName,
+  Value<String> currency,
+  required FinancialCycle financialCycle,
+  required TransportMode transportMode,
+  Value<double?> dailyTransportCost,
+  Value<int?> transportDaysPerWeek,
+  Value<double?> fixedTransportAmount,
+  Value<bool> biometricEnabled,
+  Value<bool> pinEnabled,
+  Value<bool> discreteModeEnabled,
+  Value<bool> smsParsingEnabled,
+  Value<double> savingsGoal,
+  Value<bool> onboardingCompleted,
+  Value<String?> borderColor,
+  Value<ThemeModePreference> themeMode,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$SettingsTableUpdateCompanionBuilder = SettingsCompanion Function({
+  Value<int> id,
+  Value<String> userName,
+  Value<String> currency,
+  Value<FinancialCycle> financialCycle,
+  Value<TransportMode> transportMode,
+  Value<double?> dailyTransportCost,
+  Value<int?> transportDaysPerWeek,
+  Value<double?> fixedTransportAmount,
+  Value<bool> biometricEnabled,
+  Value<bool> pinEnabled,
+  Value<bool> discreteModeEnabled,
+  Value<bool> smsParsingEnabled,
+  Value<double> savingsGoal,
+  Value<bool> onboardingCompleted,
+  Value<String?> borderColor,
+  Value<ThemeModePreference> themeMode,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
 
 class $$SettingsTableFilterComposer
     extends Composer<_$AppDatabase, $SettingsTable> {
@@ -8262,97 +7350,71 @@ class $$SettingsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get userName => $composableBuilder(
-    column: $table.userName,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.userName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get currency => $composableBuilder(
-    column: $table.currency,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.currency, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<FinancialCycle, FinancialCycle, int>
-  get financialCycle => $composableBuilder(
-    column: $table.financialCycle,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+      get financialCycle => $composableBuilder(
+          column: $table.financialCycle,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnWithTypeConverterFilters<TransportMode, TransportMode, int>
-  get transportMode => $composableBuilder(
-    column: $table.transportMode,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+      get transportMode => $composableBuilder(
+          column: $table.transportMode,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<double> get dailyTransportCost => $composableBuilder(
-    column: $table.dailyTransportCost,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.dailyTransportCost,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get transportDaysPerWeek => $composableBuilder(
-    column: $table.transportDaysPerWeek,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.transportDaysPerWeek,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get fixedTransportAmount => $composableBuilder(
-    column: $table.fixedTransportAmount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.fixedTransportAmount,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get biometricEnabled => $composableBuilder(
-    column: $table.biometricEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.biometricEnabled,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get pinEnabled => $composableBuilder(
-    column: $table.pinEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.pinEnabled, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get discreteModeEnabled => $composableBuilder(
-    column: $table.discreteModeEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.discreteModeEnabled,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get smsParsingEnabled => $composableBuilder(
-    column: $table.smsParsingEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.smsParsingEnabled,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get savingsGoal => $composableBuilder(
-    column: $table.savingsGoal,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.savingsGoal, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get onboardingCompleted => $composableBuilder(
-    column: $table.onboardingCompleted,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.onboardingCompleted,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get borderColor => $composableBuilder(
-    column: $table.borderColor,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.borderColor, builder: (column) => ColumnFilters(column));
 
   ColumnWithTypeConverterFilters<ThemeModePreference, ThemeModePreference, int>
-  get themeMode => $composableBuilder(
-    column: $table.themeMode,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
+      get themeMode => $composableBuilder(
+          column: $table.themeMode,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$SettingsTableOrderingComposer
@@ -8365,94 +7427,67 @@ class $$SettingsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get userName => $composableBuilder(
-    column: $table.userName,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.userName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get currency => $composableBuilder(
-    column: $table.currency,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.currency, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get financialCycle => $composableBuilder(
-    column: $table.financialCycle,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.financialCycle,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get transportMode => $composableBuilder(
-    column: $table.transportMode,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.transportMode,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get dailyTransportCost => $composableBuilder(
-    column: $table.dailyTransportCost,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.dailyTransportCost,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get transportDaysPerWeek => $composableBuilder(
-    column: $table.transportDaysPerWeek,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.transportDaysPerWeek,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get fixedTransportAmount => $composableBuilder(
-    column: $table.fixedTransportAmount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.fixedTransportAmount,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get biometricEnabled => $composableBuilder(
-    column: $table.biometricEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.biometricEnabled,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get pinEnabled => $composableBuilder(
-    column: $table.pinEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.pinEnabled, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get discreteModeEnabled => $composableBuilder(
-    column: $table.discreteModeEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.discreteModeEnabled,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get smsParsingEnabled => $composableBuilder(
-    column: $table.smsParsingEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.smsParsingEnabled,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get savingsGoal => $composableBuilder(
-    column: $table.savingsGoal,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.savingsGoal, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get onboardingCompleted => $composableBuilder(
-    column: $table.onboardingCompleted,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.onboardingCompleted,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get borderColor => $composableBuilder(
-    column: $table.borderColor,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.borderColor, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get themeMode => $composableBuilder(
-    column: $table.themeMode,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.themeMode, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$SettingsTableAnnotationComposer
@@ -8475,65 +7510,41 @@ class $$SettingsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<FinancialCycle, int> get financialCycle =>
       $composableBuilder(
-        column: $table.financialCycle,
-        builder: (column) => column,
-      );
+          column: $table.financialCycle, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<TransportMode, int> get transportMode =>
       $composableBuilder(
-        column: $table.transportMode,
-        builder: (column) => column,
-      );
+          column: $table.transportMode, builder: (column) => column);
 
   GeneratedColumn<double> get dailyTransportCost => $composableBuilder(
-    column: $table.dailyTransportCost,
-    builder: (column) => column,
-  );
+      column: $table.dailyTransportCost, builder: (column) => column);
 
   GeneratedColumn<int> get transportDaysPerWeek => $composableBuilder(
-    column: $table.transportDaysPerWeek,
-    builder: (column) => column,
-  );
+      column: $table.transportDaysPerWeek, builder: (column) => column);
 
   GeneratedColumn<double> get fixedTransportAmount => $composableBuilder(
-    column: $table.fixedTransportAmount,
-    builder: (column) => column,
-  );
+      column: $table.fixedTransportAmount, builder: (column) => column);
 
   GeneratedColumn<bool> get biometricEnabled => $composableBuilder(
-    column: $table.biometricEnabled,
-    builder: (column) => column,
-  );
+      column: $table.biometricEnabled, builder: (column) => column);
 
   GeneratedColumn<bool> get pinEnabled => $composableBuilder(
-    column: $table.pinEnabled,
-    builder: (column) => column,
-  );
+      column: $table.pinEnabled, builder: (column) => column);
 
   GeneratedColumn<bool> get discreteModeEnabled => $composableBuilder(
-    column: $table.discreteModeEnabled,
-    builder: (column) => column,
-  );
+      column: $table.discreteModeEnabled, builder: (column) => column);
 
   GeneratedColumn<bool> get smsParsingEnabled => $composableBuilder(
-    column: $table.smsParsingEnabled,
-    builder: (column) => column,
-  );
+      column: $table.smsParsingEnabled, builder: (column) => column);
 
   GeneratedColumn<double> get savingsGoal => $composableBuilder(
-    column: $table.savingsGoal,
-    builder: (column) => column,
-  );
+      column: $table.savingsGoal, builder: (column) => column);
 
   GeneratedColumn<bool> get onboardingCompleted => $composableBuilder(
-    column: $table.onboardingCompleted,
-    builder: (column) => column,
-  );
+      column: $table.onboardingCompleted, builder: (column) => column);
 
   GeneratedColumn<String> get borderColor => $composableBuilder(
-    column: $table.borderColor,
-    builder: (column) => column,
-  );
+      column: $table.borderColor, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<ThemeModePreference, int> get themeMode =>
       $composableBuilder(column: $table.themeMode, builder: (column) => column);
@@ -8545,27 +7556,20 @@ class $$SettingsTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
-class $$SettingsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $SettingsTable,
-          UserSettings,
-          $$SettingsTableFilterComposer,
-          $$SettingsTableOrderingComposer,
-          $$SettingsTableAnnotationComposer,
-          $$SettingsTableCreateCompanionBuilder,
-          $$SettingsTableUpdateCompanionBuilder,
-          (
-            UserSettings,
-            BaseReferences<_$AppDatabase, $SettingsTable, UserSettings>,
-          ),
-          UserSettings,
-          PrefetchHooks Function()
-        > {
+class $$SettingsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SettingsTable,
+    UserSettings,
+    $$SettingsTableFilterComposer,
+    $$SettingsTableOrderingComposer,
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (UserSettings, BaseReferences<_$AppDatabase, $SettingsTable, UserSettings>),
+    UserSettings,
+    PrefetchHooks Function()> {
   $$SettingsTableTableManager(_$AppDatabase db, $SettingsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -8574,143 +7578,137 @@ class $$SettingsTableTableManager
               $$SettingsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$SettingsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> userName = const Value.absent(),
-                Value<String> currency = const Value.absent(),
-                Value<FinancialCycle> financialCycle = const Value.absent(),
-                Value<TransportMode> transportMode = const Value.absent(),
-                Value<double?> dailyTransportCost = const Value.absent(),
-                Value<int?> transportDaysPerWeek = const Value.absent(),
-                Value<double?> fixedTransportAmount = const Value.absent(),
-                Value<bool> biometricEnabled = const Value.absent(),
-                Value<bool> pinEnabled = const Value.absent(),
-                Value<bool> discreteModeEnabled = const Value.absent(),
-                Value<bool> smsParsingEnabled = const Value.absent(),
-                Value<double> savingsGoal = const Value.absent(),
-                Value<bool> onboardingCompleted = const Value.absent(),
-                Value<String?> borderColor = const Value.absent(),
-                Value<ThemeModePreference> themeMode = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => SettingsCompanion(
-                id: id,
-                userName: userName,
-                currency: currency,
-                financialCycle: financialCycle,
-                transportMode: transportMode,
-                dailyTransportCost: dailyTransportCost,
-                transportDaysPerWeek: transportDaysPerWeek,
-                fixedTransportAmount: fixedTransportAmount,
-                biometricEnabled: biometricEnabled,
-                pinEnabled: pinEnabled,
-                discreteModeEnabled: discreteModeEnabled,
-                smsParsingEnabled: smsParsingEnabled,
-                savingsGoal: savingsGoal,
-                onboardingCompleted: onboardingCompleted,
-                borderColor: borderColor,
-                themeMode: themeMode,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String userName,
-                Value<String> currency = const Value.absent(),
-                required FinancialCycle financialCycle,
-                required TransportMode transportMode,
-                Value<double?> dailyTransportCost = const Value.absent(),
-                Value<int?> transportDaysPerWeek = const Value.absent(),
-                Value<double?> fixedTransportAmount = const Value.absent(),
-                Value<bool> biometricEnabled = const Value.absent(),
-                Value<bool> pinEnabled = const Value.absent(),
-                Value<bool> discreteModeEnabled = const Value.absent(),
-                Value<bool> smsParsingEnabled = const Value.absent(),
-                Value<double> savingsGoal = const Value.absent(),
-                Value<bool> onboardingCompleted = const Value.absent(),
-                Value<String?> borderColor = const Value.absent(),
-                Value<ThemeModePreference> themeMode = const Value.absent(),
-                required DateTime createdAt,
-                required DateTime updatedAt,
-              }) => SettingsCompanion.insert(
-                id: id,
-                userName: userName,
-                currency: currency,
-                financialCycle: financialCycle,
-                transportMode: transportMode,
-                dailyTransportCost: dailyTransportCost,
-                transportDaysPerWeek: transportDaysPerWeek,
-                fixedTransportAmount: fixedTransportAmount,
-                biometricEnabled: biometricEnabled,
-                pinEnabled: pinEnabled,
-                discreteModeEnabled: discreteModeEnabled,
-                smsParsingEnabled: smsParsingEnabled,
-                savingsGoal: savingsGoal,
-                onboardingCompleted: onboardingCompleted,
-                borderColor: borderColor,
-                themeMode: themeMode,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> userName = const Value.absent(),
+            Value<String> currency = const Value.absent(),
+            Value<FinancialCycle> financialCycle = const Value.absent(),
+            Value<TransportMode> transportMode = const Value.absent(),
+            Value<double?> dailyTransportCost = const Value.absent(),
+            Value<int?> transportDaysPerWeek = const Value.absent(),
+            Value<double?> fixedTransportAmount = const Value.absent(),
+            Value<bool> biometricEnabled = const Value.absent(),
+            Value<bool> pinEnabled = const Value.absent(),
+            Value<bool> discreteModeEnabled = const Value.absent(),
+            Value<bool> smsParsingEnabled = const Value.absent(),
+            Value<double> savingsGoal = const Value.absent(),
+            Value<bool> onboardingCompleted = const Value.absent(),
+            Value<String?> borderColor = const Value.absent(),
+            Value<ThemeModePreference> themeMode = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              SettingsCompanion(
+            id: id,
+            userName: userName,
+            currency: currency,
+            financialCycle: financialCycle,
+            transportMode: transportMode,
+            dailyTransportCost: dailyTransportCost,
+            transportDaysPerWeek: transportDaysPerWeek,
+            fixedTransportAmount: fixedTransportAmount,
+            biometricEnabled: biometricEnabled,
+            pinEnabled: pinEnabled,
+            discreteModeEnabled: discreteModeEnabled,
+            smsParsingEnabled: smsParsingEnabled,
+            savingsGoal: savingsGoal,
+            onboardingCompleted: onboardingCompleted,
+            borderColor: borderColor,
+            themeMode: themeMode,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String userName,
+            Value<String> currency = const Value.absent(),
+            required FinancialCycle financialCycle,
+            required TransportMode transportMode,
+            Value<double?> dailyTransportCost = const Value.absent(),
+            Value<int?> transportDaysPerWeek = const Value.absent(),
+            Value<double?> fixedTransportAmount = const Value.absent(),
+            Value<bool> biometricEnabled = const Value.absent(),
+            Value<bool> pinEnabled = const Value.absent(),
+            Value<bool> discreteModeEnabled = const Value.absent(),
+            Value<bool> smsParsingEnabled = const Value.absent(),
+            Value<double> savingsGoal = const Value.absent(),
+            Value<bool> onboardingCompleted = const Value.absent(),
+            Value<String?> borderColor = const Value.absent(),
+            Value<ThemeModePreference> themeMode = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              SettingsCompanion.insert(
+            id: id,
+            userName: userName,
+            currency: currency,
+            financialCycle: financialCycle,
+            transportMode: transportMode,
+            dailyTransportCost: dailyTransportCost,
+            transportDaysPerWeek: transportDaysPerWeek,
+            fixedTransportAmount: fixedTransportAmount,
+            biometricEnabled: biometricEnabled,
+            pinEnabled: pinEnabled,
+            discreteModeEnabled: discreteModeEnabled,
+            smsParsingEnabled: smsParsingEnabled,
+            savingsGoal: savingsGoal,
+            onboardingCompleted: onboardingCompleted,
+            borderColor: borderColor,
+            themeMode: themeMode,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
-        ),
-      );
+        ));
 }
 
-typedef $$SettingsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $SettingsTable,
-      UserSettings,
-      $$SettingsTableFilterComposer,
-      $$SettingsTableOrderingComposer,
-      $$SettingsTableAnnotationComposer,
-      $$SettingsTableCreateCompanionBuilder,
-      $$SettingsTableUpdateCompanionBuilder,
-      (
-        UserSettings,
-        BaseReferences<_$AppDatabase, $SettingsTable, UserSettings>,
-      ),
-      UserSettings,
-      PrefetchHooks Function()
-    >;
-typedef $$IncomePatternsTableCreateCompanionBuilder =
-    IncomePatternsCompanion Function({
-      Value<int> id,
-      required double estimatedWeeklyIncome,
-      required double minimumObserved,
-      required double maximumObserved,
-      required double averageObserved,
-      required double variance,
-      required bool isRegular,
-      required int transactionCount,
-      Value<int> analysisWindowDays,
-      required String frequency,
-      Value<DateTime?> nextPredictedDate,
-      required DateTime createdAt,
-      required DateTime updatedAt,
-    });
-typedef $$IncomePatternsTableUpdateCompanionBuilder =
-    IncomePatternsCompanion Function({
-      Value<int> id,
-      Value<double> estimatedWeeklyIncome,
-      Value<double> minimumObserved,
-      Value<double> maximumObserved,
-      Value<double> averageObserved,
-      Value<double> variance,
-      Value<bool> isRegular,
-      Value<int> transactionCount,
-      Value<int> analysisWindowDays,
-      Value<String> frequency,
-      Value<DateTime?> nextPredictedDate,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-    });
+typedef $$SettingsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SettingsTable,
+    UserSettings,
+    $$SettingsTableFilterComposer,
+    $$SettingsTableOrderingComposer,
+    $$SettingsTableAnnotationComposer,
+    $$SettingsTableCreateCompanionBuilder,
+    $$SettingsTableUpdateCompanionBuilder,
+    (UserSettings, BaseReferences<_$AppDatabase, $SettingsTable, UserSettings>),
+    UserSettings,
+    PrefetchHooks Function()>;
+typedef $$IncomePatternsTableCreateCompanionBuilder = IncomePatternsCompanion
+    Function({
+  Value<int> id,
+  required double estimatedWeeklyIncome,
+  required double minimumObserved,
+  required double maximumObserved,
+  required double averageObserved,
+  required double variance,
+  required bool isRegular,
+  required int transactionCount,
+  Value<int> analysisWindowDays,
+  required String frequency,
+  Value<DateTime?> nextPredictedDate,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+});
+typedef $$IncomePatternsTableUpdateCompanionBuilder = IncomePatternsCompanion
+    Function({
+  Value<int> id,
+  Value<double> estimatedWeeklyIncome,
+  Value<double> minimumObserved,
+  Value<double> maximumObserved,
+  Value<double> averageObserved,
+  Value<double> variance,
+  Value<bool> isRegular,
+  Value<int> transactionCount,
+  Value<int> analysisWindowDays,
+  Value<String> frequency,
+  Value<DateTime?> nextPredictedDate,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
 
 class $$IncomePatternsTableFilterComposer
     extends Composer<_$AppDatabase, $IncomePatternsTable> {
@@ -8722,69 +7720,50 @@ class $$IncomePatternsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get estimatedWeeklyIncome => $composableBuilder(
-    column: $table.estimatedWeeklyIncome,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.estimatedWeeklyIncome,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get minimumObserved => $composableBuilder(
-    column: $table.minimumObserved,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.minimumObserved,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get maximumObserved => $composableBuilder(
-    column: $table.maximumObserved,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.maximumObserved,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get averageObserved => $composableBuilder(
-    column: $table.averageObserved,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.averageObserved,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get variance => $composableBuilder(
-    column: $table.variance,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.variance, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isRegular => $composableBuilder(
-    column: $table.isRegular,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isRegular, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.transactionCount,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get analysisWindowDays => $composableBuilder(
-    column: $table.analysisWindowDays,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.analysisWindowDays,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get frequency => $composableBuilder(
-    column: $table.frequency,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.frequency, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get nextPredictedDate => $composableBuilder(
-    column: $table.nextPredictedDate,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.nextPredictedDate,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$IncomePatternsTableOrderingComposer
@@ -8797,69 +7776,50 @@ class $$IncomePatternsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get estimatedWeeklyIncome => $composableBuilder(
-    column: $table.estimatedWeeklyIncome,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.estimatedWeeklyIncome,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get minimumObserved => $composableBuilder(
-    column: $table.minimumObserved,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.minimumObserved,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get maximumObserved => $composableBuilder(
-    column: $table.maximumObserved,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.maximumObserved,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get averageObserved => $composableBuilder(
-    column: $table.averageObserved,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.averageObserved,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get variance => $composableBuilder(
-    column: $table.variance,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.variance, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isRegular => $composableBuilder(
-    column: $table.isRegular,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isRegular, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.transactionCount,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get analysisWindowDays => $composableBuilder(
-    column: $table.analysisWindowDays,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.analysisWindowDays,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get frequency => $composableBuilder(
-    column: $table.frequency,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.frequency, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get nextPredictedDate => $composableBuilder(
-    column: $table.nextPredictedDate,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.nextPredictedDate,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$IncomePatternsTableAnnotationComposer
@@ -8875,24 +7835,16 @@ class $$IncomePatternsTableAnnotationComposer
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<double> get estimatedWeeklyIncome => $composableBuilder(
-    column: $table.estimatedWeeklyIncome,
-    builder: (column) => column,
-  );
+      column: $table.estimatedWeeklyIncome, builder: (column) => column);
 
   GeneratedColumn<double> get minimumObserved => $composableBuilder(
-    column: $table.minimumObserved,
-    builder: (column) => column,
-  );
+      column: $table.minimumObserved, builder: (column) => column);
 
   GeneratedColumn<double> get maximumObserved => $composableBuilder(
-    column: $table.maximumObserved,
-    builder: (column) => column,
-  );
+      column: $table.maximumObserved, builder: (column) => column);
 
   GeneratedColumn<double> get averageObserved => $composableBuilder(
-    column: $table.averageObserved,
-    builder: (column) => column,
-  );
+      column: $table.averageObserved, builder: (column) => column);
 
   GeneratedColumn<double> get variance =>
       $composableBuilder(column: $table.variance, builder: (column) => column);
@@ -8901,22 +7853,16 @@ class $$IncomePatternsTableAnnotationComposer
       $composableBuilder(column: $table.isRegular, builder: (column) => column);
 
   GeneratedColumn<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => column,
-  );
+      column: $table.transactionCount, builder: (column) => column);
 
   GeneratedColumn<int> get analysisWindowDays => $composableBuilder(
-    column: $table.analysisWindowDays,
-    builder: (column) => column,
-  );
+      column: $table.analysisWindowDays, builder: (column) => column);
 
   GeneratedColumn<String> get frequency =>
       $composableBuilder(column: $table.frequency, builder: (column) => column);
 
   GeneratedColumn<DateTime> get nextPredictedDate => $composableBuilder(
-    column: $table.nextPredictedDate,
-    builder: (column) => column,
-  );
+      column: $table.nextPredictedDate, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -8925,29 +7871,24 @@ class $$IncomePatternsTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
-class $$IncomePatternsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $IncomePatternsTable,
-          IncomePattern,
-          $$IncomePatternsTableFilterComposer,
-          $$IncomePatternsTableOrderingComposer,
-          $$IncomePatternsTableAnnotationComposer,
-          $$IncomePatternsTableCreateCompanionBuilder,
-          $$IncomePatternsTableUpdateCompanionBuilder,
-          (
-            IncomePattern,
-            BaseReferences<_$AppDatabase, $IncomePatternsTable, IncomePattern>,
-          ),
-          IncomePattern,
-          PrefetchHooks Function()
-        > {
+class $$IncomePatternsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $IncomePatternsTable,
+    IncomePattern,
+    $$IncomePatternsTableFilterComposer,
+    $$IncomePatternsTableOrderingComposer,
+    $$IncomePatternsTableAnnotationComposer,
+    $$IncomePatternsTableCreateCompanionBuilder,
+    $$IncomePatternsTableUpdateCompanionBuilder,
+    (
+      IncomePattern,
+      BaseReferences<_$AppDatabase, $IncomePatternsTable, IncomePattern>
+    ),
+    IncomePattern,
+    PrefetchHooks Function()> {
   $$IncomePatternsTableTableManager(
-    _$AppDatabase db,
-    $IncomePatternsTable table,
-  ) : super(
-        TableManagerState(
+      _$AppDatabase db, $IncomePatternsTable table)
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -8956,117 +7897,112 @@ class $$IncomePatternsTableTableManager
               $$IncomePatternsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$IncomePatternsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<double> estimatedWeeklyIncome = const Value.absent(),
-                Value<double> minimumObserved = const Value.absent(),
-                Value<double> maximumObserved = const Value.absent(),
-                Value<double> averageObserved = const Value.absent(),
-                Value<double> variance = const Value.absent(),
-                Value<bool> isRegular = const Value.absent(),
-                Value<int> transactionCount = const Value.absent(),
-                Value<int> analysisWindowDays = const Value.absent(),
-                Value<String> frequency = const Value.absent(),
-                Value<DateTime?> nextPredictedDate = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => IncomePatternsCompanion(
-                id: id,
-                estimatedWeeklyIncome: estimatedWeeklyIncome,
-                minimumObserved: minimumObserved,
-                maximumObserved: maximumObserved,
-                averageObserved: averageObserved,
-                variance: variance,
-                isRegular: isRegular,
-                transactionCount: transactionCount,
-                analysisWindowDays: analysisWindowDays,
-                frequency: frequency,
-                nextPredictedDate: nextPredictedDate,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required double estimatedWeeklyIncome,
-                required double minimumObserved,
-                required double maximumObserved,
-                required double averageObserved,
-                required double variance,
-                required bool isRegular,
-                required int transactionCount,
-                Value<int> analysisWindowDays = const Value.absent(),
-                required String frequency,
-                Value<DateTime?> nextPredictedDate = const Value.absent(),
-                required DateTime createdAt,
-                required DateTime updatedAt,
-              }) => IncomePatternsCompanion.insert(
-                id: id,
-                estimatedWeeklyIncome: estimatedWeeklyIncome,
-                minimumObserved: minimumObserved,
-                maximumObserved: maximumObserved,
-                averageObserved: averageObserved,
-                variance: variance,
-                isRegular: isRegular,
-                transactionCount: transactionCount,
-                analysisWindowDays: analysisWindowDays,
-                frequency: frequency,
-                nextPredictedDate: nextPredictedDate,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<double> estimatedWeeklyIncome = const Value.absent(),
+            Value<double> minimumObserved = const Value.absent(),
+            Value<double> maximumObserved = const Value.absent(),
+            Value<double> averageObserved = const Value.absent(),
+            Value<double> variance = const Value.absent(),
+            Value<bool> isRegular = const Value.absent(),
+            Value<int> transactionCount = const Value.absent(),
+            Value<int> analysisWindowDays = const Value.absent(),
+            Value<String> frequency = const Value.absent(),
+            Value<DateTime?> nextPredictedDate = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              IncomePatternsCompanion(
+            id: id,
+            estimatedWeeklyIncome: estimatedWeeklyIncome,
+            minimumObserved: minimumObserved,
+            maximumObserved: maximumObserved,
+            averageObserved: averageObserved,
+            variance: variance,
+            isRegular: isRegular,
+            transactionCount: transactionCount,
+            analysisWindowDays: analysisWindowDays,
+            frequency: frequency,
+            nextPredictedDate: nextPredictedDate,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required double estimatedWeeklyIncome,
+            required double minimumObserved,
+            required double maximumObserved,
+            required double averageObserved,
+            required double variance,
+            required bool isRegular,
+            required int transactionCount,
+            Value<int> analysisWindowDays = const Value.absent(),
+            required String frequency,
+            Value<DateTime?> nextPredictedDate = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+          }) =>
+              IncomePatternsCompanion.insert(
+            id: id,
+            estimatedWeeklyIncome: estimatedWeeklyIncome,
+            minimumObserved: minimumObserved,
+            maximumObserved: maximumObserved,
+            averageObserved: averageObserved,
+            variance: variance,
+            isRegular: isRegular,
+            transactionCount: transactionCount,
+            analysisWindowDays: analysisWindowDays,
+            frequency: frequency,
+            nextPredictedDate: nextPredictedDate,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
-        ),
-      );
+        ));
 }
 
-typedef $$IncomePatternsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $IncomePatternsTable,
+typedef $$IncomePatternsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $IncomePatternsTable,
+    IncomePattern,
+    $$IncomePatternsTableFilterComposer,
+    $$IncomePatternsTableOrderingComposer,
+    $$IncomePatternsTableAnnotationComposer,
+    $$IncomePatternsTableCreateCompanionBuilder,
+    $$IncomePatternsTableUpdateCompanionBuilder,
+    (
       IncomePattern,
-      $$IncomePatternsTableFilterComposer,
-      $$IncomePatternsTableOrderingComposer,
-      $$IncomePatternsTableAnnotationComposer,
-      $$IncomePatternsTableCreateCompanionBuilder,
-      $$IncomePatternsTableUpdateCompanionBuilder,
-      (
-        IncomePattern,
-        BaseReferences<_$AppDatabase, $IncomePatternsTable, IncomePattern>,
-      ),
-      IncomePattern,
-      PrefetchHooks Function()
-    >;
-typedef $$InsightsTableCreateCompanionBuilder =
-    InsightsCompanion Function({
-      Value<int> id,
-      required String type,
-      required double totalAmount,
-      required int transactionCount,
-      required String categoryNames,
-      required double percentageOfAvailable,
-      Value<bool> isDismissed,
-      required DateTime detectedAt,
-      required DateTime expiresAt,
-      required DateTime createdAt,
-    });
-typedef $$InsightsTableUpdateCompanionBuilder =
-    InsightsCompanion Function({
-      Value<int> id,
-      Value<String> type,
-      Value<double> totalAmount,
-      Value<int> transactionCount,
-      Value<String> categoryNames,
-      Value<double> percentageOfAvailable,
-      Value<bool> isDismissed,
-      Value<DateTime> detectedAt,
-      Value<DateTime> expiresAt,
-      Value<DateTime> createdAt,
-    });
+      BaseReferences<_$AppDatabase, $IncomePatternsTable, IncomePattern>
+    ),
+    IncomePattern,
+    PrefetchHooks Function()>;
+typedef $$InsightsTableCreateCompanionBuilder = InsightsCompanion Function({
+  Value<int> id,
+  required String type,
+  required double totalAmount,
+  required int transactionCount,
+  required String categoryNames,
+  required double percentageOfAvailable,
+  Value<bool> isDismissed,
+  required DateTime detectedAt,
+  required DateTime expiresAt,
+  required DateTime createdAt,
+});
+typedef $$InsightsTableUpdateCompanionBuilder = InsightsCompanion Function({
+  Value<int> id,
+  Value<String> type,
+  Value<double> totalAmount,
+  Value<int> transactionCount,
+  Value<String> categoryNames,
+  Value<double> percentageOfAvailable,
+  Value<bool> isDismissed,
+  Value<DateTime> detectedAt,
+  Value<DateTime> expiresAt,
+  Value<DateTime> createdAt,
+});
 
 class $$InsightsTableFilterComposer
     extends Composer<_$AppDatabase, $InsightsTable> {
@@ -9078,54 +8014,36 @@ class $$InsightsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.type, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get totalAmount => $composableBuilder(
-    column: $table.totalAmount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.totalAmount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.transactionCount,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get categoryNames => $composableBuilder(
-    column: $table.categoryNames,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.categoryNames, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get percentageOfAvailable => $composableBuilder(
-    column: $table.percentageOfAvailable,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.percentageOfAvailable,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isDismissed => $composableBuilder(
-    column: $table.isDismissed,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.isDismissed, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get detectedAt => $composableBuilder(
-    column: $table.detectedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.detectedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get expiresAt => $composableBuilder(
-    column: $table.expiresAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.expiresAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$InsightsTableOrderingComposer
@@ -9138,54 +8056,37 @@ class $$InsightsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.type, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get totalAmount => $composableBuilder(
-    column: $table.totalAmount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.totalAmount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.transactionCount,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get categoryNames => $composableBuilder(
-    column: $table.categoryNames,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.categoryNames,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get percentageOfAvailable => $composableBuilder(
-    column: $table.percentageOfAvailable,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.percentageOfAvailable,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isDismissed => $composableBuilder(
-    column: $table.isDismissed,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.isDismissed, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get detectedAt => $composableBuilder(
-    column: $table.detectedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.detectedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
-    column: $table.expiresAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.expiresAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$InsightsTableAnnotationComposer
@@ -9204,34 +8105,22 @@ class $$InsightsTableAnnotationComposer
       $composableBuilder(column: $table.type, builder: (column) => column);
 
   GeneratedColumn<double> get totalAmount => $composableBuilder(
-    column: $table.totalAmount,
-    builder: (column) => column,
-  );
+      column: $table.totalAmount, builder: (column) => column);
 
   GeneratedColumn<int> get transactionCount => $composableBuilder(
-    column: $table.transactionCount,
-    builder: (column) => column,
-  );
+      column: $table.transactionCount, builder: (column) => column);
 
   GeneratedColumn<String> get categoryNames => $composableBuilder(
-    column: $table.categoryNames,
-    builder: (column) => column,
-  );
+      column: $table.categoryNames, builder: (column) => column);
 
   GeneratedColumn<double> get percentageOfAvailable => $composableBuilder(
-    column: $table.percentageOfAvailable,
-    builder: (column) => column,
-  );
+      column: $table.percentageOfAvailable, builder: (column) => column);
 
   GeneratedColumn<bool> get isDismissed => $composableBuilder(
-    column: $table.isDismissed,
-    builder: (column) => column,
-  );
+      column: $table.isDismissed, builder: (column) => column);
 
   GeneratedColumn<DateTime> get detectedAt => $composableBuilder(
-    column: $table.detectedAt,
-    builder: (column) => column,
-  );
+      column: $table.detectedAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get expiresAt =>
       $composableBuilder(column: $table.expiresAt, builder: (column) => column);
@@ -9240,24 +8129,20 @@ class $$InsightsTableAnnotationComposer
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
-class $$InsightsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $InsightsTable,
-          Insight,
-          $$InsightsTableFilterComposer,
-          $$InsightsTableOrderingComposer,
-          $$InsightsTableAnnotationComposer,
-          $$InsightsTableCreateCompanionBuilder,
-          $$InsightsTableUpdateCompanionBuilder,
-          (Insight, BaseReferences<_$AppDatabase, $InsightsTable, Insight>),
-          Insight,
-          PrefetchHooks Function()
-        > {
+class $$InsightsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $InsightsTable,
+    Insight,
+    $$InsightsTableFilterComposer,
+    $$InsightsTableOrderingComposer,
+    $$InsightsTableAnnotationComposer,
+    $$InsightsTableCreateCompanionBuilder,
+    $$InsightsTableUpdateCompanionBuilder,
+    (Insight, BaseReferences<_$AppDatabase, $InsightsTable, Insight>),
+    Insight,
+    PrefetchHooks Function()> {
   $$InsightsTableTableManager(_$AppDatabase db, $InsightsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -9266,98 +8151,95 @@ class $$InsightsTableTableManager
               $$InsightsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$InsightsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> type = const Value.absent(),
-                Value<double> totalAmount = const Value.absent(),
-                Value<int> transactionCount = const Value.absent(),
-                Value<String> categoryNames = const Value.absent(),
-                Value<double> percentageOfAvailable = const Value.absent(),
-                Value<bool> isDismissed = const Value.absent(),
-                Value<DateTime> detectedAt = const Value.absent(),
-                Value<DateTime> expiresAt = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => InsightsCompanion(
-                id: id,
-                type: type,
-                totalAmount: totalAmount,
-                transactionCount: transactionCount,
-                categoryNames: categoryNames,
-                percentageOfAvailable: percentageOfAvailable,
-                isDismissed: isDismissed,
-                detectedAt: detectedAt,
-                expiresAt: expiresAt,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String type,
-                required double totalAmount,
-                required int transactionCount,
-                required String categoryNames,
-                required double percentageOfAvailable,
-                Value<bool> isDismissed = const Value.absent(),
-                required DateTime detectedAt,
-                required DateTime expiresAt,
-                required DateTime createdAt,
-              }) => InsightsCompanion.insert(
-                id: id,
-                type: type,
-                totalAmount: totalAmount,
-                transactionCount: transactionCount,
-                categoryNames: categoryNames,
-                percentageOfAvailable: percentageOfAvailable,
-                isDismissed: isDismissed,
-                detectedAt: detectedAt,
-                expiresAt: expiresAt,
-                createdAt: createdAt,
-              ),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<double> totalAmount = const Value.absent(),
+            Value<int> transactionCount = const Value.absent(),
+            Value<String> categoryNames = const Value.absent(),
+            Value<double> percentageOfAvailable = const Value.absent(),
+            Value<bool> isDismissed = const Value.absent(),
+            Value<DateTime> detectedAt = const Value.absent(),
+            Value<DateTime> expiresAt = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              InsightsCompanion(
+            id: id,
+            type: type,
+            totalAmount: totalAmount,
+            transactionCount: transactionCount,
+            categoryNames: categoryNames,
+            percentageOfAvailable: percentageOfAvailable,
+            isDismissed: isDismissed,
+            detectedAt: detectedAt,
+            expiresAt: expiresAt,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String type,
+            required double totalAmount,
+            required int transactionCount,
+            required String categoryNames,
+            required double percentageOfAvailable,
+            Value<bool> isDismissed = const Value.absent(),
+            required DateTime detectedAt,
+            required DateTime expiresAt,
+            required DateTime createdAt,
+          }) =>
+              InsightsCompanion.insert(
+            id: id,
+            type: type,
+            totalAmount: totalAmount,
+            transactionCount: transactionCount,
+            categoryNames: categoryNames,
+            percentageOfAvailable: percentageOfAvailable,
+            isDismissed: isDismissed,
+            detectedAt: detectedAt,
+            expiresAt: expiresAt,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
-        ),
-      );
+        ));
 }
 
-typedef $$InsightsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $InsightsTable,
-      Insight,
-      $$InsightsTableFilterComposer,
-      $$InsightsTableOrderingComposer,
-      $$InsightsTableAnnotationComposer,
-      $$InsightsTableCreateCompanionBuilder,
-      $$InsightsTableUpdateCompanionBuilder,
-      (Insight, BaseReferences<_$AppDatabase, $InsightsTable, Insight>),
-      Insight,
-      PrefetchHooks Function()
-    >;
-typedef $$BehavioralProfilesTableCreateCompanionBuilder =
-    BehavioralProfilesCompanion Function({
-      Value<int> id,
-      required double spendingFrequency,
-      required String hourlyPattern,
-      required int overrunCount,
-      required double averageOverrun,
-      required String advisoryLevel,
-      required DateTime lastUpdated,
-      required DateTime createdAt,
-    });
-typedef $$BehavioralProfilesTableUpdateCompanionBuilder =
-    BehavioralProfilesCompanion Function({
-      Value<int> id,
-      Value<double> spendingFrequency,
-      Value<String> hourlyPattern,
-      Value<int> overrunCount,
-      Value<double> averageOverrun,
-      Value<String> advisoryLevel,
-      Value<DateTime> lastUpdated,
-      Value<DateTime> createdAt,
-    });
+typedef $$InsightsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $InsightsTable,
+    Insight,
+    $$InsightsTableFilterComposer,
+    $$InsightsTableOrderingComposer,
+    $$InsightsTableAnnotationComposer,
+    $$InsightsTableCreateCompanionBuilder,
+    $$InsightsTableUpdateCompanionBuilder,
+    (Insight, BaseReferences<_$AppDatabase, $InsightsTable, Insight>),
+    Insight,
+    PrefetchHooks Function()>;
+typedef $$BehavioralProfilesTableCreateCompanionBuilder
+    = BehavioralProfilesCompanion Function({
+  Value<int> id,
+  required double spendingFrequency,
+  required String hourlyPattern,
+  required int overrunCount,
+  required double averageOverrun,
+  required String advisoryLevel,
+  required DateTime lastUpdated,
+  required DateTime createdAt,
+});
+typedef $$BehavioralProfilesTableUpdateCompanionBuilder
+    = BehavioralProfilesCompanion Function({
+  Value<int> id,
+  Value<double> spendingFrequency,
+  Value<String> hourlyPattern,
+  Value<int> overrunCount,
+  Value<double> averageOverrun,
+  Value<String> advisoryLevel,
+  Value<DateTime> lastUpdated,
+  Value<DateTime> createdAt,
+});
 
 class $$BehavioralProfilesTableFilterComposer
     extends Composer<_$AppDatabase, $BehavioralProfilesTable> {
@@ -9369,44 +8251,30 @@ class $$BehavioralProfilesTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get spendingFrequency => $composableBuilder(
-    column: $table.spendingFrequency,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.spendingFrequency,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get hourlyPattern => $composableBuilder(
-    column: $table.hourlyPattern,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.hourlyPattern, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get overrunCount => $composableBuilder(
-    column: $table.overrunCount,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.overrunCount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get averageOverrun => $composableBuilder(
-    column: $table.averageOverrun,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.averageOverrun,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get advisoryLevel => $composableBuilder(
-    column: $table.advisoryLevel,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.advisoryLevel, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get lastUpdated => $composableBuilder(
-    column: $table.lastUpdated,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.lastUpdated, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 }
 
 class $$BehavioralProfilesTableOrderingComposer
@@ -9419,44 +8287,33 @@ class $$BehavioralProfilesTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get spendingFrequency => $composableBuilder(
-    column: $table.spendingFrequency,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.spendingFrequency,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get hourlyPattern => $composableBuilder(
-    column: $table.hourlyPattern,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.hourlyPattern,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get overrunCount => $composableBuilder(
-    column: $table.overrunCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.overrunCount,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get averageOverrun => $composableBuilder(
-    column: $table.averageOverrun,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.averageOverrun,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get advisoryLevel => $composableBuilder(
-    column: $table.advisoryLevel,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.advisoryLevel,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get lastUpdated => $composableBuilder(
-    column: $table.lastUpdated,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.lastUpdated, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 }
 
 class $$BehavioralProfilesTableAnnotationComposer
@@ -9472,66 +8329,45 @@ class $$BehavioralProfilesTableAnnotationComposer
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<double> get spendingFrequency => $composableBuilder(
-    column: $table.spendingFrequency,
-    builder: (column) => column,
-  );
+      column: $table.spendingFrequency, builder: (column) => column);
 
   GeneratedColumn<String> get hourlyPattern => $composableBuilder(
-    column: $table.hourlyPattern,
-    builder: (column) => column,
-  );
+      column: $table.hourlyPattern, builder: (column) => column);
 
   GeneratedColumn<int> get overrunCount => $composableBuilder(
-    column: $table.overrunCount,
-    builder: (column) => column,
-  );
+      column: $table.overrunCount, builder: (column) => column);
 
   GeneratedColumn<double> get averageOverrun => $composableBuilder(
-    column: $table.averageOverrun,
-    builder: (column) => column,
-  );
+      column: $table.averageOverrun, builder: (column) => column);
 
   GeneratedColumn<String> get advisoryLevel => $composableBuilder(
-    column: $table.advisoryLevel,
-    builder: (column) => column,
-  );
+      column: $table.advisoryLevel, builder: (column) => column);
 
   GeneratedColumn<DateTime> get lastUpdated => $composableBuilder(
-    column: $table.lastUpdated,
-    builder: (column) => column,
-  );
+      column: $table.lastUpdated, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
 
-class $$BehavioralProfilesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $BehavioralProfilesTable,
-          BehavioralProfile,
-          $$BehavioralProfilesTableFilterComposer,
-          $$BehavioralProfilesTableOrderingComposer,
-          $$BehavioralProfilesTableAnnotationComposer,
-          $$BehavioralProfilesTableCreateCompanionBuilder,
-          $$BehavioralProfilesTableUpdateCompanionBuilder,
-          (
-            BehavioralProfile,
-            BaseReferences<
-              _$AppDatabase,
-              $BehavioralProfilesTable,
-              BehavioralProfile
-            >,
-          ),
-          BehavioralProfile,
-          PrefetchHooks Function()
-        > {
+class $$BehavioralProfilesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $BehavioralProfilesTable,
+    BehavioralProfile,
+    $$BehavioralProfilesTableFilterComposer,
+    $$BehavioralProfilesTableOrderingComposer,
+    $$BehavioralProfilesTableAnnotationComposer,
+    $$BehavioralProfilesTableCreateCompanionBuilder,
+    $$BehavioralProfilesTableUpdateCompanionBuilder,
+    (
+      BehavioralProfile,
+      BaseReferences<_$AppDatabase, $BehavioralProfilesTable, BehavioralProfile>
+    ),
+    BehavioralProfile,
+    PrefetchHooks Function()> {
   $$BehavioralProfilesTableTableManager(
-    _$AppDatabase db,
-    $BehavioralProfilesTable table,
-  ) : super(
-        TableManagerState(
+      _$AppDatabase db, $BehavioralProfilesTable table)
+      : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
@@ -9540,78 +8376,69 @@ class $$BehavioralProfilesTableTableManager
               $$BehavioralProfilesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$BehavioralProfilesTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<double> spendingFrequency = const Value.absent(),
-                Value<String> hourlyPattern = const Value.absent(),
-                Value<int> overrunCount = const Value.absent(),
-                Value<double> averageOverrun = const Value.absent(),
-                Value<String> advisoryLevel = const Value.absent(),
-                Value<DateTime> lastUpdated = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-              }) => BehavioralProfilesCompanion(
-                id: id,
-                spendingFrequency: spendingFrequency,
-                hourlyPattern: hourlyPattern,
-                overrunCount: overrunCount,
-                averageOverrun: averageOverrun,
-                advisoryLevel: advisoryLevel,
-                lastUpdated: lastUpdated,
-                createdAt: createdAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required double spendingFrequency,
-                required String hourlyPattern,
-                required int overrunCount,
-                required double averageOverrun,
-                required String advisoryLevel,
-                required DateTime lastUpdated,
-                required DateTime createdAt,
-              }) => BehavioralProfilesCompanion.insert(
-                id: id,
-                spendingFrequency: spendingFrequency,
-                hourlyPattern: hourlyPattern,
-                overrunCount: overrunCount,
-                averageOverrun: averageOverrun,
-                advisoryLevel: advisoryLevel,
-                lastUpdated: lastUpdated,
-                createdAt: createdAt,
-              ),
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<double> spendingFrequency = const Value.absent(),
+            Value<String> hourlyPattern = const Value.absent(),
+            Value<int> overrunCount = const Value.absent(),
+            Value<double> averageOverrun = const Value.absent(),
+            Value<String> advisoryLevel = const Value.absent(),
+            Value<DateTime> lastUpdated = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              BehavioralProfilesCompanion(
+            id: id,
+            spendingFrequency: spendingFrequency,
+            hourlyPattern: hourlyPattern,
+            overrunCount: overrunCount,
+            averageOverrun: averageOverrun,
+            advisoryLevel: advisoryLevel,
+            lastUpdated: lastUpdated,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required double spendingFrequency,
+            required String hourlyPattern,
+            required int overrunCount,
+            required double averageOverrun,
+            required String advisoryLevel,
+            required DateTime lastUpdated,
+            required DateTime createdAt,
+          }) =>
+              BehavioralProfilesCompanion.insert(
+            id: id,
+            spendingFrequency: spendingFrequency,
+            hourlyPattern: hourlyPattern,
+            overrunCount: overrunCount,
+            averageOverrun: averageOverrun,
+            advisoryLevel: advisoryLevel,
+            lastUpdated: lastUpdated,
+            createdAt: createdAt,
+          ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
-        ),
-      );
+        ));
 }
 
-typedef $$BehavioralProfilesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $BehavioralProfilesTable,
+typedef $$BehavioralProfilesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $BehavioralProfilesTable,
+    BehavioralProfile,
+    $$BehavioralProfilesTableFilterComposer,
+    $$BehavioralProfilesTableOrderingComposer,
+    $$BehavioralProfilesTableAnnotationComposer,
+    $$BehavioralProfilesTableCreateCompanionBuilder,
+    $$BehavioralProfilesTableUpdateCompanionBuilder,
+    (
       BehavioralProfile,
-      $$BehavioralProfilesTableFilterComposer,
-      $$BehavioralProfilesTableOrderingComposer,
-      $$BehavioralProfilesTableAnnotationComposer,
-      $$BehavioralProfilesTableCreateCompanionBuilder,
-      $$BehavioralProfilesTableUpdateCompanionBuilder,
-      (
-        BehavioralProfile,
-        BaseReferences<
-          _$AppDatabase,
-          $BehavioralProfilesTable,
-          BehavioralProfile
-        >,
-      ),
-      BehavioralProfile,
-      PrefetchHooks Function()
-    >;
+      BaseReferences<_$AppDatabase, $BehavioralProfilesTable, BehavioralProfile>
+    ),
+    BehavioralProfile,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

@@ -163,10 +163,15 @@ class GhostMoneyInsight {
     required this.detectedAt,
   });
 
-  /// Message formaté
-  String get message {
-    return '$transactionCount micro-dépenses = ${totalAmount.toStringAsFixed(0)} FCFA '
+  /// Message formaté (utiliser la devise de l'utilisateur)
+  String getMessage(String currency) {
+    return '$transactionCount micro-dépenses = ${totalAmount.toStringAsFixed(0)} $currency '
         '(${percentageOfAvailable.toStringAsFixed(1)}% de ton budget)';
+  }
+
+  /// Message par défaut
+  String get message {
+    return getMessage('FCFA');
   }
 
   /// Catégories formatées

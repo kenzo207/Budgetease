@@ -236,7 +236,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
     final isSelected = _selectedMode == mode;
 
     return Card(
-      color: isSelected ? AppColors.primaryColor.withOpacity(0.2) : null,
+      color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.2) : null,
       child: InkWell(
         onTap: () {
           setState(() {

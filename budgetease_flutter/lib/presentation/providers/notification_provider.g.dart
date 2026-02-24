@@ -29,19 +29,16 @@ String _$notificationSettingsHash() =>
 
 /// See also [NotificationSettings].
 @ProviderFor(NotificationSettings)
-final notificationSettingsProvider =
-    AutoDisposeAsyncNotifierProvider<
-      NotificationSettings,
-      Map<String, bool>
-    >.internal(
-      NotificationSettings.new,
-      name: r'notificationSettingsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$notificationSettingsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final notificationSettingsProvider = AutoDisposeAsyncNotifierProvider<
+    NotificationSettings, Map<String, bool>>.internal(
+  NotificationSettings.new,
+  name: r'notificationSettingsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$notificationSettingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$NotificationSettings = AutoDisposeAsyncNotifier<Map<String, bool>>;
 // ignore_for_file: type=lint

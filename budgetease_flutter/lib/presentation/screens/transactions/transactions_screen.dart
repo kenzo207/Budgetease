@@ -11,6 +11,7 @@ import '../../providers/categories_provider.dart';
 import '../../providers/accounts_provider.dart';
 import '../../providers/budget_provider.dart';
 import '../onboarding/calibration_screen.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran des transactions
 class TransactionsScreen extends ConsumerStatefulWidget {
@@ -23,6 +24,14 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   TransactionType? _filterType;
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).screen('Transactions');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +77,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       setState(() {
                         _searchQuery = value.toLowerCase();
                       });
+                      // Track search when user types something meaningful
+                      if (value.length == 3 || value.isEmpty) {
+                        ref.read(analyticsServiceProvider).capture(
+                          'transaction_search_used',
+                          properties: {
+                            'query_length': value.length,
+                            'has_query': value.isNotEmpty,
+                          },
+                        );
+                      }
                     },
                   ),
                   
@@ -85,6 +104,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             setState(() {
                               _filterType = null;
                             });
+                            ref.read(analyticsServiceProvider).capture(
+                              'transaction_filter_changed',
+                              properties: {'filter_type': 'all'},
+                            );
                           },
                         ),
                         const SizedBox(width: 8),
@@ -96,6 +119,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             setState(() {
                               _filterType = selected ? TransactionType.expense : null;
                             });
+                            ref.read(analyticsServiceProvider).capture(
+                              'transaction_filter_changed',
+                              properties: {'filter_type': selected ? 'expense' : 'all'},
+                            );
                           },
                         ),
                         const SizedBox(width: 8),
@@ -107,6 +134,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             setState(() {
                               _filterType = selected ? TransactionType.income : null;
                             });
+                            ref.read(analyticsServiceProvider).capture(
+                              'transaction_filter_changed',
+                              properties: {'filter_type': selected ? 'income' : 'all'},
+                            );
                           },
                         ),
                         const SizedBox(width: 8),
@@ -118,6 +149,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             setState(() {
                               _filterType = selected ? TransactionType.transfer : null;
                             });
+                            ref.read(analyticsServiceProvider).capture(
+                              'transaction_filter_changed',
+                              properties: {'filter_type': selected ? 'transfer' : 'all'},
+                            );
                           },
                         ),
                       ],
@@ -170,7 +205,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                   Icon(
                                     Icons.receipt_long_outlined,
                                     size: 64,
-                                    color: AppColors.textSecondary.withOpacity(0.5),
+                                    color: AppColors.textSecondary.withValues(alpha: 0.5),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -298,12 +333,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: UIHelpers.getCategoryColor(category.type).withOpacity(0.2),
+              color: UIHelpers.getCategoryColor(category.type).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: Icon(
-                UIHelpers.getCategoryIcon(category.type),
+                UIHelpers.getIconForCategory(category.icon, category.type),
                 color: UIHelpers.getCategoryColor(category.type),
                 size: 24,
               ),
@@ -448,6 +483,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       
       // Delete transaction
       await dao.deleteTransaction(transaction.id);
+      
+      // Analytics
+      ref.read(analyticsServiceProvider).capture(
+        'transaction_deleted',
+        properties: {
+          'transaction_id': transaction.id,
+          'type': transaction.type.name,
+          'amount': transaction.amount,
+        },
+      );
       
       // Refresh providers
       ref.invalidate(transactionsProviderProvider);

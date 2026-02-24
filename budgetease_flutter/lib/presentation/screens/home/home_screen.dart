@@ -4,13 +4,17 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/tables/transactions_table.dart';
+import '../../../data/database/tables/categories_table.dart';
+import '../../../data/database/app_database.dart';
 import '../../providers/budget_provider.dart';
 import '../../providers/accounts_provider.dart';
 import '../../providers/transactions_provider.dart';
+import '../../providers/categories_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../widgets/dynamic_card.dart';
 import '../../widgets/triage_zone_widget.dart';
 import '../onboarding/calibration_screen.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran d'accueil (Dashboard)
 class HomeScreen extends ConsumerStatefulWidget {
@@ -23,7 +27,18 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _discreteMode = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Track screen view
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).screen('Home');
+    });
+  }
+
   Future<void> _refresh() async {
+    // Analytics
+    ref.read(analyticsServiceProvider).capture('home_refreshed');
     // Recharger toutes les données essentielles
     ref.invalidate(budgetProviderProvider);
     ref.invalidate(accountsProviderProvider);
@@ -136,9 +151,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               color: AppColors.textSecondary,
             ),
             onPressed: () {
+              final newMode = !_discreteMode;
               setState(() {
-                _discreteMode = !_discreteMode;
+                _discreteMode = newMode;
               });
+              // Analytics
+              ref.read(analyticsServiceProvider).capture(
+                'discrete_mode_toggled',
+                properties: {'enabled': newMode},
+              );
             },
           ),
         ],
@@ -167,12 +188,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return budgetAsync.when(
       data: (dailyBudget) {
         final displayAmount = _discreteMode ? '••••' : MoneyFormatter.formatCompact(dailyBudget, currency);
+        final budgetColor = dailyBudget < 0 ? AppColors.errorColor : AppColors.primaryColor;
 
         return _buildCard(
           title: 'Budget Quotidien',
           amount: displayAmount,
           icon: Icons.calendar_today,
-          color: AppColors.primaryColor,
+          color: budgetColor,
         );
       },
       loading: () => _buildCard(
@@ -362,10 +384,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildRecentTransactions(String currency) {
     final transactionsAsync = ref.watch(transactionsProviderProvider);
+    final categoriesAsync = ref.watch(categoriesProviderProvider);
 
     return transactionsAsync.when(
       data: (transactions) {
         final recent = transactions.take(10).toList();
+        final categories = categoriesAsync.valueOrNull ?? [];
 
         if (recent.isEmpty) {
           return SliverToBoxAdapter(
@@ -406,21 +430,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? '••••'
                   : MoneyFormatter.formatCompact(transaction.amount, currency);
 
+              final category = transaction.categoryId != null
+                  ? categories.cast<Category?>().firstWhere(
+                        (c) => c?.id == transaction.categoryId,
+                        orElse: () => null,
+                      )
+                  : null;
+
+              final IconData icon;
+              final Color color;
+              if (category != null) {
+                icon = UIHelpers.getIconForCategory(category.icon, category.type);
+                color = UIHelpers.getCategoryColor(category.type);
+              } else {
+                icon = _getTransactionIcon(transaction.type);
+                color = _getTransactionColor(transaction.type);
+              }
+
               return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: _getTransactionColor(transaction.type).withOpacity(0.2),
+                leading: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Icon(
-                    _getTransactionIcon(transaction.type),
-                    color: _getTransactionColor(transaction.type),
+                    icon,
+                    color: color,
+                    size: 22,
                   ),
                 ),
                 title: Text(
-                  transaction.description ?? 'Transaction',
+                  category?.name ?? transaction.description ?? 'Transaction',
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Text(DateFormatter.formatRelative(transaction.date)),
+                subtitle: Text(
+                  transaction.description != null && category != null
+                      ? '${transaction.description} • ${DateFormatter.formatRelative(transaction.date)}'
+                      : DateFormatter.formatRelative(transaction.date),
+                  overflow: TextOverflow.ellipsis,
+                ),
                 trailing: Text(
-                  '${transaction.type == TransactionType.expense ? '-' : '+'} $displayAmount',
+                  '${transaction.type == TransactionType.expense ? '-' : transaction.type == TransactionType.transfer ? '→' : '+'} $displayAmount',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: _getTransactionColor(transaction.type),
                       ),

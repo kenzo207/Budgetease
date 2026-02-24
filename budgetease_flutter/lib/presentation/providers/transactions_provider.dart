@@ -34,34 +34,43 @@ class TransactionsProvider extends _$TransactionsProvider {
     String? scopeType,
     String? description,
   }) async {
+    // Validation: montant strictement positif
+    if (amount <= 0) {
+      throw ArgumentError('Le montant doit être positif: $amount');
+    }
+
     final database = AppDatabase();
     final dao = TransactionsDao(database);
 
-    final transaction = TransactionsCompanion.insert(
-      amount: amount,
-      type: type,
-      categoryId: Value(categoryId),
-      accountId: accountId,
-      toAccountId: Value(toAccountId),
-      date: date,
-      feeAmount: Value(feeAmount),
-      isException: Value(isException),
-      scopeDuration: Value(scopeDuration),
-      scopeType: Value(scopeType),
-      description: Value(description),
-      createdAt: DateTime.now(),
-    );
+    // Utiliser une transaction DB pour atomicité (éviter les race conditions)
+    await database.transaction(() async {
+      final transaction = TransactionsCompanion.insert(
+        amount: amount,
+        type: type,
+        categoryId: Value(categoryId),
+        accountId: accountId,
+        toAccountId: Value(toAccountId),
+        date: date,
+        feeAmount: Value(feeAmount),
+        isException: Value(isException),
+        scopeDuration: Value(scopeDuration),
+        scopeType: Value(scopeType),
+        description: Value(description),
+        createdAt: DateTime.now(),
+      );
 
-    await dao.insertTransaction(transaction);
+      await dao.insertTransaction(transaction);
 
-    // Mettre à jour les soldes des comptes
-    await _updateAccountBalances(
-      type: type,
-      amount: amount,
-      accountId: accountId,
-      toAccountId: toAccountId,
-      feeAmount: feeAmount,
-    );
+      // Mettre à jour les soldes des comptes (dans la même transaction DB)
+      await _updateAccountBalances(
+        database: database,
+        type: type,
+        amount: amount,
+        accountId: accountId,
+        toAccountId: toAccountId,
+        feeAmount: feeAmount,
+      );
+    });
 
     // Rafraîchir les providers
     ref.invalidateSelf();
@@ -70,48 +79,60 @@ class TransactionsProvider extends _$TransactionsProvider {
 
     // Check budget for alerts
     if (type == TransactionType.expense) {
-      final notificationSettings = await ref.read(notificationSettingsProvider.future);
-      if (notificationSettings['budget'] == true) { // Only if enabled
-        final dailyBudget = await ref.read(budgetProviderProvider.future);
-        
-        if (dailyBudget < 0) {
-          final notificationService = ref.read(notificationServiceProvider);
-          await notificationService.showBudgetAlert(
-            categoryName: 'Budget Quotidien',
-            spentPercentage: 1.0 + (amount / (dailyBudget.abs() + amount)),
-            remainingAmount: dailyBudget,
-            currency: 'FCFA',
-          );
-        } else if (amount > dailyBudget * 0.8) {
-           final notificationService = ref.read(notificationServiceProvider);
-           await notificationService.showBudgetAlert(
-            categoryName: 'Dépense Importante',
-            spentPercentage: 0.85,
-            remainingAmount: dailyBudget,
-            currency: 'FCFA',
-          );
+      try {
+        final notificationSettings = await ref.read(notificationSettingsProvider.future);
+        if (notificationSettings['budget'] == true) {
+          final dailyBudget = await ref.read(budgetProviderProvider.future);
+          final totalDeduction = amount + (feeAmount ?? 0);
+          
+          if (dailyBudget < 0) {
+            final notificationService = ref.read(notificationServiceProvider);
+            // Budget négatif = en dette
+            final spentRatio = dailyBudget.abs() > 0
+                ? 1.0 + (totalDeduction / dailyBudget.abs())
+                : 2.0;
+            await notificationService.showBudgetAlert(
+              categoryName: 'Budget Quotidien',
+              spentPercentage: spentRatio.clamp(0.0, 3.0),
+              remainingAmount: dailyBudget,
+              currency: 'FCFA',
+            );
+          } else if (dailyBudget > 0 && totalDeduction > dailyBudget * 0.8) {
+            final notificationService = ref.read(notificationServiceProvider);
+            await notificationService.showBudgetAlert(
+              categoryName: 'Dépense Importante',
+              spentPercentage: (totalDeduction / dailyBudget).clamp(0.0, 3.0),
+              remainingAmount: dailyBudget - totalDeduction,
+              currency: 'FCFA',
+            );
+          }
         }
+      } catch (_) {
+        // Ne pas bloquer la transaction si la notification échoue
       }
     }
   }
 
+  /// Mettre à jour les soldes des comptes (appelé dans une transaction DB)
   Future<void> _updateAccountBalances({
+    required AppDatabase database,
     required TransactionType type,
     required double amount,
     required int accountId,
     int? toAccountId,
     double? feeAmount,
   }) async {
-    final database = AppDatabase();
     final accountsDao = AccountsDao(database);
 
     switch (type) {
       case TransactionType.expense:
         final account = await accountsDao.getAccountById(accountId);
         if (account != null) {
+          // Déduire le montant ET les frais éventuels
+          final totalDeduction = amount + (feeAmount ?? 0);
           await accountsDao.updateAccountBalance(
             accountId,
-            account.currentBalance - amount,
+            account.currentBalance - totalDeduction,
           );
         }
         break;

@@ -18,7 +18,7 @@ class GhostMoneyCard extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: AppColors.warningColor.withOpacity(0.3),
+          color: AppColors.warningColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -33,7 +33,7 @@ class GhostMoneyCard extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.warningColor.withOpacity(0.2),
+                    color: AppColors.warningColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(

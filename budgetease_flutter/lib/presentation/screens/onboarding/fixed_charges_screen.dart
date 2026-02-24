@@ -289,7 +289,7 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<ChargeType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(labelText: 'Type'),
               items: ChargeType.values.map((type) {
                 return DropdownMenuItem(

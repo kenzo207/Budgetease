@@ -11,6 +11,7 @@ import '../../providers/border_color_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/sms_parser_provider.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran des paramètres
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -26,6 +27,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    // Track screen view
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).screen('Settings');
+    });
     // Load SMS settings after first frame to avoid null errors
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadSmsSettings();
@@ -115,7 +120,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.brightness_6_outlined,
                 title: 'Thème',
                 subtitle: _getThemeName(ref.watch(themeProviderProvider).valueOrNull),
-                onTap: () => _showThemePicker(context, ref),
+                onTap: () {
+                  ref.read(analyticsServiceProvider).capture('settings_theme_picker_opened');
+                  _showThemePicker(context, ref);
+                },
               ),
 
               const SizedBox(height: 24),
@@ -146,6 +154,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Catégories',
                 subtitle: 'Gérer les catégories de transactions',
                 onTap: () {
+                  ref.read(analyticsServiceProvider).capture(
+                    'screen_viewed',
+                    properties: {'screen': 'Categories', 'source': 'settings'},
+                  );
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -163,8 +175,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: Switch(
                   value: _smsEnabled,
                   onChanged: (value) async {
-                    setState(() => _smsEnabled = value);
-                    // TODO: Persist preference
+                    await _toggleSms(value);
+                    // Analytics
+                    ref.read(analyticsServiceProvider).capture(
+                      'sms_scanning_toggled',
+                      properties: {'enabled': value},
+                    );
                     if (value) {
                       try {
                          await ref.read(pendingTransactionsProvider.notifier).scan();
@@ -173,7 +189,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Erreur: $e')),
                           );
-                          setState(() => _smsEnabled = false);
+                          await _toggleSms(false);
                         }
                       }
                     }
@@ -216,7 +232,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.backup_outlined,
                 title: 'Sauvegarde',
                 subtitle: 'Exporter vos données',
-                onTap: () => _exportData(context),
+                onTap: () {
+                  ref.read(analyticsServiceProvider).capture('data_export_triggered');
+                  _exportData(context);
+                },
               ),
               
               _buildSettingCard(
@@ -224,7 +243,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.restore_outlined,
                 title: 'Restaurer',
                 subtitle: 'Importer des données',
-                onTap: () => _importData(context),
+                onTap: () {
+                  ref.read(analyticsServiceProvider).capture('data_import_triggered');
+                  _importData(context);
+                },
               ),
               
               _buildSettingCard(
@@ -263,6 +285,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Licences',
                 subtitle: 'Licences open source',
                 onTap: () {
+                  ref.read(analyticsServiceProvider).capture('licenses_viewed');
                   showLicensePage(
                     context: context,
                     applicationName: 'Zolt',
@@ -306,7 +329,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primaryColor).withOpacity(0.2),
+            color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -367,6 +390,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     try {
       final database = AppDatabase();
       
+      // Analytics — fire before wiping DB
+      ref.read(analyticsServiceProvider).capture('app_reset_confirmed');
+
       // Delete all data
       await database.delete(database.transactions).go();
       await database.delete(database.accounts).go();
@@ -478,8 +504,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           settings.copyWith(userName: newName),
         );
         
-        // Refresh provider
-        ref.invalidate(calibrationDataProvider);
+        // Mettre à jour le provider directement avec la nouvelle valeur
+        final current = ref.read(calibrationDataProvider);
+        ref.read(calibrationDataProvider.notifier).state = current.copyWith(userName: newName);
+
+        // Analytics
+        ref.read(analyticsServiceProvider).capture(
+          'username_updated',
+          properties: {'new_length': newName.length},
+        );
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -512,8 +545,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           settings.copyWith(currency: newCurrency),
         );
         
-        // Refresh provider
-        ref.invalidate(calibrationDataProvider);
+        // Mettre à jour le provider directement avec la nouvelle valeur
+        final current = ref.read(calibrationDataProvider);
+        ref.read(calibrationDataProvider.notifier).state = current.copyWith(currency: newCurrency);
+
+        // Analytics
+        ref.read(analyticsServiceProvider).capture(
+          'currency_changed',
+          properties: {'to': newCurrency},
+        );
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -579,7 +619,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final accounts = await database.select(database.accounts).get();
       final transactions = await database.select(database.transactions).get();
       final categories = await database.select(database.categories).get();
-      final settings = await database.select(database.settings).getSingleOrNull();
       
       final exportCount = accounts.length + transactions.length + categories.length;
       
@@ -707,6 +746,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   }
                 ),
               ],
+            ),
+
+            const SizedBox(height: 16),
+            
+            // Test notification button
+            SizedBox(
+              width: double.infinity,
+              child: Consumer(
+                builder: (context, ref, child) {
+                  return OutlinedButton.icon(
+                    icon: const Icon(Icons.notifications_active, size: 18),
+                    label: const Text('Tester les notifications'),
+                    onPressed: () async {
+                      final service = ref.read(notificationServiceProvider);
+                      await service.showTestNotification();
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

@@ -34,40 +34,37 @@ String _$pendingTransactionsCountHash() =>
 @ProviderFor(pendingTransactionsCount)
 final pendingTransactionsCountProvider =
     AutoDisposeFutureProvider<int>.internal(
-      pendingTransactionsCount,
-      name: r'pendingTransactionsCountProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$pendingTransactionsCountHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  pendingTransactionsCount,
+  name: r'pendingTransactionsCountProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$pendingTransactionsCountHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef PendingTransactionsCountRef = AutoDisposeFutureProviderRef<int>;
 String _$pendingTransactionsHash() =>
-    r'577265f07b2b99a3f4343971296dd5bc716141c0';
+    r'a07e650c2c4eb88b410ca08a55ec740f9cec79a9';
 
 /// Provider des transactions en attente
 ///
 /// Copied from [PendingTransactions].
 @ProviderFor(PendingTransactions)
-final pendingTransactionsProvider =
-    AutoDisposeAsyncNotifierProvider<
-      PendingTransactions,
-      List<PendingTransaction>
-    >.internal(
-      PendingTransactions.new,
-      name: r'pendingTransactionsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$pendingTransactionsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final pendingTransactionsProvider = AutoDisposeAsyncNotifierProvider<
+    PendingTransactions, List<PendingTransaction>>.internal(
+  PendingTransactions.new,
+  name: r'pendingTransactionsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$pendingTransactionsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-typedef _$PendingTransactions =
-    AutoDisposeAsyncNotifier<List<PendingTransaction>>;
+typedef _$PendingTransactions
+    = AutoDisposeAsyncNotifier<List<PendingTransaction>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

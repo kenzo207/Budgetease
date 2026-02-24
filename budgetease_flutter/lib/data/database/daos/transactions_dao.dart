@@ -55,16 +55,16 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsD
     return (delete(transactions)..where((t) => t.id.equals(transactionId))).go();
   }
 
-  /// Calculer le total des dépenses pour une période
+  /// Calculer le total des dépenses pour une période (montant + frais)
   Future<double> getTotalExpenses(DateTime start, DateTime end) async {
     final expenses = await (select(transactions)
           ..where((t) =>
               t.type.equals(TransactionType.expense.index) &
               t.date.isBiggerOrEqualValue(start) &
-              t.date.isSmallerOrEqualValue(end)))
+              t.date.isSmallerThanValue(end)))
         .get();
     
-    return expenses.fold<double>(0.0, (sum, t) => sum + t.amount);
+    return expenses.fold<double>(0.0, (sum, t) => sum + t.amount + (t.feeAmount ?? 0));
   }
 
   /// Calculer le total des revenus pour une période
@@ -73,7 +73,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsD
           ..where((t) =>
               t.type.equals(TransactionType.income.index) &
               t.date.isBiggerOrEqualValue(start) &
-              t.date.isSmallerOrEqualValue(end)))
+              t.date.isSmallerThanValue(end)))
         .get();
     
     return income.fold<double>(0.0, (sum, t) => sum + t.amount);
@@ -89,7 +89,6 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsD
 
   /// Récupérer les revenus temporaires actifs
   Future<List<Transaction>> getActiveTemporaryIncomes() {
-    final now = DateTime.now();
     return (select(transactions)
           ..where((t) =>
               t.type.equals(TransactionType.income.index) &

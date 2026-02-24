@@ -1,0 +1,23 @@
+Running Gradle task 'assembleRelease'...                        
+lib/presentation/screens/onboarding/transport_config_screen.dart:284:15: Error: This requires the experimental 'null-aware-elements' language feature to be enabled.
+Try passing the '--enable-experiment=null-aware-elements' command line option.
+              ?child,
+              ^
+Target kernel_snapshot_program failed: Exception
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildRelease'.
+> Process 'command '/home/kenzoobryan/snap/flutter/common/flutter/bin/flutter'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 15s
+Running Gradle task 'assembleRelease'...                           15,6s
+Gradle task assembleRelease failed with exit code 1

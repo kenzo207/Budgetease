@@ -13,19 +13,16 @@ String _$transactionsProviderHash() =>
 ///
 /// Copied from [TransactionsProvider].
 @ProviderFor(TransactionsProvider)
-final transactionsProviderProvider =
-    AutoDisposeAsyncNotifierProvider<
-      TransactionsProvider,
-      List<Transaction>
-    >.internal(
-      TransactionsProvider.new,
-      name: r'transactionsProviderProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$transactionsProviderHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final transactionsProviderProvider = AutoDisposeAsyncNotifierProvider<
+    TransactionsProvider, List<Transaction>>.internal(
+  TransactionsProvider.new,
+  name: r'transactionsProviderProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$transactionsProviderHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$TransactionsProvider = AutoDisposeAsyncNotifier<List<Transaction>>;
 // ignore_for_file: type=lint

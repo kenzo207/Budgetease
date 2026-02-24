@@ -20,7 +20,8 @@ class AdvisoryService {
 
   /// Obtenir tous les conseils actifs
   Future<List<Advisory>> getAdvice() async {
-    final profile = await _profiler.getOrCreateProfile();
+    // Profile loaded for future personalized advice
+    await _profiler.getOrCreateProfile();
     final advices = <Advisory>[];
 
     // 1. Charges fixes approchantes (7 jours)
@@ -119,7 +120,13 @@ class AdvisoryService {
 
     if (recentExpenses.isEmpty) return false;
 
-    final avgDaily = recentExpenses.fold<double>(0.0, (sum, t) => sum + t.amount) / 30;
+    // Calculer la moyenne quotidienne sur la période réelle de données
+    final earliestDate = recentExpenses
+        .map((t) => t.date)
+        .reduce((a, b) => a.isBefore(b) ? a : b);
+    final actualDays = today.difference(earliestDate).inDays;
+    final divisor = actualDays > 0 ? actualDays : 1;
+    final avgDaily = recentExpenses.fold<double>(0.0, (sum, t) => sum + t.amount) / divisor;
 
     return todayTotal > (avgDaily * 2) && todayTotal > 1000;
   }

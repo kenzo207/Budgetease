@@ -74,9 +74,8 @@ String _$isPinEnabledHash() => r'b599665961e70be8d3a61dfbc5ea0ac95fc2160c';
 final isPinEnabledProvider = AutoDisposeFutureProvider<bool>.internal(
   isPinEnabled,
   name: r'isPinEnabledProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isPinEnabledHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$isPinEnabledHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -93,9 +92,8 @@ String _$authHash() => r'aa86370bc195062ee57dbc22cf53e629a4963b3c';
 final authProvider = AutoDisposeAsyncNotifierProvider<Auth, bool>.internal(
   Auth.new,
   name: r'authProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$authHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$authHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

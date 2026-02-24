@@ -9,28 +9,34 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  bool _initialized = false;
+
+  // ═══════════════════════════════════════════════════════
+  // INITIALISATION
+  // ═══════════════════════════════════════════════════════
 
   Future<void> initialize() async {
+    if (_initialized) return;
+
+    // Init timezone database
     tz.initializeTimeZones();
     try {
-      final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
-      // On some platforms/versions, getLocalTimezone returns a String, on others (Linux?) a TimezoneInfo object?
-      // Based on error: "The argument type 'TimezoneInfo' can't be assigned to the parameter type 'String'".
-      // So it returns TimezoneInfo. I will try .id or .name.
-      // Let's assume .id based on IANA standard usage. Or just cast to dynamic and access property if uncertain?
-      // Better: try .id. If compile fails, I'll know.
-      // Actually, standard flutter_timezone returns String. This might be a linux-specific return type?
-      // Let's try to treat it as dynamic to avoid compile error if property exists, or just try .id.
-      // But wait, the previous build error proved it IS TimezoneInfo.
-      // I'll try .id.
-      tz.setLocalLocation(tz.getLocation((timeZoneInfo as dynamic).id));
+      // flutter_timezone 4.x returns a String directly (IANA timezone name)
+      final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
     } catch (e) {
-      print('Failed to get local timezone: $e');
-      // Fallback to UTC
-      tz.setLocalLocation(tz.getLocation('UTC'));
+      // Fallback pour l'Afrique de l'Ouest (cible principale)
+      try {
+        tz.setLocalLocation(tz.getLocation('Africa/Porto-Novo'));
+      } catch (_) {
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
     }
 
+    // Configuration Android — utiliser l'icône monochrome du launcher
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
 
@@ -41,51 +47,85 @@ class NotificationService {
       requestAlertPermission: false,
     );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (details) {
-        // Handle notification tap
-      },
+      onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
     await _createNotificationChannels();
+    _initialized = true;
+  }
+
+  void _onNotificationTapped(NotificationResponse response) {
+    // Le payload peut contenir une route ou un ID de transaction
+    // Pour l'instant on ne fait rien, l'app s'ouvre au tap
   }
 
   Future<void> _createNotificationChannels() async {
-    const AndroidNotificationChannel budgetAlertsChannel = AndroidNotificationChannel(
+    final androidImplementation = flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation == null) return;
+
+    // Canal alertes budget (haute priorité)
+    const budgetAlertsChannel = AndroidNotificationChannel(
       'budget_alerts',
       'Alertes Budget',
-      description: 'Notifications critiques pour le dépassement de budget',
+      description: 'Alertes de dépassement de budget',
       importance: Importance.high,
       playSound: true,
+      enableVibration: true,
     );
 
-    const AndroidNotificationChannel remindersChannel = AndroidNotificationChannel(
+    // Canal rappels quotidiens
+    const remindersChannel = AndroidNotificationChannel(
       'reminders',
       'Rappels',
-      description: 'Rappels quotidiens et charges récurrentes',
+      description: 'Rappels quotidiens et check-in',
       importance: Importance.defaultImportance,
       playSound: true,
     );
 
-    final androidImplementation = flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    // Canal SMS / transactions détectées
+    const smsChannel = AndroidNotificationChannel(
+      'sms_transactions',
+      'Transactions SMS',
+      description: 'Nouvelles transactions Mobile Money détectées',
+      importance: Importance.high,
+      playSound: true,
+    );
 
-    if (androidImplementation != null) {
-      await androidImplementation.createNotificationChannel(budgetAlertsChannel);
-      await androidImplementation.createNotificationChannel(remindersChannel);
-    }
+    // Canal charges récurrentes
+    const recurringChannel = AndroidNotificationChannel(
+      'recurring_charges',
+      'Charges Récurrentes',
+      description: 'Rappels de charges récurrentes à venir',
+      importance: Importance.high,
+      playSound: true,
+    );
+
+    await androidImplementation.createNotificationChannel(budgetAlertsChannel);
+    await androidImplementation.createNotificationChannel(remindersChannel);
+    await androidImplementation.createNotificationChannel(smsChannel);
+    await androidImplementation.createNotificationChannel(recurringChannel);
   }
+
+  // ═══════════════════════════════════════════════════════
+  // PERMISSIONS
+  // ═══════════════════════════════════════════════════════
 
   Future<bool> requestPermissions() async {
     if (Platform.isIOS) {
       final bool? result = await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
           ?.requestPermissions(
             alert: true,
             badge: true,
@@ -94,18 +134,22 @@ class NotificationService {
       return result ?? false;
     } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
+          flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin>();
 
-      final bool? result = await androidImplementation?.requestNotificationsPermission();
+      final bool? result =
+          await androidImplementation?.requestNotificationsPermission();
       return result ?? false;
     }
     return false;
   }
 
-  // --- Zolt Style Notifications ---
+  // ═══════════════════════════════════════════════════════
+  // ALERTES BUDGET
+  // ═══════════════════════════════════════════════════════
 
-  /// Afficher une alerte de budget critique
+  /// Notification immédiate quand un budget est proche ou dépassé
   Future<void> showBudgetAlert({
     required String categoryName,
     required double spentPercentage,
@@ -113,38 +157,43 @@ class NotificationService {
     required String currency,
   }) async {
     final bool isOverBudget = spentPercentage >= 1.0;
-    
-    final String title = isOverBudget 
-        ? 'Alerte Budget : $categoryName' 
-        : 'Attention Budget : $categoryName';
-    
-    // Create visual progress bar (ASCII)
+
+    final String title = isOverBudget
+        ? '⚠️ Budget dépassé : $categoryName'
+        : '⚡ Attention : $categoryName';
+
+    // Barre de progression ASCII
     const int barLength = 10;
-    final int filledLength = (spentPercentage * barLength).round().clamp(0, barLength);
-    final String progressBar = '■' * filledLength + '□' * (barLength - filledLength);
-    
+    final int filledLength =
+        (spentPercentage * barLength).round().clamp(0, barLength);
+    final String progressBar =
+        '■' * filledLength + '□' * (barLength - filledLength);
+
     String body;
     if (isOverBudget) {
-      body = 'Budget dépassé !\n$progressBar\nVous avez dépassé votre limite de ${_formatMoney(remainingAmount.abs(), currency)}.';
+      body =
+          '$progressBar\nBudget dépassé de ${_formatMoney(remainingAmount.abs(), currency)} !';
     } else {
-      body = 'Consommation actuelle\n$progressBar\nVous êtes à ${(spentPercentage * 100).toInt()}% du budget.\nReste : ${_formatMoney(remainingAmount, currency)}';
+      body =
+          '$progressBar ${(spentPercentage * 100).toInt()}%\nReste : ${_formatMoney(remainingAmount, currency)}';
     }
 
     await flutterLocalNotificationsPlugin.show(
-      DateTime.now().millisecond, // Unique ID based on time
+      'budget_$categoryName'.hashCode,
       title,
       body,
       NotificationDetails(
         android: AndroidNotificationDetails(
           'budget_alerts',
           'Alertes Budget',
-          channelDescription: 'Notifications critiques pour le dépassement de budget',
+          channelDescription: 'Alertes de dépassement de budget',
           importance: Importance.high,
           priority: Priority.high,
           styleInformation: BigTextStyleInformation(
             body,
             contentTitle: title,
-            summaryText: isOverBudget ? 'Budget Dépassé' : 'Attention Budget',
+            summaryText:
+                isOverBudget ? 'Budget Dépassé' : 'Attention Budget',
           ),
         ),
         iOS: const DarwinNotificationDetails(
@@ -156,16 +205,19 @@ class NotificationService {
     );
   }
 
-  /// Programmer le check-in quotidien
+  // ═══════════════════════════════════════════════════════
+  // CHECK-IN QUOTIDIEN (programmé à 20h)
+  // ═══════════════════════════════════════════════════════
+
+  /// Programmer le rappel quotidien à 20h
   Future<void> scheduleDailyReminder() async {
-    // Annuler l'ancien d'abord
     await cancelDailyReminder();
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      999, // ID fixe pour le rappel quotidien
-      'Check-in Quotidien',
-      'Avez-vous dépensé de l\'argent aujourd\'hui ?\nGardez vos comptes à jour en un clic !',
-      _nextInstanceOf8PM(),
+      999,
+      '📝 Check-in du soir',
+      'Avez-vous noté vos dépenses aujourd\'hui ?\nUn petit geste pour garder le contrôle !',
+      _nextInstanceOfTime(20, 0),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'reminders',
@@ -174,11 +226,15 @@ class NotificationService {
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
         ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+        ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time, // Répéter chaque jour à la même heure
+      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
@@ -186,10 +242,167 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.cancel(999);
   }
 
-  tz.TZDateTime _nextInstanceOf8PM() {
+  // ═══════════════════════════════════════════════════════
+  // NOTIFICATIONS SMS / TRANSACTIONS
+  // ═══════════════════════════════════════════════════════
+
+  /// Notification quand de nouvelles transactions SMS sont détectées
+  Future<void> showNewSmsTransactions(int count) async {
+    if (count <= 0) return;
+
+    await flutterLocalNotificationsPlugin.show(
+      1000,
+      '📱 $count nouvelle${count > 1 ? 's' : ''} transaction${count > 1 ? 's' : ''} MoMo',
+      'Des transactions Mobile Money ont été détectées. Appuyez pour les valider.',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'sms_transactions',
+          'Transactions SMS',
+          channelDescription: 'Nouvelles transactions Mobile Money détectées',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: 'pending_transactions',
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // NOTIFICATIONS CHARGES RÉCURRENTES
+  // ═══════════════════════════════════════════════════════
+
+  /// Notification 1 jour avant une charge récurrente
+  Future<void> showRecurringChargeReminder({
+    required String chargeName,
+    required double amount,
+    required String currency,
+    required DateTime dueDate,
+  }) async {
+    await flutterLocalNotificationsPlugin.show(
+      'recurring_$chargeName'.hashCode,
+      '🔔 Charge récurrente demain',
+      '$chargeName — ${_formatMoney(amount, currency)}\nPrévue le ${dueDate.day}/${dueDate.month}/${dueDate.year}',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'recurring_charges',
+          'Charges Récurrentes',
+          channelDescription: 'Rappels de charges récurrentes à venir',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+    );
+  }
+
+  /// Programmer une notification pour une charge récurrente
+  Future<void> scheduleRecurringChargeNotification({
+    required int chargeId,
+    required String chargeName,
+    required double amount,
+    required String currency,
+    required DateTime dueDate,
+  }) async {
+    // Programmer pour la veille à 9h
+    final reminderDate = DateTime(
+      dueDate.year,
+      dueDate.month,
+      dueDate.day - 1,
+      9,
+      0,
+    );
+
+    if (reminderDate.isBefore(DateTime.now())) return;
+
+    final tzDate = tz.TZDateTime.from(reminderDate, tz.local);
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      2000 + chargeId,
+      '🔔 Charge récurrente demain',
+      '$chargeName — ${_formatMoney(amount, currency)}',
+      tzDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'recurring_charges',
+          'Charges Récurrentes',
+          channelDescription: 'Rappels de charges récurrentes',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  /// Annuler la notification d'une charge récurrente
+  Future<void> cancelRecurringChargeNotification(int chargeId) async {
+    await flutterLocalNotificationsPlugin.cancel(2000 + chargeId);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // NOTIFICATION TEST
+  // ═══════════════════════════════════════════════════════
+
+  /// Envoyer une notification de test (utile pour le debug)
+  Future<void> showTestNotification() async {
+    await flutterLocalNotificationsPlugin.show(
+      9999,
+      '✅ Zolt — Notifications actives',
+      'Les notifications fonctionnent correctement !',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'reminders',
+          'Rappels',
+          channelDescription: 'Test notification',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // ANNULER TOUT
+  // ═══════════════════════════════════════════════════════
+
+  Future<void> cancelAll() async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // UTILITAIRES
+  // ═══════════════════════════════════════════════════════
+
+  /// Prochaine occurrence d'une heure donnée
+  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, 20); // 20h00
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
@@ -197,9 +410,14 @@ class NotificationService {
   }
 
   String _formatMoney(double amount, String currency) {
-    if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(1)}k $currency'; // 15.0k FCFA
+    final abs = amount.abs();
+    final sign = amount < 0 ? '-' : '';
+    if (abs >= 1000000) {
+      return '$sign${(abs / 1000000).toStringAsFixed(1)}M $currency';
     }
-    return '${amount.toStringAsFixed(0)} $currency';
+    if (abs >= 1000) {
+      return '$sign${(abs / 1000).toStringAsFixed(1)}K $currency';
+    }
+    return '$sign${abs.toStringAsFixed(0)} $currency';
   }
 }

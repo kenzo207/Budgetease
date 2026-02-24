@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../services/analytics_service.dart';
 
 /// Écran de saisie du code PIN
-class PinScreen extends StatefulWidget {
+class PinScreen extends ConsumerStatefulWidget {
   final PinScreenMode mode;
   final String? title;
   final String? subtitle;
@@ -20,10 +22,10 @@ class PinScreen extends StatefulWidget {
   });
 
   @override
-  State<PinScreen> createState() => _PinScreenState();
+  ConsumerState<PinScreen> createState() => _PinScreenState();
 }
 
-class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMixin {
+class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProviderStateMixin {
   String _pin = '';
   String? _confirmPin;
   bool _isError = false;
@@ -88,6 +90,8 @@ class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMix
         } else {
           // Vérifier la correspondance
           if (_pin == _confirmPin) {
+            // Analytics
+            ref.read(analyticsServiceProvider).capture('pin_created');
             widget.onPinEntered?.call(_pin);
           } else {
             _showError('Les codes PIN ne correspondent pas');
@@ -100,11 +104,13 @@ class _PinScreenState extends State<PinScreen> with SingleTickerProviderStateMix
         break;
 
       case PinScreenMode.verify:
+        // Analytics tracked by the caller (lock_screen) based on result
         widget.onPinEntered?.call(_pin);
         break;
 
       case PinScreenMode.change:
-        // Logique de changement de PIN
+        // Analytics
+        ref.read(analyticsServiceProvider).capture('pin_changed');
         widget.onPinEntered?.call(_pin);
         break;
     }

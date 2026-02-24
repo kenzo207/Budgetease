@@ -9,7 +9,7 @@ class UIHelpers {
   static IconData getAccountIcon(AccountType type) {
     switch (type) {
       case AccountType.cash:
-        return Icons.money; // Ou Icons.wallet
+        return Icons.wallet;
       case AccountType.mobileMoney:
         return Icons.phone_android;
       case AccountType.bank:
@@ -32,6 +32,61 @@ class UIHelpers {
     }
   }
 
+  // --- Mapping d'icônes par nom ---
+  static const Map<String, IconData> iconMap = {
+    // Dépenses
+    'restaurant': Icons.restaurant,
+    'directions_car': Icons.directions_car,
+    'phone_iphone': Icons.phone_iphone,
+    'home': Icons.home_rounded,
+    'local_hospital': Icons.local_hospital,
+    'sports_esports': Icons.sports_esports,
+    'checkroom': Icons.checkroom,
+    'school': Icons.school,
+    'lightbulb': Icons.lightbulb_outline,
+    'category': Icons.category,
+    'shopping_cart': Icons.shopping_cart,
+    'local_grocery_store': Icons.local_grocery_store,
+    'bolt': Icons.bolt,
+    'water_drop': Icons.water_drop,
+    'wifi': Icons.wifi,
+    'directions_bus': Icons.directions_bus,
+    'receipt': Icons.receipt_long,
+    'pets': Icons.pets,
+    'fitness_center': Icons.fitness_center,
+    'local_gas_station': Icons.local_gas_station,
+    'local_laundry_service': Icons.local_laundry_service,
+    'child_care': Icons.child_care,
+    'flight': Icons.flight_takeoff,
+    'movie': Icons.movie_outlined,
+    'music_note': Icons.music_note,
+    'coffee': Icons.coffee,
+    'spa': Icons.spa,
+    'build': Icons.build,
+    'local_parking': Icons.local_parking,
+    'local_pharmacy': Icons.local_pharmacy,
+
+    // Revenus
+    'account_balance_wallet': Icons.account_balance_wallet,
+    'work': Icons.work_outline,
+    'laptop_mac': Icons.laptop_mac,
+    'storefront': Icons.storefront,
+    'card_giftcard': Icons.card_giftcard,
+    'trending_up': Icons.trending_up,
+    'attach_money': Icons.attach_money,
+    'real_estate_agent': Icons.real_estate_agent,
+    'handshake': Icons.handshake,
+    'volunteer_activism': Icons.volunteer_activism,
+    'monetization_on': Icons.monetization_on,
+    'savings': Icons.savings,
+    'payments': Icons.payments,
+    'store': Icons.store,
+
+    // Legacy fallbacks
+    'money': Icons.money,
+    'credit_card': Icons.credit_card,
+  };
+
   // --- Categories ---
 
   static IconData getCategoryIcon(CategoryType type) {
@@ -39,7 +94,7 @@ class UIHelpers {
       case CategoryType.expense:
         return Icons.shopping_cart;
       case CategoryType.income:
-        return Icons.attach_money;
+        return Icons.account_balance_wallet;
     }
   }
 
@@ -47,32 +102,11 @@ class UIHelpers {
     if (iconName == null || iconName.isEmpty) {
       return getCategoryIcon(type);
     }
-
-    switch (iconName) {
-      // Expense
-      case 'restaurant': return Icons.restaurant;
-      case 'directions_car': return Icons.directions_car;
-      case 'phone_iphone': return Icons.phone_iphone;
-      case 'home': return Icons.home;
-      case 'local_hospital': return Icons.local_hospital;
-      case 'sports_esports': return Icons.sports_esports;
-      case 'checkroom': return Icons.checkroom;
-      case 'school': return Icons.school;
-      case 'lightbulb': return Icons.lightbulb;
-      case 'category': return Icons.category;
-      
-      // Income
-      case 'payments': return Icons.payments;
-      case 'work': return Icons.work;
-      case 'store': return Icons.store;
-      case 'card_giftcard': return Icons.card_giftcard;
-      case 'trending_up': return Icons.trending_up;
-      case 'attach_money': return Icons.attach_money;
-      
-      // Fallback/Legacy (if emoji)
-      default: return getCategoryIcon(type);
-    }
+    return iconMap[iconName] ?? getCategoryIcon(type);
   }
+
+  /// Liste des icônes disponibles pour le picker de catégories
+  static List<MapEntry<String, IconData>> get availableIcons => iconMap.entries.toList();
 
   static Color getCategoryColor(CategoryType type) {
     switch (type) {

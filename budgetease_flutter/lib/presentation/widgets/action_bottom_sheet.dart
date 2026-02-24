@@ -27,6 +27,20 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    // Track sheet opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(analyticsServiceProvider).capture('action_sheet_opened');
+    });
+    // Track tab changes
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        const tabs = ['expense', 'income', 'transfer'];
+        ref.read(analyticsServiceProvider).capture(
+          'action_tab_changed',
+          properties: {'tab': tabs[_tabController.index]},
+        );
+      }
+    });
   }
 
   @override
@@ -243,7 +257,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _selectedAccountId,
+                initialValue: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -473,7 +487,11 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
                   final isSelected = _selectedCategoryId == category.id;
                   return FilterChip(
                     label: Text(category.name),
-                    avatar: Text(category.icon),
+                    avatar: Icon(
+                      UIHelpers.getIconForCategory(category.icon, category.type),
+                      size: 18,
+                      color: isSelected ? Colors.white : AppColors.accentColor,
+                    ),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -499,7 +517,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _selectedAccountId,
+                initialValue: _selectedAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Sélectionner un compte',
                 ),
@@ -728,7 +746,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _sourceAccountId,
+                initialValue: _sourceAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte source',
                 ),
@@ -770,7 +788,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
-                value: _destAccountId,
+                initialValue: _destAccountId,
                 decoration: const InputDecoration(
                   labelText: 'Compte destination',
                 ),

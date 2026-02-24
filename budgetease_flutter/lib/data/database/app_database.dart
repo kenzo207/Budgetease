@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase._internal() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4; // Phase 13: B&W Theme
+  int get schemaVersion => 6; // v6: Better category icons
   
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -95,6 +95,39 @@ class AppDatabase extends _$AppDatabase {
               print('⚠️ Migration v3→v4: Erreur ajout themeMode: $e');
             }
           }
+
+          // Migration de v4 à v5 : Parsing SMS enrichi
+          if (from < 5) {
+            try {
+              // Drop et recréer la table pending_transactions (les pending sont temporaires)
+              await m.deleteTable('pending_transactions');
+              await m.createTable(pendingTransactions);
+              print('✅ Migration v4→v5: Table pending_transactions recréée avec champs enrichis');
+            } catch (e) {
+              print('⚠️ Migration v4→v5: Erreur migration pending_transactions: $e');
+            }
+          }
+          // Migration de v5 à v6 : Meilleures icônes pour les catégories
+          if (from < 6) {
+            try {
+              // Mettre à jour les icônes des catégories de revenus
+              final iconUpdates = {
+                'payments': 'account_balance_wallet',  // Salaire
+                'work': 'laptop_mac',                  // Freelance
+                'store': 'storefront',                 // Business
+                'attach_money': 'monetization_on',     // Autre revenu
+              };
+              for (final entry in iconUpdates.entries) {
+                await customStatement(
+                  'UPDATE categories SET icon = ? WHERE icon = ?',
+                  [entry.value, entry.key],
+                );
+              }
+              print('✅ Migration v5→v6: Icônes des catégories mises à jour');
+            } catch (e) {
+              print('⚠️ Migration v5→v6: Erreur mise à jour icônes: $e');
+            }
+          }
         },
         beforeOpen: (details) async {
           if (details.wasCreated) {
@@ -130,12 +163,12 @@ class AppDatabase extends _$AppDatabase {
     ];
 
     final incomeCategories = [
-      ('Salaire', 'payments', '#00D2FF', CategoryType.income),
-      ('Freelance', 'work', '#3AA0FF', CategoryType.income),
-      ('Business', 'store', '#4A69FF', CategoryType.income),
+      ('Salaire', 'account_balance_wallet', '#00D2FF', CategoryType.income),
+      ('Freelance', 'laptop_mac', '#3AA0FF', CategoryType.income),
+      ('Business', 'storefront', '#4A69FF', CategoryType.income),
       ('Cadeau', 'card_giftcard', '#6C5CE7', CategoryType.income),
       ('Investissement', 'trending_up', '#A29BFE', CategoryType.income),
-      ('Autre', 'attach_money', '#74B9FF', CategoryType.income),
+      ('Autre', 'monetization_on', '#74B9FF', CategoryType.income),
     ];
 
     for (final (name, icon, color, type) in expenseCategories) {

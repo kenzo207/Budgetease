@@ -27,6 +27,7 @@ class BudgetCalculatorService {
   /// 
   /// Formule :
   /// Daily Cap = (Solde Total - Charges Fixes Non Payées - Épargne - Réserve Transport) / Jours Restants
+  /// Peut retourner un nombre négatif si l'utilisateur est en dette.
   Future<double> calculateDailyBudget() async {
     // 1. Récupérer le solde total de tous les comptes actifs
     final totalBalance = await accountsDao.getTotalBalance();
@@ -40,15 +41,10 @@ class BudgetCalculatorService {
     // 4. Calculer l'argent disponible pour vivre
     final availableForLiving = totalBalance - unpaidCharges - savingsGoal - transportReserve;
 
-    // 5. Obtenir les jours restants dans le cycle
+    // 5. Obtenir les jours restants dans le cycle (toujours >= 1)
     final daysRemaining = cycleManager.getDaysRemainingInCycle();
 
-    // 6. Si aucun jour restant ou solde négatif, retourner 0
-    if (daysRemaining == 0 || availableForLiving <= 0) {
-      return 0.0;
-    }
-
-    // 7. Diviser par les jours restants
+    // 6. Diviser par les jours restants (peut être négatif = dette)
     return availableForLiving / daysRemaining;
   }
 
@@ -71,7 +67,7 @@ class BudgetCalculatorService {
   /// Calculer le pourcentage du budget quotidien utilisé
   Future<double> getBudgetUsagePercentage() async {
     final dailyBudget = await calculateDailyBudget();
-    if (dailyBudget == 0) return 0.0;
+    if (dailyBudget.abs() < 0.01) return 0.0;
 
     final todayExpenses = await getTodayExpenses();
     return (todayExpenses / dailyBudget) * 100;

@@ -1,4 +1,5 @@
 import '../../data/database/tables/settings_table.dart';
+import 'dart:math' as math;
 
 /// Service de gestion des cycles financiers
 class CycleManagerService {
@@ -7,28 +8,29 @@ class CycleManagerService {
   CycleManagerService({required this.cycle});
 
   /// Calculer le nombre de jours restants dans le cycle actuel
+  /// (inclut le jour actuel)
   int getDaysRemainingInCycle() {
     final now = DateTime.now();
     
     switch (cycle) {
       case FinancialCycle.monthly:
-        // Jours restants jusqu'à la fin du mois
+        // Jours restants jusqu'à la fin du mois (inclut aujourd'hui)
         final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-        return lastDayOfMonth.day - now.day + 1;
+        return math.max(1, lastDayOfMonth.day - now.day + 1);
         
       case FinancialCycle.weekly:
-        // Jours restants jusqu'au dimanche
-        final daysUntilSunday = DateTime.sunday - now.weekday;
-        return daysUntilSunday == 0 ? 7 : daysUntilSunday;
+        // Jours restants jusqu'au dimanche (inclut aujourd'hui)
+        // Lundi=1 ... Dimanche=7
+        // Dimanche : 7 - 7 + 1 = 1 (correct: seul aujourd'hui reste)
+        // Lundi : 7 - 1 + 1 = 7 (correct: semaine entière)
+        return math.max(1, DateTime.sunday - now.weekday + 1);
         
       case FinancialCycle.daily:
-        // Toujours 1 jour (aujourd'hui)
         return 1;
         
       case FinancialCycle.irregular:
-        // Pas de cycle défini, utiliser le mois par défaut
         final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
-        return lastDayOfMonth.day - now.day + 1;
+        return math.max(1, lastDayOfMonth.day - now.day + 1);
     }
   }
 
@@ -43,7 +45,7 @@ class CycleManagerService {
       case FinancialCycle.weekly:
         // Lundi de la semaine actuelle
         final daysFromMonday = now.weekday - DateTime.monday;
-        return now.subtract(Duration(days: daysFromMonday));
+        return DateTime(now.year, now.month, now.day).subtract(Duration(days: daysFromMonday));
         
       case FinancialCycle.daily:
         return DateTime(now.year, now.month, now.day);
@@ -62,9 +64,10 @@ class CycleManagerService {
         return DateTime(now.year, now.month + 1, 0, 23, 59, 59);
         
       case FinancialCycle.weekly:
-        // Dimanche de la semaine actuelle
-        final daysUntilSunday = DateTime.sunday - now.weekday;
-        final sunday = now.add(Duration(days: daysUntilSunday == 0 ? 7 : daysUntilSunday));
+        // Dimanche de la semaine actuelle (pas la semaine prochaine !)
+        // weekday: Lundi=1 ... Dimanche=7
+        final daysUntilSunday = DateTime.sunday - now.weekday; // 0 si dimanche
+        final sunday = DateTime(now.year, now.month, now.day).add(Duration(days: daysUntilSunday));
         return DateTime(sunday.year, sunday.month, sunday.day, 23, 59, 59);
         
       case FinancialCycle.daily:

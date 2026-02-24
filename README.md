@@ -1,180 +1,124 @@
-# ⚡ Zolt - Flow & Shield Budget App
+# Zolt
 
-**Version actuelle** : v4.0 (Release)
-**Plateforme** : Flutter (Android)
-**Database** : Drift (SQLite + SQLCipher)
+Application de gestion financiere personnelle, concue pour le marche africain francophone.  
+100% local, donnees chiffrees, aucune connexion serveur.
+
+**Plateforme** : Android  
+**Version** : 4.0.0  
+**Stack** : Flutter / Drift / SQLCipher / Riverpod
 
 ---
 
-## 🚀 Quick Start
+## Installation
 
-### Installation
-```bash
-# Télécharger la dernière version
-# APK: budgetease-latest.apk (48MB)
+La derniere version est disponible dans les [Releases](https://github.com/kenzo207/Budgetease/releases/latest).  
+Telechargez `zolt.apk` et installez-le sur votre appareil Android.
 
-# Installer sur Android
-adb install -r budgetease-latest.apk
+### Build depuis les sources
 
-# Ou transfert manuel vers téléphone
-```
-
-### Build depuis source
 ```bash
 cd budgetease_flutter
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter build apk --release --no-shrink
-```
-
----
-
-## 📱 Features
-
-### ✅ Implémentées
-- **Navigation verticale** : Swipe entre Shield / Flow / History
-- **LiquidGauge animé** : Visualisation daily cap en temps réel
-- **Multi-wallet** : Cash, MTN MoMo, Orange Money, Bank
-- **Shield System** : Fixed charges, debts, SOS fund
-- **Daily Cap Calculator** : Flow & Shield budget logic
-- **Transaction History** : Historique complet
-- **Dark Theme Premium** : Interface moderne
-
-### 🚧 En Développement
-- Formulaires ajout transactions
-- Shield items management complet
-- Charts & statistics
-- Export data
-- Settings screen
-
----
-
-## 🏗️ Architecture
-
-### Tech Stack
-- **Framework** : Flutter 3.38.9
-- **Database** : Drift 2.31.0 (SQLite)
-- **State Management** : Provider
-- **UI** : Material Design 3
-- **Platform** : Android (API 21+)
-
-### Structure
-```
-### Structure
-```
-budgetease_flutter/        # MAIN PROJECT (v4.0)
-├── lib/
-│   ├── data/              # Drift DB & DAOs
-│   ├── presentation/      # Screens & Providers
-│   ├── core/              # Constants & Utils
-│   └── config/            # Theme & Routes
-├── android/               # Android config
-└── assets/                # Images, fonts
-
-budgetease_legacy/         # OLD VERSION (v1.0)
-docs/                      # Documentation
-builds/                    # APK versions
-scripts/                   # Utility scripts
-```
-
-docs/                      # Documentation
-builds/                    # APK versions
-scripts/                   # Utility scripts
-```
-
----
-
-## 📚 Documentation
-
-- **[User Flow](user_flow.md)** : Diagramme UX complet
-- **[Build History](docs/build-history/)** : Historique builds & migrations
-- **[Installation Guide](docs/INSTALLATION_GUIDE.md)** : Guide installation détaillé
-
----
-
-## 🎨 Concept - Flow & Shield
-
-**Flow** : Argent disponible quotidiennement après Shield  
-**Shield** : Budget protégé (charges fixes, dettes, urgences)
-
-**Formule** :
-```
-Daily Cap = (Total Balance - Shield Allocation) / Jours Restants
-```
-
----
-
-## 🔧 Development
-
-### Requirements
-- Flutter SDK 3.38.9+
-- Android SDK (Platform 35)
-- Dart 3.x
-
-### Commands
-```bash
-# Get dependencies
-flutter pub get
-
-# Generate Drift code
-dart run build_runner build
-
-# Run debug
-flutter run
-
-# Build APK
 flutter build apk --release
+```
 
-# Install via ADB
-adb install -r build/app/outputs/flutter-apk/app-release.apk
+L'APK genere se trouve dans `build/app/outputs/flutter-apk/app-release.apk`.
+
+### Pre-requis
+
+- Flutter SDK 3.38+
+- Android SDK (API 24+)
+- Dart 3.10+
+
+---
+
+## Fonctionnalites
+
+### Gestion financiere
+- Budget quotidien calcule selon le cycle financier (mensuel, hebdomadaire, journalier)
+- Transactions : depenses, revenus, virements inter-comptes
+- Frais de transaction pris en compte dans les calculs
+- Comptes multiples (cash, MTN MoMo, Orange Money, carte bancaire)
+- Categories personnalisables
+
+### Detection SMS Mobile Money
+- Lecture automatique des SMS operateurs (MTN MoMo, Wave, Orange, Moov)
+- Extraction du montant, frais, contrepartie, reference, solde
+- Ecran de validation avant ajout au budget
+- Prevention des doublons
+
+### Analyse
+- Vue mensuelle des revenus, depenses et solde
+- Repartition par categorie
+- Navigation entre les mois
+
+### Notifications
+- Alertes budget (depassement, depense importante)
+- Rappel quotidien
+- Detection de nouvelles transactions SMS
+
+### Securite
+- Base de donnees chiffree (AES-256 via SQLCipher)
+- Cle stockee dans Android Keystore
+- Code PIN et authentification biometrique
+- Mode discret (masquage des montants)
+- Aucune donnee envoyee a l'exterieur
+
+### Parametres
+- Devises : FCFA, EUR, USD, GBP, CAD
+- Theme : clair, sombre, systeme
+- Export et restauration des donnees
+
+---
+
+## Architecture
+
+```
+budgetease_flutter/
+  lib/
+    config/           Configuration et theme
+    core/             Constantes, utilitaires, formatters
+    data/             Base de donnees Drift, DAOs, tables, migrations
+    domain/           Services metier (budget, cycles, SMS, notifications)
+    presentation/     Ecrans, providers Riverpod, widgets
+    services/         Analytics
+  android/            Configuration Android
+  assets/             Images et icones
+```
+
+### Base de donnees
+
+6 tables : settings, accounts, categories, transactions, recurring_charges, pending_transactions.  
+Schema version 6 avec migrations chainees (v1 a v6).
+
+### Calcul du budget
+
+```
+Budget quotidien = (Solde total - Charges fixes - Epargne - Transport) / Jours restants du cycle
 ```
 
 ---
 
-## 📦 Versions
+## Dependances principales
 
-### v3.1 (Current) - UX Améliorée
-- Retrait emojis
-- Icônes Material Design
-- Navigation améliorée
-- Design professionnel
-
-### v3.0 - UI Premium
-- Navigation verticale
-- LiquidGauge animé
-- 3 screens complets
-
-### v2.0 - Migration Drift
-- Migration complète Isar → Drift
-- Résolution problèmes Android SDK
-
-### v1.0 - MVP
-- Proof of concept avec Hive
-- UI basique
+| Dependance | Usage |
+|---|---|
+| drift | Base de donnees SQLite |
+| sqlcipher_flutter_libs | Chiffrement |
+| flutter_riverpod | Gestion d'etat |
+| flutter_local_notifications | Notifications |
+| flutter_sms_inbox | Lecture SMS |
+| posthog_flutter | Analytics |
+| local_auth | Biometrie |
+| fl_chart | Graphiques |
 
 ---
 
-## 🤝 Contributing
+## Licence
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
-3. Commit (`git commit -m 'Add AmazingFeature'`)
-4. Push (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
+MIT
 
 ---
 
-## 📄 License
-
-MIT License - Voir LICENSE pour détails
-
----
-
-## 👤 Author
-
-**Kenzo O'Bryan**  
-Project: Zolt - Personal Finance Manager
-
----
-
-**Fait avec ❤️ et Flutter**
+Kenzo O'Bryan

@@ -22,4 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-landing/assets/*.apk
+
+# Flutter & Dart
+pubspec.lock
+pubspec.lock.yaml
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+build/
+*.apk
+*.aab
+*.ipa
+
+# IDE
+*.iml
+.gradle/
+local.properties
+
+# Misc
+device_logs.txt
+build_log*.txt

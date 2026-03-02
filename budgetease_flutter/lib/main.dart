@@ -31,9 +31,9 @@ void main() async {
 
   // Initialiser PostHog Analytics
   final config = PostHogConfig(
-    'phc_UxUrbANVZ3V0pJxug9tKF3AS62IOuGO0LgZBLumLJBO',
+    'phc_kfOGYe0g12XISJvJK2mne0srlSweSH3vgQPdWqhpkwj',
   );
-  config.host = 'https://us.i.posthog.com';
+  config.host = 'https://eu.i.posthog.com';
   config.captureApplicationLifecycleEvents = true;
   config.debug = true;
   config.flushAt = 1;

@@ -36,6 +36,8 @@ void main() async {
   config.host = 'https://us.i.posthog.com';
   config.captureApplicationLifecycleEvents = true;
   config.debug = true;
+  config.flushAt = 1;
+  config.flushInterval = const Duration(seconds: 5);
   await Posthog().setup(config);
 
   runApp(

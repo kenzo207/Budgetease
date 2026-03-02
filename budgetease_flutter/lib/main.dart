@@ -38,6 +38,7 @@ void main() async {
   config.debug = true;
   config.flushAt = 1;
   config.flushInterval = const Duration(seconds: 5);
+  config.personProfiles = PostHogPersonProfiles.always;
   await Posthog().setup(config);
 
   runApp(

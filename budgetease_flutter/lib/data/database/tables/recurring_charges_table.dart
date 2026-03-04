@@ -25,6 +25,8 @@ class RecurringCharges extends Table {
   TextColumn get name => text().withLength(min: 1, max: 100)();
   IntColumn get type => intEnum<ChargeType>()();
   RealColumn get amount => real()();
+  /// Montant déjà payé pour cette charge (paiement partiel possible)
+  RealColumn get paidAmount => real().withDefault(const Constant(0.0))();
   DateTimeColumn get dueDate => dateTime()();
   IntColumn get cycle => intEnum<ChargeCycle>()();
   BoolColumn get isPaid => boolean().withDefault(const Constant(false))();

@@ -1605,6 +1605,14 @@ class $RecurringChargesTable extends RecurringCharges
   late final GeneratedColumn<double> amount = GeneratedColumn<double>(
       'amount', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _paidAmountMeta =
+      const VerificationMeta('paidAmount');
+  @override
+  late final GeneratedColumn<double> paidAmount = GeneratedColumn<double>(
+      'paid_amount', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
   static const VerificationMeta _dueDateMeta =
       const VerificationMeta('dueDate');
   @override
@@ -1642,8 +1650,18 @@ class $RecurringChargesTable extends RecurringCharges
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, type, amount, dueDate, cycle, isPaid, isActive, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        type,
+        amount,
+        paidAmount,
+        dueDate,
+        cycle,
+        isPaid,
+        isActive,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1668,6 +1686,12 @@ class $RecurringChargesTable extends RecurringCharges
           amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
       context.missing(_amountMeta);
+    }
+    if (data.containsKey('paid_amount')) {
+      context.handle(
+          _paidAmountMeta,
+          paidAmount.isAcceptableOrUnknown(
+              data['paid_amount']!, _paidAmountMeta));
     }
     if (data.containsKey('due_date')) {
       context.handle(_dueDateMeta,
@@ -1707,6 +1731,8 @@ class $RecurringChargesTable extends RecurringCharges
           .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
       amount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      paidAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}paid_amount'])!,
       dueDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}due_date'])!,
       cycle: $RecurringChargesTable.$convertercycle.fromSql(attachedDatabase
@@ -1737,6 +1763,9 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
   final String name;
   final ChargeType type;
   final double amount;
+
+  /// Montant déjà payé pour cette charge (paiement partiel possible)
+  final double paidAmount;
   final DateTime dueDate;
   final ChargeCycle cycle;
   final bool isPaid;
@@ -1747,6 +1776,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
       required this.name,
       required this.type,
       required this.amount,
+      required this.paidAmount,
       required this.dueDate,
       required this.cycle,
       required this.isPaid,
@@ -1762,6 +1792,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
           Variable<int>($RecurringChargesTable.$convertertype.toSql(type));
     }
     map['amount'] = Variable<double>(amount);
+    map['paid_amount'] = Variable<double>(paidAmount);
     map['due_date'] = Variable<DateTime>(dueDate);
     {
       map['cycle'] =
@@ -1779,6 +1810,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
       name: Value(name),
       type: Value(type),
       amount: Value(amount),
+      paidAmount: Value(paidAmount),
       dueDate: Value(dueDate),
       cycle: Value(cycle),
       isPaid: Value(isPaid),
@@ -1796,6 +1828,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
       type: $RecurringChargesTable.$convertertype
           .fromJson(serializer.fromJson<int>(json['type'])),
       amount: serializer.fromJson<double>(json['amount']),
+      paidAmount: serializer.fromJson<double>(json['paidAmount']),
       dueDate: serializer.fromJson<DateTime>(json['dueDate']),
       cycle: $RecurringChargesTable.$convertercycle
           .fromJson(serializer.fromJson<int>(json['cycle'])),
@@ -1813,6 +1846,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
       'type': serializer
           .toJson<int>($RecurringChargesTable.$convertertype.toJson(type)),
       'amount': serializer.toJson<double>(amount),
+      'paidAmount': serializer.toJson<double>(paidAmount),
       'dueDate': serializer.toJson<DateTime>(dueDate),
       'cycle': serializer
           .toJson<int>($RecurringChargesTable.$convertercycle.toJson(cycle)),
@@ -1827,6 +1861,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
           String? name,
           ChargeType? type,
           double? amount,
+          double? paidAmount,
           DateTime? dueDate,
           ChargeCycle? cycle,
           bool? isPaid,
@@ -1837,6 +1872,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
         name: name ?? this.name,
         type: type ?? this.type,
         amount: amount ?? this.amount,
+        paidAmount: paidAmount ?? this.paidAmount,
         dueDate: dueDate ?? this.dueDate,
         cycle: cycle ?? this.cycle,
         isPaid: isPaid ?? this.isPaid,
@@ -1849,6 +1885,8 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
       name: data.name.present ? data.name.value : this.name,
       type: data.type.present ? data.type.value : this.type,
       amount: data.amount.present ? data.amount.value : this.amount,
+      paidAmount:
+          data.paidAmount.present ? data.paidAmount.value : this.paidAmount,
       dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
       cycle: data.cycle.present ? data.cycle.value : this.cycle,
       isPaid: data.isPaid.present ? data.isPaid.value : this.isPaid,
@@ -1864,6 +1902,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('amount: $amount, ')
+          ..write('paidAmount: $paidAmount, ')
           ..write('dueDate: $dueDate, ')
           ..write('cycle: $cycle, ')
           ..write('isPaid: $isPaid, ')
@@ -1874,8 +1913,8 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, name, type, amount, dueDate, cycle, isPaid, isActive, createdAt);
+  int get hashCode => Object.hash(id, name, type, amount, paidAmount, dueDate,
+      cycle, isPaid, isActive, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1884,6 +1923,7 @@ class RecurringCharge extends DataClass implements Insertable<RecurringCharge> {
           other.name == this.name &&
           other.type == this.type &&
           other.amount == this.amount &&
+          other.paidAmount == this.paidAmount &&
           other.dueDate == this.dueDate &&
           other.cycle == this.cycle &&
           other.isPaid == this.isPaid &&
@@ -1896,6 +1936,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
   final Value<String> name;
   final Value<ChargeType> type;
   final Value<double> amount;
+  final Value<double> paidAmount;
   final Value<DateTime> dueDate;
   final Value<ChargeCycle> cycle;
   final Value<bool> isPaid;
@@ -1906,6 +1947,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     this.name = const Value.absent(),
     this.type = const Value.absent(),
     this.amount = const Value.absent(),
+    this.paidAmount = const Value.absent(),
     this.dueDate = const Value.absent(),
     this.cycle = const Value.absent(),
     this.isPaid = const Value.absent(),
@@ -1917,6 +1959,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     required String name,
     required ChargeType type,
     required double amount,
+    this.paidAmount = const Value.absent(),
     required DateTime dueDate,
     required ChargeCycle cycle,
     this.isPaid = const Value.absent(),
@@ -1933,6 +1976,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     Expression<String>? name,
     Expression<int>? type,
     Expression<double>? amount,
+    Expression<double>? paidAmount,
     Expression<DateTime>? dueDate,
     Expression<int>? cycle,
     Expression<bool>? isPaid,
@@ -1944,6 +1988,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
       if (name != null) 'name': name,
       if (type != null) 'type': type,
       if (amount != null) 'amount': amount,
+      if (paidAmount != null) 'paid_amount': paidAmount,
       if (dueDate != null) 'due_date': dueDate,
       if (cycle != null) 'cycle': cycle,
       if (isPaid != null) 'is_paid': isPaid,
@@ -1957,6 +2002,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
       Value<String>? name,
       Value<ChargeType>? type,
       Value<double>? amount,
+      Value<double>? paidAmount,
       Value<DateTime>? dueDate,
       Value<ChargeCycle>? cycle,
       Value<bool>? isPaid,
@@ -1967,6 +2013,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
       name: name ?? this.name,
       type: type ?? this.type,
       amount: amount ?? this.amount,
+      paidAmount: paidAmount ?? this.paidAmount,
       dueDate: dueDate ?? this.dueDate,
       cycle: cycle ?? this.cycle,
       isPaid: isPaid ?? this.isPaid,
@@ -1990,6 +2037,9 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
     }
     if (amount.present) {
       map['amount'] = Variable<double>(amount.value);
+    }
+    if (paidAmount.present) {
+      map['paid_amount'] = Variable<double>(paidAmount.value);
     }
     if (dueDate.present) {
       map['due_date'] = Variable<DateTime>(dueDate.value);
@@ -2017,6 +2067,7 @@ class RecurringChargesCompanion extends UpdateCompanion<RecurringCharge> {
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('amount: $amount, ')
+          ..write('paidAmount: $paidAmount, ')
           ..write('dueDate: $dueDate, ')
           ..write('cycle: $cycle, ')
           ..write('isPaid: $isPaid, ')
@@ -5861,6 +5912,635 @@ class RecurringIncomesCompanion extends UpdateCompanion<RecurringIncome> {
   }
 }
 
+class $CycleRecordsTable extends CycleRecords
+    with TableInfo<$CycleRecordsTable, CycleRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CycleRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _cycleStartMeta =
+      const VerificationMeta('cycleStart');
+  @override
+  late final GeneratedColumn<DateTime> cycleStart = GeneratedColumn<DateTime>(
+      'cycle_start', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _cycleEndMeta =
+      const VerificationMeta('cycleEnd');
+  @override
+  late final GeneratedColumn<DateTime> cycleEnd = GeneratedColumn<DateTime>(
+      'cycle_end', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _openingBalanceMeta =
+      const VerificationMeta('openingBalance');
+  @override
+  late final GeneratedColumn<double> openingBalance = GeneratedColumn<double>(
+      'opening_balance', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _closingBalanceMeta =
+      const VerificationMeta('closingBalance');
+  @override
+  late final GeneratedColumn<double> closingBalance = GeneratedColumn<double>(
+      'closing_balance', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _totalIncomeMeta =
+      const VerificationMeta('totalIncome');
+  @override
+  late final GeneratedColumn<double> totalIncome = GeneratedColumn<double>(
+      'total_income', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _totalExpensesMeta =
+      const VerificationMeta('totalExpenses');
+  @override
+  late final GeneratedColumn<double> totalExpenses = GeneratedColumn<double>(
+      'total_expenses', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _savingsGoalMeta =
+      const VerificationMeta('savingsGoal');
+  @override
+  late final GeneratedColumn<double> savingsGoal = GeneratedColumn<double>(
+      'savings_goal', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _savingsAchievedMeta =
+      const VerificationMeta('savingsAchieved');
+  @override
+  late final GeneratedColumn<double> savingsAchieved = GeneratedColumn<double>(
+      'savings_achieved', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _dailyExpensesJsonMeta =
+      const VerificationMeta('dailyExpensesJson');
+  @override
+  late final GeneratedColumn<String> dailyExpensesJson =
+      GeneratedColumn<String>('daily_expenses_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _categoryTotalsJsonMeta =
+      const VerificationMeta('categoryTotalsJson');
+  @override
+  late final GeneratedColumn<String> categoryTotalsJson =
+      GeneratedColumn<String>('category_totals_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('[]'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        cycleStart,
+        cycleEnd,
+        openingBalance,
+        closingBalance,
+        totalIncome,
+        totalExpenses,
+        savingsGoal,
+        savingsAchieved,
+        dailyExpensesJson,
+        categoryTotalsJson,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cycle_records';
+  @override
+  VerificationContext validateIntegrity(Insertable<CycleRecord> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('cycle_start')) {
+      context.handle(
+          _cycleStartMeta,
+          cycleStart.isAcceptableOrUnknown(
+              data['cycle_start']!, _cycleStartMeta));
+    } else if (isInserting) {
+      context.missing(_cycleStartMeta);
+    }
+    if (data.containsKey('cycle_end')) {
+      context.handle(_cycleEndMeta,
+          cycleEnd.isAcceptableOrUnknown(data['cycle_end']!, _cycleEndMeta));
+    } else if (isInserting) {
+      context.missing(_cycleEndMeta);
+    }
+    if (data.containsKey('opening_balance')) {
+      context.handle(
+          _openingBalanceMeta,
+          openingBalance.isAcceptableOrUnknown(
+              data['opening_balance']!, _openingBalanceMeta));
+    } else if (isInserting) {
+      context.missing(_openingBalanceMeta);
+    }
+    if (data.containsKey('closing_balance')) {
+      context.handle(
+          _closingBalanceMeta,
+          closingBalance.isAcceptableOrUnknown(
+              data['closing_balance']!, _closingBalanceMeta));
+    } else if (isInserting) {
+      context.missing(_closingBalanceMeta);
+    }
+    if (data.containsKey('total_income')) {
+      context.handle(
+          _totalIncomeMeta,
+          totalIncome.isAcceptableOrUnknown(
+              data['total_income']!, _totalIncomeMeta));
+    } else if (isInserting) {
+      context.missing(_totalIncomeMeta);
+    }
+    if (data.containsKey('total_expenses')) {
+      context.handle(
+          _totalExpensesMeta,
+          totalExpenses.isAcceptableOrUnknown(
+              data['total_expenses']!, _totalExpensesMeta));
+    } else if (isInserting) {
+      context.missing(_totalExpensesMeta);
+    }
+    if (data.containsKey('savings_goal')) {
+      context.handle(
+          _savingsGoalMeta,
+          savingsGoal.isAcceptableOrUnknown(
+              data['savings_goal']!, _savingsGoalMeta));
+    } else if (isInserting) {
+      context.missing(_savingsGoalMeta);
+    }
+    if (data.containsKey('savings_achieved')) {
+      context.handle(
+          _savingsAchievedMeta,
+          savingsAchieved.isAcceptableOrUnknown(
+              data['savings_achieved']!, _savingsAchievedMeta));
+    } else if (isInserting) {
+      context.missing(_savingsAchievedMeta);
+    }
+    if (data.containsKey('daily_expenses_json')) {
+      context.handle(
+          _dailyExpensesJsonMeta,
+          dailyExpensesJson.isAcceptableOrUnknown(
+              data['daily_expenses_json']!, _dailyExpensesJsonMeta));
+    }
+    if (data.containsKey('category_totals_json')) {
+      context.handle(
+          _categoryTotalsJsonMeta,
+          categoryTotalsJson.isAcceptableOrUnknown(
+              data['category_totals_json']!, _categoryTotalsJsonMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CycleRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CycleRecord(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      cycleStart: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}cycle_start'])!,
+      cycleEnd: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}cycle_end'])!,
+      openingBalance: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}opening_balance'])!,
+      closingBalance: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}closing_balance'])!,
+      totalIncome: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_income'])!,
+      totalExpenses: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_expenses'])!,
+      savingsGoal: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}savings_goal'])!,
+      savingsAchieved: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}savings_achieved'])!,
+      dailyExpensesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}daily_expenses_json'])!,
+      categoryTotalsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}category_totals_json'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $CycleRecordsTable createAlias(String alias) {
+    return $CycleRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class CycleRecord extends DataClass implements Insertable<CycleRecord> {
+  final int id;
+
+  /// Dates de début / fin du cycle
+  final DateTime cycleStart;
+  final DateTime cycleEnd;
+
+  /// Soldes
+  final double openingBalance;
+  final double closingBalance;
+
+  /// Flux
+  final double totalIncome;
+  final double totalExpenses;
+
+  /// Épargne
+  final double savingsGoal;
+  final double savingsAchieved;
+
+  /// Dépenses journalières : JSON array de doubles  e.g. "[120.0, 300.0, 0.0]"
+  final String dailyExpensesJson;
+
+  /// Totaux par catégorie : JSON array de [String, double]  e.g. [["1", 500.0]]
+  final String categoryTotalsJson;
+
+  /// Horodatage de création du snapshot
+  final DateTime createdAt;
+  const CycleRecord(
+      {required this.id,
+      required this.cycleStart,
+      required this.cycleEnd,
+      required this.openingBalance,
+      required this.closingBalance,
+      required this.totalIncome,
+      required this.totalExpenses,
+      required this.savingsGoal,
+      required this.savingsAchieved,
+      required this.dailyExpensesJson,
+      required this.categoryTotalsJson,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['cycle_start'] = Variable<DateTime>(cycleStart);
+    map['cycle_end'] = Variable<DateTime>(cycleEnd);
+    map['opening_balance'] = Variable<double>(openingBalance);
+    map['closing_balance'] = Variable<double>(closingBalance);
+    map['total_income'] = Variable<double>(totalIncome);
+    map['total_expenses'] = Variable<double>(totalExpenses);
+    map['savings_goal'] = Variable<double>(savingsGoal);
+    map['savings_achieved'] = Variable<double>(savingsAchieved);
+    map['daily_expenses_json'] = Variable<String>(dailyExpensesJson);
+    map['category_totals_json'] = Variable<String>(categoryTotalsJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CycleRecordsCompanion toCompanion(bool nullToAbsent) {
+    return CycleRecordsCompanion(
+      id: Value(id),
+      cycleStart: Value(cycleStart),
+      cycleEnd: Value(cycleEnd),
+      openingBalance: Value(openingBalance),
+      closingBalance: Value(closingBalance),
+      totalIncome: Value(totalIncome),
+      totalExpenses: Value(totalExpenses),
+      savingsGoal: Value(savingsGoal),
+      savingsAchieved: Value(savingsAchieved),
+      dailyExpensesJson: Value(dailyExpensesJson),
+      categoryTotalsJson: Value(categoryTotalsJson),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CycleRecord.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CycleRecord(
+      id: serializer.fromJson<int>(json['id']),
+      cycleStart: serializer.fromJson<DateTime>(json['cycleStart']),
+      cycleEnd: serializer.fromJson<DateTime>(json['cycleEnd']),
+      openingBalance: serializer.fromJson<double>(json['openingBalance']),
+      closingBalance: serializer.fromJson<double>(json['closingBalance']),
+      totalIncome: serializer.fromJson<double>(json['totalIncome']),
+      totalExpenses: serializer.fromJson<double>(json['totalExpenses']),
+      savingsGoal: serializer.fromJson<double>(json['savingsGoal']),
+      savingsAchieved: serializer.fromJson<double>(json['savingsAchieved']),
+      dailyExpensesJson: serializer.fromJson<String>(json['dailyExpensesJson']),
+      categoryTotalsJson:
+          serializer.fromJson<String>(json['categoryTotalsJson']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'cycleStart': serializer.toJson<DateTime>(cycleStart),
+      'cycleEnd': serializer.toJson<DateTime>(cycleEnd),
+      'openingBalance': serializer.toJson<double>(openingBalance),
+      'closingBalance': serializer.toJson<double>(closingBalance),
+      'totalIncome': serializer.toJson<double>(totalIncome),
+      'totalExpenses': serializer.toJson<double>(totalExpenses),
+      'savingsGoal': serializer.toJson<double>(savingsGoal),
+      'savingsAchieved': serializer.toJson<double>(savingsAchieved),
+      'dailyExpensesJson': serializer.toJson<String>(dailyExpensesJson),
+      'categoryTotalsJson': serializer.toJson<String>(categoryTotalsJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CycleRecord copyWith(
+          {int? id,
+          DateTime? cycleStart,
+          DateTime? cycleEnd,
+          double? openingBalance,
+          double? closingBalance,
+          double? totalIncome,
+          double? totalExpenses,
+          double? savingsGoal,
+          double? savingsAchieved,
+          String? dailyExpensesJson,
+          String? categoryTotalsJson,
+          DateTime? createdAt}) =>
+      CycleRecord(
+        id: id ?? this.id,
+        cycleStart: cycleStart ?? this.cycleStart,
+        cycleEnd: cycleEnd ?? this.cycleEnd,
+        openingBalance: openingBalance ?? this.openingBalance,
+        closingBalance: closingBalance ?? this.closingBalance,
+        totalIncome: totalIncome ?? this.totalIncome,
+        totalExpenses: totalExpenses ?? this.totalExpenses,
+        savingsGoal: savingsGoal ?? this.savingsGoal,
+        savingsAchieved: savingsAchieved ?? this.savingsAchieved,
+        dailyExpensesJson: dailyExpensesJson ?? this.dailyExpensesJson,
+        categoryTotalsJson: categoryTotalsJson ?? this.categoryTotalsJson,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  CycleRecord copyWithCompanion(CycleRecordsCompanion data) {
+    return CycleRecord(
+      id: data.id.present ? data.id.value : this.id,
+      cycleStart:
+          data.cycleStart.present ? data.cycleStart.value : this.cycleStart,
+      cycleEnd: data.cycleEnd.present ? data.cycleEnd.value : this.cycleEnd,
+      openingBalance: data.openingBalance.present
+          ? data.openingBalance.value
+          : this.openingBalance,
+      closingBalance: data.closingBalance.present
+          ? data.closingBalance.value
+          : this.closingBalance,
+      totalIncome:
+          data.totalIncome.present ? data.totalIncome.value : this.totalIncome,
+      totalExpenses: data.totalExpenses.present
+          ? data.totalExpenses.value
+          : this.totalExpenses,
+      savingsGoal:
+          data.savingsGoal.present ? data.savingsGoal.value : this.savingsGoal,
+      savingsAchieved: data.savingsAchieved.present
+          ? data.savingsAchieved.value
+          : this.savingsAchieved,
+      dailyExpensesJson: data.dailyExpensesJson.present
+          ? data.dailyExpensesJson.value
+          : this.dailyExpensesJson,
+      categoryTotalsJson: data.categoryTotalsJson.present
+          ? data.categoryTotalsJson.value
+          : this.categoryTotalsJson,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CycleRecord(')
+          ..write('id: $id, ')
+          ..write('cycleStart: $cycleStart, ')
+          ..write('cycleEnd: $cycleEnd, ')
+          ..write('openingBalance: $openingBalance, ')
+          ..write('closingBalance: $closingBalance, ')
+          ..write('totalIncome: $totalIncome, ')
+          ..write('totalExpenses: $totalExpenses, ')
+          ..write('savingsGoal: $savingsGoal, ')
+          ..write('savingsAchieved: $savingsAchieved, ')
+          ..write('dailyExpensesJson: $dailyExpensesJson, ')
+          ..write('categoryTotalsJson: $categoryTotalsJson, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      cycleStart,
+      cycleEnd,
+      openingBalance,
+      closingBalance,
+      totalIncome,
+      totalExpenses,
+      savingsGoal,
+      savingsAchieved,
+      dailyExpensesJson,
+      categoryTotalsJson,
+      createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CycleRecord &&
+          other.id == this.id &&
+          other.cycleStart == this.cycleStart &&
+          other.cycleEnd == this.cycleEnd &&
+          other.openingBalance == this.openingBalance &&
+          other.closingBalance == this.closingBalance &&
+          other.totalIncome == this.totalIncome &&
+          other.totalExpenses == this.totalExpenses &&
+          other.savingsGoal == this.savingsGoal &&
+          other.savingsAchieved == this.savingsAchieved &&
+          other.dailyExpensesJson == this.dailyExpensesJson &&
+          other.categoryTotalsJson == this.categoryTotalsJson &&
+          other.createdAt == this.createdAt);
+}
+
+class CycleRecordsCompanion extends UpdateCompanion<CycleRecord> {
+  final Value<int> id;
+  final Value<DateTime> cycleStart;
+  final Value<DateTime> cycleEnd;
+  final Value<double> openingBalance;
+  final Value<double> closingBalance;
+  final Value<double> totalIncome;
+  final Value<double> totalExpenses;
+  final Value<double> savingsGoal;
+  final Value<double> savingsAchieved;
+  final Value<String> dailyExpensesJson;
+  final Value<String> categoryTotalsJson;
+  final Value<DateTime> createdAt;
+  const CycleRecordsCompanion({
+    this.id = const Value.absent(),
+    this.cycleStart = const Value.absent(),
+    this.cycleEnd = const Value.absent(),
+    this.openingBalance = const Value.absent(),
+    this.closingBalance = const Value.absent(),
+    this.totalIncome = const Value.absent(),
+    this.totalExpenses = const Value.absent(),
+    this.savingsGoal = const Value.absent(),
+    this.savingsAchieved = const Value.absent(),
+    this.dailyExpensesJson = const Value.absent(),
+    this.categoryTotalsJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  CycleRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime cycleStart,
+    required DateTime cycleEnd,
+    required double openingBalance,
+    required double closingBalance,
+    required double totalIncome,
+    required double totalExpenses,
+    required double savingsGoal,
+    required double savingsAchieved,
+    this.dailyExpensesJson = const Value.absent(),
+    this.categoryTotalsJson = const Value.absent(),
+    required DateTime createdAt,
+  })  : cycleStart = Value(cycleStart),
+        cycleEnd = Value(cycleEnd),
+        openingBalance = Value(openingBalance),
+        closingBalance = Value(closingBalance),
+        totalIncome = Value(totalIncome),
+        totalExpenses = Value(totalExpenses),
+        savingsGoal = Value(savingsGoal),
+        savingsAchieved = Value(savingsAchieved),
+        createdAt = Value(createdAt);
+  static Insertable<CycleRecord> custom({
+    Expression<int>? id,
+    Expression<DateTime>? cycleStart,
+    Expression<DateTime>? cycleEnd,
+    Expression<double>? openingBalance,
+    Expression<double>? closingBalance,
+    Expression<double>? totalIncome,
+    Expression<double>? totalExpenses,
+    Expression<double>? savingsGoal,
+    Expression<double>? savingsAchieved,
+    Expression<String>? dailyExpensesJson,
+    Expression<String>? categoryTotalsJson,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (cycleStart != null) 'cycle_start': cycleStart,
+      if (cycleEnd != null) 'cycle_end': cycleEnd,
+      if (openingBalance != null) 'opening_balance': openingBalance,
+      if (closingBalance != null) 'closing_balance': closingBalance,
+      if (totalIncome != null) 'total_income': totalIncome,
+      if (totalExpenses != null) 'total_expenses': totalExpenses,
+      if (savingsGoal != null) 'savings_goal': savingsGoal,
+      if (savingsAchieved != null) 'savings_achieved': savingsAchieved,
+      if (dailyExpensesJson != null) 'daily_expenses_json': dailyExpensesJson,
+      if (categoryTotalsJson != null)
+        'category_totals_json': categoryTotalsJson,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  CycleRecordsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? cycleStart,
+      Value<DateTime>? cycleEnd,
+      Value<double>? openingBalance,
+      Value<double>? closingBalance,
+      Value<double>? totalIncome,
+      Value<double>? totalExpenses,
+      Value<double>? savingsGoal,
+      Value<double>? savingsAchieved,
+      Value<String>? dailyExpensesJson,
+      Value<String>? categoryTotalsJson,
+      Value<DateTime>? createdAt}) {
+    return CycleRecordsCompanion(
+      id: id ?? this.id,
+      cycleStart: cycleStart ?? this.cycleStart,
+      cycleEnd: cycleEnd ?? this.cycleEnd,
+      openingBalance: openingBalance ?? this.openingBalance,
+      closingBalance: closingBalance ?? this.closingBalance,
+      totalIncome: totalIncome ?? this.totalIncome,
+      totalExpenses: totalExpenses ?? this.totalExpenses,
+      savingsGoal: savingsGoal ?? this.savingsGoal,
+      savingsAchieved: savingsAchieved ?? this.savingsAchieved,
+      dailyExpensesJson: dailyExpensesJson ?? this.dailyExpensesJson,
+      categoryTotalsJson: categoryTotalsJson ?? this.categoryTotalsJson,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (cycleStart.present) {
+      map['cycle_start'] = Variable<DateTime>(cycleStart.value);
+    }
+    if (cycleEnd.present) {
+      map['cycle_end'] = Variable<DateTime>(cycleEnd.value);
+    }
+    if (openingBalance.present) {
+      map['opening_balance'] = Variable<double>(openingBalance.value);
+    }
+    if (closingBalance.present) {
+      map['closing_balance'] = Variable<double>(closingBalance.value);
+    }
+    if (totalIncome.present) {
+      map['total_income'] = Variable<double>(totalIncome.value);
+    }
+    if (totalExpenses.present) {
+      map['total_expenses'] = Variable<double>(totalExpenses.value);
+    }
+    if (savingsGoal.present) {
+      map['savings_goal'] = Variable<double>(savingsGoal.value);
+    }
+    if (savingsAchieved.present) {
+      map['savings_achieved'] = Variable<double>(savingsAchieved.value);
+    }
+    if (dailyExpensesJson.present) {
+      map['daily_expenses_json'] = Variable<String>(dailyExpensesJson.value);
+    }
+    if (categoryTotalsJson.present) {
+      map['category_totals_json'] = Variable<String>(categoryTotalsJson.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CycleRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('cycleStart: $cycleStart, ')
+          ..write('cycleEnd: $cycleEnd, ')
+          ..write('openingBalance: $openingBalance, ')
+          ..write('closingBalance: $closingBalance, ')
+          ..write('totalIncome: $totalIncome, ')
+          ..write('totalExpenses: $totalExpenses, ')
+          ..write('savingsGoal: $savingsGoal, ')
+          ..write('savingsAchieved: $savingsAchieved, ')
+          ..write('dailyExpensesJson: $dailyExpensesJson, ')
+          ..write('categoryTotalsJson: $categoryTotalsJson, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabase.connect(DatabaseConnection c) : super.connect(c);
@@ -5879,6 +6559,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $BehavioralProfilesTable(this);
   late final $RecurringIncomesTable recurringIncomes =
       $RecurringIncomesTable(this);
+  late final $CycleRecordsTable cycleRecords = $CycleRecordsTable(this);
   late final AccountsDao accountsDao = AccountsDao(this as AppDatabase);
   late final TransactionsDao transactionsDao =
       TransactionsDao(this as AppDatabase);
@@ -5887,6 +6568,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       RecurringChargesDao(this as AppDatabase);
   late final RecurringIncomesDao recurringIncomesDao =
       RecurringIncomesDao(this as AppDatabase);
+  late final CycleRecordsDao cycleRecordsDao =
+      CycleRecordsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5901,7 +6584,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         incomePatterns,
         insights,
         behavioralProfiles,
-        recurringIncomes
+        recurringIncomes,
+        cycleRecords
       ];
   @override
   DriftDatabaseOptions get options =>
@@ -7087,6 +7771,7 @@ typedef $$RecurringChargesTableCreateCompanionBuilder
   required String name,
   required ChargeType type,
   required double amount,
+  Value<double> paidAmount,
   required DateTime dueDate,
   required ChargeCycle cycle,
   Value<bool> isPaid,
@@ -7099,6 +7784,7 @@ typedef $$RecurringChargesTableUpdateCompanionBuilder
   Value<String> name,
   Value<ChargeType> type,
   Value<double> amount,
+  Value<double> paidAmount,
   Value<DateTime> dueDate,
   Value<ChargeCycle> cycle,
   Value<bool> isPaid,
@@ -7128,6 +7814,9 @@ class $$RecurringChargesTableFilterComposer
 
   ColumnFilters<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get paidAmount => $composableBuilder(
+      column: $table.paidAmount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get dueDate => $composableBuilder(
       column: $table.dueDate, builder: (column) => ColumnFilters(column));
@@ -7168,6 +7857,9 @@ class $$RecurringChargesTableOrderingComposer
   ColumnOrderings<double> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get paidAmount => $composableBuilder(
+      column: $table.paidAmount, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get dueDate => $composableBuilder(
       column: $table.dueDate, builder: (column) => ColumnOrderings(column));
 
@@ -7204,6 +7896,9 @@ class $$RecurringChargesTableAnnotationComposer
 
   GeneratedColumn<double> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<double> get paidAmount => $composableBuilder(
+      column: $table.paidAmount, builder: (column) => column);
 
   GeneratedColumn<DateTime> get dueDate =>
       $composableBuilder(column: $table.dueDate, builder: (column) => column);
@@ -7252,6 +7947,7 @@ class $$RecurringChargesTableTableManager extends RootTableManager<
             Value<String> name = const Value.absent(),
             Value<ChargeType> type = const Value.absent(),
             Value<double> amount = const Value.absent(),
+            Value<double> paidAmount = const Value.absent(),
             Value<DateTime> dueDate = const Value.absent(),
             Value<ChargeCycle> cycle = const Value.absent(),
             Value<bool> isPaid = const Value.absent(),
@@ -7263,6 +7959,7 @@ class $$RecurringChargesTableTableManager extends RootTableManager<
             name: name,
             type: type,
             amount: amount,
+            paidAmount: paidAmount,
             dueDate: dueDate,
             cycle: cycle,
             isPaid: isPaid,
@@ -7274,6 +7971,7 @@ class $$RecurringChargesTableTableManager extends RootTableManager<
             required String name,
             required ChargeType type,
             required double amount,
+            Value<double> paidAmount = const Value.absent(),
             required DateTime dueDate,
             required ChargeCycle cycle,
             Value<bool> isPaid = const Value.absent(),
@@ -7285,6 +7983,7 @@ class $$RecurringChargesTableTableManager extends RootTableManager<
             name: name,
             type: type,
             amount: amount,
+            paidAmount: paidAmount,
             dueDate: dueDate,
             cycle: cycle,
             isPaid: isPaid,
@@ -9151,6 +9850,289 @@ typedef $$RecurringIncomesTableProcessedTableManager = ProcessedTableManager<
     ),
     RecurringIncome,
     PrefetchHooks Function()>;
+typedef $$CycleRecordsTableCreateCompanionBuilder = CycleRecordsCompanion
+    Function({
+  Value<int> id,
+  required DateTime cycleStart,
+  required DateTime cycleEnd,
+  required double openingBalance,
+  required double closingBalance,
+  required double totalIncome,
+  required double totalExpenses,
+  required double savingsGoal,
+  required double savingsAchieved,
+  Value<String> dailyExpensesJson,
+  Value<String> categoryTotalsJson,
+  required DateTime createdAt,
+});
+typedef $$CycleRecordsTableUpdateCompanionBuilder = CycleRecordsCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> cycleStart,
+  Value<DateTime> cycleEnd,
+  Value<double> openingBalance,
+  Value<double> closingBalance,
+  Value<double> totalIncome,
+  Value<double> totalExpenses,
+  Value<double> savingsGoal,
+  Value<double> savingsAchieved,
+  Value<String> dailyExpensesJson,
+  Value<String> categoryTotalsJson,
+  Value<DateTime> createdAt,
+});
+
+class $$CycleRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $CycleRecordsTable> {
+  $$CycleRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get cycleStart => $composableBuilder(
+      column: $table.cycleStart, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get cycleEnd => $composableBuilder(
+      column: $table.cycleEnd, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get openingBalance => $composableBuilder(
+      column: $table.openingBalance,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get closingBalance => $composableBuilder(
+      column: $table.closingBalance,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get totalIncome => $composableBuilder(
+      column: $table.totalIncome, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get totalExpenses => $composableBuilder(
+      column: $table.totalExpenses, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get savingsGoal => $composableBuilder(
+      column: $table.savingsGoal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get savingsAchieved => $composableBuilder(
+      column: $table.savingsAchieved,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dailyExpensesJson => $composableBuilder(
+      column: $table.dailyExpensesJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoryTotalsJson => $composableBuilder(
+      column: $table.categoryTotalsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CycleRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CycleRecordsTable> {
+  $$CycleRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get cycleStart => $composableBuilder(
+      column: $table.cycleStart, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get cycleEnd => $composableBuilder(
+      column: $table.cycleEnd, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get openingBalance => $composableBuilder(
+      column: $table.openingBalance,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get closingBalance => $composableBuilder(
+      column: $table.closingBalance,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get totalIncome => $composableBuilder(
+      column: $table.totalIncome, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get totalExpenses => $composableBuilder(
+      column: $table.totalExpenses,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get savingsGoal => $composableBuilder(
+      column: $table.savingsGoal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get savingsAchieved => $composableBuilder(
+      column: $table.savingsAchieved,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dailyExpensesJson => $composableBuilder(
+      column: $table.dailyExpensesJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryTotalsJson => $composableBuilder(
+      column: $table.categoryTotalsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CycleRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CycleRecordsTable> {
+  $$CycleRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cycleStart => $composableBuilder(
+      column: $table.cycleStart, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cycleEnd =>
+      $composableBuilder(column: $table.cycleEnd, builder: (column) => column);
+
+  GeneratedColumn<double> get openingBalance => $composableBuilder(
+      column: $table.openingBalance, builder: (column) => column);
+
+  GeneratedColumn<double> get closingBalance => $composableBuilder(
+      column: $table.closingBalance, builder: (column) => column);
+
+  GeneratedColumn<double> get totalIncome => $composableBuilder(
+      column: $table.totalIncome, builder: (column) => column);
+
+  GeneratedColumn<double> get totalExpenses => $composableBuilder(
+      column: $table.totalExpenses, builder: (column) => column);
+
+  GeneratedColumn<double> get savingsGoal => $composableBuilder(
+      column: $table.savingsGoal, builder: (column) => column);
+
+  GeneratedColumn<double> get savingsAchieved => $composableBuilder(
+      column: $table.savingsAchieved, builder: (column) => column);
+
+  GeneratedColumn<String> get dailyExpensesJson => $composableBuilder(
+      column: $table.dailyExpensesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryTotalsJson => $composableBuilder(
+      column: $table.categoryTotalsJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$CycleRecordsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CycleRecordsTable,
+    CycleRecord,
+    $$CycleRecordsTableFilterComposer,
+    $$CycleRecordsTableOrderingComposer,
+    $$CycleRecordsTableAnnotationComposer,
+    $$CycleRecordsTableCreateCompanionBuilder,
+    $$CycleRecordsTableUpdateCompanionBuilder,
+    (
+      CycleRecord,
+      BaseReferences<_$AppDatabase, $CycleRecordsTable, CycleRecord>
+    ),
+    CycleRecord,
+    PrefetchHooks Function()> {
+  $$CycleRecordsTableTableManager(_$AppDatabase db, $CycleRecordsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CycleRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CycleRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CycleRecordsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> cycleStart = const Value.absent(),
+            Value<DateTime> cycleEnd = const Value.absent(),
+            Value<double> openingBalance = const Value.absent(),
+            Value<double> closingBalance = const Value.absent(),
+            Value<double> totalIncome = const Value.absent(),
+            Value<double> totalExpenses = const Value.absent(),
+            Value<double> savingsGoal = const Value.absent(),
+            Value<double> savingsAchieved = const Value.absent(),
+            Value<String> dailyExpensesJson = const Value.absent(),
+            Value<String> categoryTotalsJson = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              CycleRecordsCompanion(
+            id: id,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            openingBalance: openingBalance,
+            closingBalance: closingBalance,
+            totalIncome: totalIncome,
+            totalExpenses: totalExpenses,
+            savingsGoal: savingsGoal,
+            savingsAchieved: savingsAchieved,
+            dailyExpensesJson: dailyExpensesJson,
+            categoryTotalsJson: categoryTotalsJson,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required DateTime cycleStart,
+            required DateTime cycleEnd,
+            required double openingBalance,
+            required double closingBalance,
+            required double totalIncome,
+            required double totalExpenses,
+            required double savingsGoal,
+            required double savingsAchieved,
+            Value<String> dailyExpensesJson = const Value.absent(),
+            Value<String> categoryTotalsJson = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              CycleRecordsCompanion.insert(
+            id: id,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            openingBalance: openingBalance,
+            closingBalance: closingBalance,
+            totalIncome: totalIncome,
+            totalExpenses: totalExpenses,
+            savingsGoal: savingsGoal,
+            savingsAchieved: savingsAchieved,
+            dailyExpensesJson: dailyExpensesJson,
+            categoryTotalsJson: categoryTotalsJson,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CycleRecordsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CycleRecordsTable,
+    CycleRecord,
+    $$CycleRecordsTableFilterComposer,
+    $$CycleRecordsTableOrderingComposer,
+    $$CycleRecordsTableAnnotationComposer,
+    $$CycleRecordsTableCreateCompanionBuilder,
+    $$CycleRecordsTableUpdateCompanionBuilder,
+    (
+      CycleRecord,
+      BaseReferences<_$AppDatabase, $CycleRecordsTable, CycleRecord>
+    ),
+    CycleRecord,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9175,4 +10157,6 @@ class $AppDatabaseManager {
       $$BehavioralProfilesTableTableManager(_db, _db.behavioralProfiles);
   $$RecurringIncomesTableTableManager get recurringIncomes =>
       $$RecurringIncomesTableTableManager(_db, _db.recurringIncomes);
+  $$CycleRecordsTableTableManager get cycleRecords =>
+      $$CycleRecordsTableTableManager(_db, _db.cycleRecords);
 }

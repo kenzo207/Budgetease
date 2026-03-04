@@ -19,6 +19,7 @@ import 'tables/income_patterns_table.dart';
 import 'tables/insights_table.dart';
 import 'tables/behavioral_profiles_table.dart';
 import 'tables/recurring_incomes_table.dart';
+import 'tables/cycle_records_table.dart';
 
 // Import DAOs
 import 'daos/accounts_dao.dart';
@@ -26,6 +27,7 @@ import 'daos/transactions_dao.dart';
 import 'daos/categories_dao.dart';
 import 'daos/recurring_charges_dao.dart';
 import 'daos/recurring_incomes_dao.dart';
+import 'daos/cycle_records_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -43,6 +45,7 @@ part 'app_database.g.dart';
     Insights,
     BehavioralProfiles,
     RecurringIncomes,
+    CycleRecords,
   ],
   daos: [
     AccountsDao,
@@ -50,6 +53,7 @@ part 'app_database.g.dart';
     CategoriesDao,
     RecurringChargesDao,
     RecurringIncomesDao,
+    CycleRecordsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -59,7 +63,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase._internal() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7; // v7: Ajout table RecurringIncomes
+  int get schemaVersion => 9; // v9: CycleRecords + paidAmount sur charges
   
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -140,6 +144,26 @@ class AppDatabase extends _$AppDatabase {
               print('✅ Migration v6→v7: Table recurring_incomes créée');
             } catch (e) {
               print('⚠️ Migration v6→v7: Erreur création recurring_incomes: $e');
+            }
+          }
+
+          // Migration de v7 à v8 : Ajout paidAmount sur recurring_charges
+          if (from < 8) {
+            try {
+              await m.addColumn(recurringCharges, recurringCharges.paidAmount);
+              print('✅ Migration v7→v8: paidAmount ajouté sur recurring_charges');
+            } catch (e) {
+              print('⚠️ Migration v7→v8: paidAmount déjà existant ou erreur: $e');
+            }
+          }
+
+          // Migration de v8 à v9 : Création table cycle_records
+          if (from < 9) {
+            try {
+              await m.createTable(cycleRecords);
+              print('✅ Migration v8→v9: Table cycle_records créée');
+            } catch (e) {
+              print('⚠️ Migration v8→v9: Erreur création cycle_records: $e');
             }
           }
         },

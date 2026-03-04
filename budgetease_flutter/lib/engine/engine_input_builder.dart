@@ -48,7 +48,7 @@ Map<String, dynamic> buildEngineInput({
                 : daysLeft < 0
                     ? 'Overdue'
                     : 'Pending',
-            'amount_paid':  0.0,
+            'amount_paid':  c.paidAmount,
             'is_active':    true,
           };
         })

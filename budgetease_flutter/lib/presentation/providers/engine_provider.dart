@@ -10,6 +10,7 @@ import '../../engine/zolt_engine.dart';
 import '../../engine/engine_input_builder.dart';
 import '../../engine/engine_output.dart' as eng;
 import '../../domain/services/cycle_manager_service.dart';
+import '../../domain/services/cycle_snapshot_service.dart';
 
 part 'engine_provider.g.dart';
 
@@ -36,6 +37,10 @@ class ZoltEngineProvider extends _$ZoltEngineProvider {
     final cycleEnd     = cycleManager.getEndOfCycle();
     final transactions = await txDao.getTransactionsByPeriod(cycleStart, cycleEnd);
 
+    // ─── Snapshot du cycle précédent (non-bloquant) ──────────────
+    final snapshotService = CycleSnapshotService(db);
+    await snapshotService.ensureLastCycleSnapshotted();
+
     // ─── Essaie le moteur Rust ───────────────────────────────────
     if (ZoltEngine.isAvailable) {
       try {
@@ -45,7 +50,9 @@ class ZoltEngineProvider extends _$ZoltEngineProvider {
           transactions: transactions,
           settings:     settings,
         );
-        final raw = ZoltEngine.run(input: input, history: []);
+        // Historique réel des cycles passés (12 derniers max)
+        final history = await snapshotService.buildHistory(limit: 12);
+        final raw = ZoltEngine.run(input: input, history: history);
         return eng.ZoltEngineOutput.fromJson(raw);
       } catch (_) {
         // Fallback si le moteur Rust échoue

@@ -68,7 +68,7 @@ final enginePredictionProvider =
 typedef EnginePredictionRef
     = AutoDisposeFutureProviderRef<eng.EndOfCyclePrediction?>;
 String _$zoltEngineProviderHash() =>
-    r'308538af87810d10444cc404e168aeb8d07932b7';
+    r'239b4d31874ba988dbbaaefba8216568f36c9e26';
 
 /// Provider principal du moteur Zolt.
 ///

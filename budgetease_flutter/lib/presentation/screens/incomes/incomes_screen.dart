@@ -231,7 +231,7 @@ class _IncomeCard extends StatelessWidget {
     final Formatter = DateFormat('dd MMM yyyy', 'fr');
     final isPending = income.nextDepositDate.isBefore(DateTime.now()) || DateUtils.isSameDay(income.nextDepositDate, DateTime.now());
 
-      return UIHelpers.withSurfaceTheme(context, Container(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -308,7 +308,7 @@ class _IncomeCard extends StatelessWidget {
           ),
         ],
       ),
-      ));
+    );
   }
 
   String _frequencyString(RecurringIncome income) {

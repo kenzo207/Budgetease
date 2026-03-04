@@ -99,19 +99,29 @@ Future<eng.ZoltEngineOutput> _dartFallback({
   final savingsGoal   = settings.savingsGoal ?? 0.0;
   final daysRemaining = cycleManager.getDaysRemainingInCycle();
 
-  final chargesReserve = charges
-      .where((c) => !c.isPaid && c.isActive)
-      .fold<double>(0, (s, c) => s + c.amount);
-
+  // Réserve transport (identique à TransportManagerService)
+  final daysPerWeek = settings.transportDaysPerWeek ?? 5;
   final transportReserve = settings.transportMode == TransportMode.daily
-      ? (settings.dailyTransportCost ?? 0.0) * daysRemaining
+      ? (settings.dailyTransportCost ?? 0.0) * daysPerWeek * (daysRemaining / 7)
       : 0.0;
 
-  final freeMass  = (totalBalance - savingsGoal - transportReserve - chargesReserve)
+  // Réserve charges DYNAMIQUE : amount / max(1, daysUntilDue)
+  // (même algorithme que BudgetCalculatorService.getDailyReserveTotal * daysRemaining)
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  
+  double dailyChargeReserve = 0.0;
+  double chargesReserve = 0.0;
+  for (final c in charges.where((c) => !c.isPaid && c.isActive)) {
+    final daysUntilDue = c.dueDate.difference(today).inDays;
+    final safeDays = daysUntilDue > 0 ? daysUntilDue : 1;
+    dailyChargeReserve += c.amount / safeDays;
+    chargesReserve += c.amount;
+  }
+
+  final freeMass = (totalBalance - savingsGoal - transportReserve)
       .clamp(0.0, double.infinity);
 
-  final now      = DateTime.now();
-  final today    = DateTime(now.year, now.month, now.day);
   final tomorrow = today.add(const Duration(days: 1));
 
   final spentToday = transactions
@@ -121,8 +131,10 @@ Future<eng.ZoltEngineOutput> _dartFallback({
           t.date.isBefore(tomorrow))
       .fold<double>(0, (s, t) => s + t.amount);
 
-  final dailyBudget    = daysRemaining > 0 ? freeMass / daysRemaining : 0.0;
-  final remainingToday = dailyBudget - spentToday;
+  // Budget de base = freeMass / daysRemaining, moins réserve journalière charges
+  final baseDailyBudget = daysRemaining > 0 ? freeMass / daysRemaining : 0.0;
+  final dailyBudget     = baseDailyBudget - dailyChargeReserve;
+  final remainingToday  = dailyBudget - spentToday;
 
   return eng.ZoltEngineOutput(
     deterministic: eng.DeterministicResult(
@@ -136,6 +148,7 @@ Future<eng.ZoltEngineOutput> _dartFallback({
       transportReserve: transportReserve,
       chargesReserve:   chargesReserve,
     ),
+    // Note: profile/prediction restent vides en fallback (pas d'historique)
     profile: const eng.BehavioralProfile(
       rhythm:               'Linear',
       volatilityScore:      0,

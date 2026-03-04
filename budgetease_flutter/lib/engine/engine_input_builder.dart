@@ -64,7 +64,7 @@ Map<String, dynamic> buildEngineInput({
           },
           'amount':        t.amount,
           'tx_type':       _txType(t.type),
-          'category':      null,
+          'category':      t.categoryId?.toString(),
           'account_id':    t.accountId.toString(),
           'description':   t.description,
           'sms_confidence': null,
@@ -114,10 +114,17 @@ dynamic _transportJson(UserSettings s) {
     case TransportMode.fixed:
       return 'Subscription';
     case TransportMode.daily:
+      // Construire work_days depuis daysPerWeek stocké en DB
+      // ex: 3 jours → [1, 2, 3] (lun, mar, mer)
+      final daysPerWeek = s.transportDaysPerWeek ?? 5;
+      final workDays = List<int>.generate(
+        daysPerWeek.clamp(1, 7),
+        (i) => i + 1,
+      );
       return {
         'Daily': {
           'cost_per_day': s.dailyTransportCost ?? 0.0,
-          'work_days':    [1, 2, 3, 4, 5], // lun-ven par défaut
+          'work_days':    workDays,
         }
       };
   }

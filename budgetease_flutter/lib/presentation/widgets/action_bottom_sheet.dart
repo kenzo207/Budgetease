@@ -51,9 +51,7 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    return UIHelpers.withSurfaceTheme(
-      context,
-      Container(
+    return Container(
         height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
@@ -98,7 +96,7 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
           ),
         ],
       ),
-    ));
+    );
   }
 }
 

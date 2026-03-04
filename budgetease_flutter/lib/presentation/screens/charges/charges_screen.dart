@@ -164,7 +164,7 @@ class _SummaryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UIHelpers.withSurfaceTheme(context, Container(
+    return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -196,7 +196,7 @@ class _SummaryBanner extends StatelessWidget {
               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
         ],
       ),
-      ));
+    );
   }
 }
 
@@ -224,7 +224,7 @@ class _ChargeCard extends StatelessWidget {
     final dailyReserve = RecurringChargesDao.dailyReserveFor(charge);
     final urgencyColor = _urgencyColor(context, daysLeft);
 
-    return UIHelpers.withSurfaceTheme(context, Container(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -291,39 +291,37 @@ class _ChargeCard extends StatelessWidget {
             ),
           ),
           // ── Actions ──
-          if (!charge.isPaid)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Row(
-                children: [
-                  TextButton.icon(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: onEdit,
+                  icon: Icon(Icons.edit_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  tooltip: 'Modifier',
+                ),
+                if (!charge.isPaid)
+                  IconButton(
                     onPressed: onMarkPaid,
-                    icon: Icon(Icons.check_circle_outline, size: 16),
-                    label: Text('Payée'),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.primary,
-                        textStyle: const TextStyle(fontSize: 13)),
+                    icon: Icon(Icons.check_circle_outline,
+                        size: 20, color: Theme.of(context).colorScheme.primary),
+                    tooltip: 'Marquer payée',
                   ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: onEdit,
-                    icon: Icon(Icons.edit_outlined,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                    tooltip: 'Modifier',
-                  ),
-                  IconButton(
-                    onPressed: onDelete,
-                    icon: Icon(Icons.delete_outline,
-                        size: 18, color: Theme.of(context).colorScheme.primary),
-                    tooltip: 'Supprimer',
-                  ),
-                ],
-              ),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete_outline,
+                      size: 18, color: Theme.of(context).colorScheme.primary),
+                  tooltip: 'Supprimer',
+                ),
+              ],
             ),
+          ),
         ],
       ),
-      ));
+      );
   }
 
   Color _urgencyColor(BuildContext context, int days) {

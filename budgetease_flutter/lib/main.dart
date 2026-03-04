@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:ffi';
 import 'package:sqlite3/open.dart';
+import 'engine/zolt_engine.dart';
 import 'config/theme.dart';
 import 'presentation/providers/security_provider.dart';
 import 'presentation/providers/theme_provider.dart';
@@ -25,7 +26,10 @@ void main() async {
   open.overrideFor(OperatingSystem.android, () {
     return DynamicLibrary.open('libsqlcipher.so');
   });
-  
+
+  // Initialiser le moteur Rust Zolt (silencieux si indisponible)
+  ZoltEngine.initialize();
+
   // Initialiser la base de données (singleton)
   AppDatabase();
 

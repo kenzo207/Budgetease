@@ -86,10 +86,13 @@ class ZoltEngine {
     try {
       resultPtr = _run!(inputPtr, historyPtr);
 
-      final json = resultPtr.toDartString();
-      final result = jsonDecode(json) as Map<String, dynamic>;
+        // Guard against null pointer returned by Rust on internal error
+        if (resultPtr.address == 0) {
+          throw const ZoltEngineException('Moteur Rust a retourné un pointeur nul');
+        }
 
-      if (result.containsKey('error')) {
+        final json = resultPtr.toDartString();
+        final result = jsonDecode(json) as Map<String, dynamic>;      if (result.containsKey('error')) {
         throw ZoltEngineException(result['error'] as String);
       }
 

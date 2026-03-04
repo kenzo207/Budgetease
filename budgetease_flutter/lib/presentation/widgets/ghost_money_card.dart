@@ -14,7 +14,7 @@ class GhostMoneyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return UIHelpers.withSurfaceTheme(context, Card(
+    return Card(
       color: AppColors.cardColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -174,6 +174,6 @@ class GhostMoneyCard extends ConsumerWidget {
           ],
         ),
       ),
-      ));
+    );
   }
 }

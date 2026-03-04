@@ -28,7 +28,7 @@ class DynamicCard extends ConsumerWidget {
     final borderAsync = ref.watch(cardBorderProvider);
 
     return borderAsync.when(
-        data: (border) => UIHelpers.withSurfaceTheme(context, Container(
+        data: (border) => Container(
         margin: margin,
         decoration: BoxDecoration(
           color: color ?? Theme.of(context).cardTheme.color,
@@ -42,7 +42,7 @@ class DynamicCard extends ConsumerWidget {
               ? Padding(padding: padding!, child: child)
               : child,
         ),
-        )),
+        ),
       loading: () => Card(
         margin: margin,
         elevation: elevation ?? 0,

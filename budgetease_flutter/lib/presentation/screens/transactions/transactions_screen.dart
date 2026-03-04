@@ -498,7 +498,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Récap de ce qu'on va supprimer
-              UIHelpers.withSurfaceTheme(context, Container(
+              Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
@@ -531,7 +531,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   ),
                 ],
               ),
-              )),
+              ),
             SizedBox(height: 14),
             Text(
               'Cette action est irréversible.',

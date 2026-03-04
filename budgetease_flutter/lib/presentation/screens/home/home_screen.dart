@@ -115,6 +115,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ),
               SliverToBoxAdapter(child: _buildCardsCarousel(currency, discreteMode)),
+              // ── Prédiction fin de cycle ──
+              SliverToBoxAdapter(child: _buildPredictionBanner()),
               // ── Messages intelligents du Zolt Engine ──
               SliverToBoxAdapter(
                 child: Container(
@@ -201,6 +203,68 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  /// Returns color + icon based on message level
+  (Color, IconData) _messageStyle(String level) {
+    switch (level) {
+      case 'Critical':
+        return (const Color(0xFFFF5252), Icons.warning_amber_rounded);
+      case 'Warning':
+        return (const Color(0xFFFFAB40), Icons.info_outline);
+      case 'Positive':
+        return (const Color(0xFF69F0AE), Icons.thumb_up_outlined);
+      default: // Info
+        return (Theme.of(context).colorScheme.onSurface, Icons.lightbulb_outline);
+    }
+  }
+
+  Widget _buildPredictionBanner() {
+    final predAsync = ref.watch(enginePredictionProvider);
+    return predAsync.when(
+      data: (pred) {
+        if (pred == null || !pred.isReliable) return const SizedBox.shrink();
+        final isDeficit = pred.isDeficit;
+        final color = isDeficit ? const Color(0xFFFF5252) : const Color(0xFF69F0AE);
+        final icon  = isDeficit ? Icons.trending_down : Icons.trending_up;
+        final label = isDeficit
+            ? 'Déficit prévu en fin de cycle'
+            : 'Fin de cycle estimée positive';
+        final amount = isDeficit
+            ? '− ${pred.projectedDeficit.toStringAsFixed(0)}'
+            : '+ ${pred.projectedFinalBalance.toStringAsFixed(0)}';
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: color),
+                ),
+              ),
+              Text(
+                amount,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error:   (_, __) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _buildZoltMessages() {
     final messagesAsync = ref.watch(engineMessagesProvider);
 
@@ -208,23 +272,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (messages) {
         if (messages.isEmpty) return const SizedBox.shrink();
 
-        // On prend le premier message
+        // On prend le premier message (le plus important)
         final msg = messages.first;
-        final isCritical = msg.level == 'Critical';
-        
-        final bgColor = isCritical 
-            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) 
-            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1);
-        final iconColor = isCritical 
-            ? Theme.of(context).colorScheme.primary 
-            : Theme.of(context).colorScheme.primary;
-        final icon = isCritical ? Icons.warning_amber_rounded : Icons.lightbulb_outline;
+        final (iconColor, icon) = _messageStyle(msg.level);
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: bgColor,
+            color: iconColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: iconColor.withValues(alpha: 0.3)),
           ),
@@ -238,7 +294,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      msg.title.isNotEmpty ? msg.title : (isCritical ? 'Alerte Zolt' : 'Conseil Zolt'),
+                      msg.title.isNotEmpty ? msg.title : 'Conseil Zolt',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: iconColor,
                         fontWeight: FontWeight.bold,

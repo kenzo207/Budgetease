@@ -1,6 +1,14 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import '../../data/database/app_database.dart';
+import '../../data/database/tables/transactions_table.dart';
+import 'budget_calculator_service.dart';
+import 'cycle_manager_service.dart';
+import 'transport_manager_service.dart';
+import '../../data/database/daos/accounts_dao.dart';
+import '../../data/database/daos/transactions_dao.dart';
+import '../../data/database/daos/recurring_charges_dao.dart';
+import '../../data/database/tables/settings_table.dart';
 
 /// Service pour analyser le comportement de dépense de l'utilisateur
 class BehavioralProfilerService {
@@ -26,10 +34,45 @@ class BehavioralProfilerService {
       hourlyPattern[hour] = (hourlyPattern[hour] ?? 0) + 1;
     }
 
-    // Analyse dépassements (simplifié pour l'instant)
-    // TODO: Intégrer avec BudgetCalculatorService pour Daily Cap
-    final overrunCount = 0;
-    final averageOverrun = 0.0;
+    // ── Comptage réel des dépassements du budget journalier ──────────
+    final settings = await _database.select(_database.settings).getSingleOrNull();
+    int overrunCount = 0;
+    double averageOverrun = 0.0;
+
+    if (settings != null) {
+      final cycleManager = CycleManagerService(cycle: settings.financialCycle);
+      final transportManager = TransportManagerService(
+        mode: settings.transportMode,
+        dailyCost: settings.dailyTransportCost,
+        daysPerWeek: settings.transportDaysPerWeek,
+        cycleManager: cycleManager,
+      );
+      final calculator = BudgetCalculatorService(
+        accountsDao: AccountsDao(_database),
+        transactionsDao: TransactionsDao(_database),
+        chargesDao: RecurringChargesDao(_database),
+        cycleManager: cycleManager,
+        transportManager: transportManager,
+        savingsGoal: settings.savingsGoal ?? 0.0,
+      );
+      final dailyCap = await calculator.calculateDailyBudget();
+
+      // Grouper les dépenses par jour sur les 30 derniers jours
+      final expensesByDay = <String, double>{};
+      for (final t in recentTransactions.where((t) => t.type == TransactionType.expense)) {
+        final key = '${t.date.year}-${t.date.month}-${t.date.day}';
+        expensesByDay[key] = (expensesByDay[key] ?? 0.0) + t.amount;
+      }
+
+      double totalOverrun = 0.0;
+      for (final dayTotal in expensesByDay.values) {
+        if (dayTotal > dailyCap && dailyCap > 0) {
+          overrunCount++;
+          totalOverrun += dayTotal - dailyCap;
+        }
+      }
+      if (overrunCount > 0) averageOverrun = totalOverrun / overrunCount;
+    }
 
     // Déterminer niveau de conseil
     final advisoryLevel = _determineAdvisoryLevel(frequency, overrunCount);

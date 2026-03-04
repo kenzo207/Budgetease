@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/tables/categories_table.dart';
+import 'database_provider.dart';
 
 part 'categories_provider.g.dart';
 
@@ -9,13 +10,13 @@ part 'categories_provider.g.dart';
 class CategoriesProvider extends _$CategoriesProvider {
   @override
   Future<List<Category>> build() async {
-    final database = AppDatabase();
+    final database = ref.watch(databaseProvider);
     return await database.select(database.categories).get();
   }
 
   /// Récupérer les catégories par type
   Future<List<Category>> getCategoriesByType(CategoryType type) async {
-    final database = AppDatabase();
+    final database = ref.read(databaseProvider);
     return await (database.select(database.categories)
           ..where((c) => c.type.equals(type.index)))
         .get();

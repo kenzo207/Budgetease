@@ -16,7 +16,7 @@ import 'transport_config_screen.dart';
 import '../main_screen.dart';
 import '../../../services/analytics_service.dart';
 
-/// Écran 8 : Autorisations SMS (Final)
+/// Écran 9 : Confirmation finale et sauvegarde
 class PermissionsScreen extends ConsumerStatefulWidget {
   const PermissionsScreen({super.key});
 
@@ -25,44 +25,12 @@ class PermissionsScreen extends ConsumerStatefulWidget {
 }
 
 class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
-  bool _smsPermissionGranted = false;
-  bool _isRequestingPermission = false;
   bool _isSaving = false;
 
-  Future<void> _requestSmsPermission() async {
-    setState(() {
-      _isRequestingPermission = true;
-    });
-
-    // Analytics
-    ref.read(analyticsServiceProvider).capture('sms_permission_requested');
-
-    final status = await Permission.sms.request();
-    
-    setState(() {
-      _smsPermissionGranted = status.isGranted;
-      _isRequestingPermission = false;
-    });
-
-    if (status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Permission SMS accordée'),
-          backgroundColor: AppColors.accentColor,
-        ),
-      );
-    }
-  }
-
-  Future<void> _skipAndFinish() async {
-    await _saveOnboardingData(smsEnabled: false);
-  }
-
-  Future<void> _allowAndFinish() async {
-    if (!_smsPermissionGranted) {
-      await _requestSmsPermission();
-    }
-    await _saveOnboardingData(smsEnabled: _smsPermissionGranted);
+  Future<void> _finish() async {
+    // Vérifier si la permission SMS est déjà accordée (depuis MomoSetupScreen)
+    final smsStatus = await Permission.sms.status;
+    await _saveOnboardingData(smsEnabled: smsStatus.isGranted);
   }
 
   Future<void> _saveOnboardingData({required bool smsEnabled}) async {
@@ -115,7 +83,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
             type: account.type,
             currentBalance: Value(account.balance),
             icon: _getAccountIcon(account.type),
-            color: _getAccountColor(account.type),
+            color: _getAccountColor(context, account.type),
             operator: account.operator != null 
                 ? Value(account.operator!) 
                 : const Value.absent(),
@@ -161,9 +129,9 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
         );
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Configuration terminée !'),
-            backgroundColor: AppColors.accentColor,
+          SnackBar(
+            content: Text('Configuration terminée !', style: TextStyle(color: Colors.white)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -171,8 +139,8 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            content: Text('Erreur: $e', style: const TextStyle(color: Colors.white)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -209,17 +177,10 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
     }
   }
 
-  String _getAccountColor(AccountType type) {
-    switch (type) {
-      case AccountType.cash:
-        return '#00E676';
-      case AccountType.mobileMoney:
-        return '#1E88E5';
-      case AccountType.bank:
-        return '#FF6B6B';
-      case AccountType.savings:
-        return '#FFD93D';
-    }
+  String _getAccountColor(BuildContext context, AccountType type) {
+    // Convertir la couleur primaire du thème en chaîne HEX ("#AARRGGBB")
+    final color = Theme.of(context).colorScheme.primary;
+    return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
   }
 
   @override
@@ -230,99 +191,91 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
-          
-          const SizedBox(height: 24),
-          
-          Text(
-            'Automatisation des transactions',
-            style: Theme.of(context).textTheme.displayMedium,
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            'Détectez automatiquement vos paiements Mobile Money',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          
+
           const Spacer(),
-          
+
           // Illustration
           Center(
             child: Container(
-              width: 120,
-              height: 120,
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accentColor.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
               ),
-              child: const Icon(
-                Icons.sms_outlined,
+              child: Icon(
+                Icons.check_circle_outline,
                 size: 60,
-                color: AppColors.accentColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
-          
-          const SizedBox(height: 32),
-          
-          // Explication
+
+          SizedBox(height: 32),
+
+          Text(
+            'Tout est prêt !',
+            style: Theme.of(context).textTheme.displayMedium,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Votre profil financier est configuré. Zolt va maintenant initialiser votre espace.',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+            textAlign: TextAlign.center,
+          ),
+
+          SizedBox(height: 32),
+
+          // Résumé rapide
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surfaceColor,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
                 _buildFeature(
-                  Icons.check_circle_outline,
-                  'Détection automatique',
-                  'Les SMS de MTN, Moov, Orange et Wave sont analysés',
+                  Icons.account_balance_wallet_outlined,
+                  'Comptes configurés',
+                  'Vos soldes sont enregistrés localement',
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _buildFeature(
-                  Icons.edit_outlined,
-                  'Vous gardez le contrôle',
-                  'Vous validez chaque transaction avant enregistrement',
+                  Icons.lock_outline,
+                  'Sécurité activée',
+                  'PIN ou biométrie protège l\'accès',
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _buildFeature(
-                  Icons.security_outlined,
-                  '100% Local',
-                  'Aucun SMS n\'est envoyé à un serveur',
+                  Icons.sms_outlined,
+                  'Détection SMS',
+                  'Les transactions Mobile Money seront capturées automatiquement',
                 ),
               ],
             ),
           ),
-          
+
           const Spacer(),
-          
+
           if (_isSaving)
-            const Center(child: CircularProgressIndicator())
+            Center(child: CircularProgressIndicator())
           else
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isRequestingPermission ? null : _allowAndFinish,
-                    child: Text(_smsPermissionGranted
-                        ? 'Terminer'
-                        : 'Autoriser et terminer'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: _isRequestingPermission ? null : _skipAndFinish,
-                  child: const Text('Plus tard'),
-                ),
-              ],
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _finish,
+                child: Text('Lancer Zolt'),
+              ),
             ),
         ],
       ),
@@ -333,8 +286,8 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.accentColor, size: 24),
-        const SizedBox(width: 12),
+        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+        SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

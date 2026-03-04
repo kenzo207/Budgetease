@@ -6,7 +6,7 @@ part of 'sms_parser_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$smsParserServiceHash() => r'7c0c02448c5ad0e47253dc8b02a20b522182923f';
+String _$smsParserServiceHash() => r'085eb4e3eb4eaab665dcd30b355bbfd2b4c2c383';
 
 /// Provider du service de parsing SMS
 ///

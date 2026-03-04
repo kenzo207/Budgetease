@@ -1,12 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import '../../data/database/app_database.dart';
+import 'database_provider.dart';
 
 /// Provider pour la couleur des bordures
 final borderColorProvider = FutureProvider<Color>((ref) async {
-  final database = AppDatabase();
+  final database = ref.watch(databaseProvider);
   final settings = await database.select(database.settings).getSingleOrNull();
-  
+
   if (settings?.borderColor != null) {
     try {
       final colorHex = settings!.borderColor!;
@@ -17,7 +18,7 @@ final borderColorProvider = FutureProvider<Color>((ref) async {
       return const Color(0xFF4CAF50);
     }
   }
-  
+
   // Default green color
   return const Color(0xFF4CAF50);
 });

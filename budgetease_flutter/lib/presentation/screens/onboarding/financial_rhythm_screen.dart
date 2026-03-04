@@ -49,20 +49,20 @@ class FinancialRhythmScreen extends ConsumerWidget {
         children: [
           // Bouton retour
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Text(
             'À quelle fréquence recevez-vous votre revenu principal ?',
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Expanded(
             child: ListView.builder(
@@ -74,7 +74,7 @@ class FinancialRhythmScreen extends ConsumerWidget {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 16),
                   color: isSelected
-                      ? AppColors.primaryColor.withValues(alpha: 0.2)
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
                       : null,
                   child: InkWell(
                     onTap: () {
@@ -90,10 +90,10 @@ class FinancialRhythmScreen extends ConsumerWidget {
                             option.icon,
                             size: 40,
                             color: isSelected
-                                ? AppColors.primaryColor
-                                : AppColors.textSecondary,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +102,7 @@ class FinancialRhythmScreen extends ConsumerWidget {
                                   option.title,
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(
                                   option.subtitle,
                                   style: Theme.of(context).textTheme.bodyMedium,
@@ -111,9 +111,9 @@ class FinancialRhythmScreen extends ConsumerWidget {
                             ),
                           ),
                           if (isSelected)
-                            const Icon(
-                              Icons.check_circle,
-                              color: AppColors.primaryColor,
+                            Icon(
+                              Icons.check_circle_outline,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                         ],
                       ),
@@ -134,7 +134,7 @@ class FinancialRhythmScreen extends ConsumerWidget {
                           .nextStep();
                     }
                   : null,
-              child: const Text('Continuer'),
+              child: Text('Continuer'),
             ),
           ),
         ],

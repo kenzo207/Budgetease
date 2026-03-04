@@ -44,9 +44,9 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Authentification biométrique échouée'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -89,20 +89,20 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Text(
             'Verrouillage de l\'application',
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           Text(
             'Protégez vos données financières',
@@ -118,32 +118,32 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
               height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryColor.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.lock_outline,
                 size: 60,
-                color: AppColors.primaryColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
           
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           // Message d'avertissement
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.warningColor.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.warningColor.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.warning_amber, color: AppColors.warningColor),
-                const SizedBox(width: 12),
+                Icon(Icons.warning_amber_outlined, color: Theme.of(context).colorScheme.primary),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Vous devez configurer une méthode de sécurité pour continuer',
@@ -167,17 +167,17 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: _isSettingUp ? null : _setupBiometric,
-                        icon: const Icon(Icons.fingerprint),
-                        label: const Text('Activer la biométrie'),
+                        icon: Icon(Icons.fingerprint),
+                        label: Text('Activer la biométrie'),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: _isSettingUp ? null : _setupPin,
-                        icon: const Icon(Icons.pin),
-                        label: const Text('Créer un code PIN'),
+                        icon: Icon(Icons.pin),
+                        label: Text('Créer un code PIN'),
                       ),
                     ),
                   ],
@@ -187,8 +187,8 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _isSettingUp ? null : _setupPin,
-                    icon: const Icon(Icons.pin),
-                    label: const Text('Créer un code PIN'),
+                    icon: Icon(Icons.pin),
+                    label: Text('Créer un code PIN'),
                   ),
                 );
               }
@@ -196,7 +196,7 @@ class _SecuritySetupScreenState extends ConsumerState<SecuritySetupScreen> {
           ),
           
           if (_isSettingUp)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 16),
               child: Center(child: CircularProgressIndicator()),
             ),

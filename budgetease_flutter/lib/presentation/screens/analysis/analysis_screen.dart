@@ -35,7 +35,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final categoriesAsync = ref.watch(categoriesProviderProvider);
 
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed to use theme
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed to use theme
       body: SafeArea(
         child: Column(
           children: [
@@ -49,14 +49,14 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     'Analyse',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   // Month Selector
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.chevron_left),
+                        icon: Icon(Icons.chevron_left),
                         onPressed: () {
                           setState(() {
                             _selectedMonth = DateTime(
@@ -78,7 +78,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.chevron_right),
+                        icon: Icon(Icons.chevron_right),
                         onPressed: () {
                           final nextMonth = DateTime(
                             _selectedMonth.year,
@@ -158,36 +158,36 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                     'Revenus',
                                     totalIncome,
                                     currency,
-                                    AppColors.accentColor,
+                                    Theme.of(context).colorScheme.primary,
                                     Icons.arrow_upward,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
                                   child: _buildSummaryCard(
                                     context,
                                     'Dépenses',
                                     totalExpenses,
                                     currency,
-                                    AppColors.errorColor,
+                                    Theme.of(context).colorScheme.primary,
                                     Icons.arrow_downward,
                                   ),
                                 ),
                               ],
                             ),
                             
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             
                             _buildSummaryCard(
                               context,
                               'Solde',
                               balance,
                               currency,
-                              balance >= 0 ? AppColors.accentColor : AppColors.errorColor,
+                              balance >= 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
                               balance >= 0 ? Icons.trending_up : Icons.trending_down,
                             ),
 
-                            const SizedBox(height: 32),
+                            SizedBox(height: 32),
 
                             // Expenses by Category
                             if (sortedCategories.isNotEmpty) ...[
@@ -195,7 +195,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                 'Dépenses par catégorie',
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               
                               ...sortedCategories.map((entry) {
                                 final category = categories.firstWhere(
@@ -220,17 +220,17 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                               Center(
                                 child: Column(
                                   children: [
-                                    const SizedBox(height: 48),
+                                    SizedBox(height: 48),
                                     Icon(
                                       Icons.pie_chart_outline,
                                       size: 64,
-                                      color: AppColors.textSecondary.withValues(alpha: 0.5),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.5),
                                     ),
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 16),
                                     Text(
                                       'Aucune dépense ce mois-ci',
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            color: AppColors.textSecondary,
+                                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                     ),
                                   ],
@@ -238,17 +238,17 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                               ),
                             ],
                             
-                            const SizedBox(height: 32),
+                            SizedBox(height: 32),
                           ],
                         ),
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, s) => const Center(child: Text('Erreur de chargement')),
+                    loading: () => Center(child: CircularProgressIndicator()),
+                    error: (e, s) => Center(child: Text('Erreur de chargement')),
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(child: Text('Erreur de chargement')),
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (_, __) => Center(child: Text('Erreur de chargement')),
               ),
             ),
           ],
@@ -274,16 +274,16 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
             Row(
               children: [
                 Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '${amount.toStringAsFixed(0)} $currency',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -323,7 +323,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       color: UIHelpers.getCategoryColor(categoryType),
                       size: 20,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       categoryName,
                       style: Theme.of(context).textTheme.titleMedium,
@@ -338,7 +338,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -346,7 +346,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: percentage / 100,
-                      backgroundColor: AppColors.surfaceColor,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       valueColor: AlwaysStoppedAnimation<Color>(
                         UIHelpers.getCategoryColor(categoryType),
                       ),
@@ -354,11 +354,11 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text(
                   '${percentage.toStringAsFixed(1)}%',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ],

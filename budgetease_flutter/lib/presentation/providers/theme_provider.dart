@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/tables/settings_table.dart';
 import 'package:drift/drift.dart' as drift;
+import 'database_provider.dart';
 
 part 'theme_provider.g.dart';
 
@@ -10,8 +11,7 @@ part 'theme_provider.g.dart';
 class ThemeProvider extends _$ThemeProvider {
   @override
   Future<ThemeMode> build() async {
-    final database = AppDatabase();
-    // Load settings from DB
+    final database = ref.watch(databaseProvider);
     try {
       final settings = await database.select(database.settings).getSingleOrNull();
       if (settings != null) {
@@ -25,7 +25,7 @@ class ThemeProvider extends _$ThemeProvider {
 
   /// Update theme mode in DB and state
   Future<void> setThemeMode(ThemeMode mode) async {
-    final database = AppDatabase();
+    final database = ref.read(databaseProvider);
     state = AsyncData(mode); // Optimistic update
 
     try {
@@ -40,7 +40,6 @@ class ThemeProvider extends _$ThemeProvider {
       }
     } catch (e) {
       print('Error saving theme: $e');
-      // Revert on error?
       ref.invalidateSelf();
     }
   }

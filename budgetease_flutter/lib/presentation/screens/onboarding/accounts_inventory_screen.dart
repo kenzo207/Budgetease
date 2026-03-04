@@ -35,12 +35,14 @@ class _AccountsInventoryScreenState
     extends ConsumerState<AccountsInventoryScreen> {
   final Map<AccountType, bool> _selectedAccounts = {};
   final Map<AccountType, TextEditingController> _amountControllers = {};
-  String? _selectedMobileOperator;
+
+  static const _momoTypes = [AccountType.mobileMoney];
 
   @override
   void initState() {
     super.initState();
     for (var type in AccountType.values) {
+      if (_momoTypes.contains(type)) continue; // MoMo géré par MomoSetupScreen
       _amountControllers[type] = TextEditingController();
     }
   }
@@ -75,7 +77,6 @@ class _AccountsInventoryScreenState
         accounts.add(AccountToCreate(
           type: type,
           balance: amount,
-          operator: type == AccountType.mobileMoney ? _selectedMobileOperator : null,
         ));
       }
     });
@@ -97,15 +98,20 @@ class _AccountsInventoryScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: Icon(Icons.arrow_back),
                 onPressed: () {
                   ref.read(onboardingControllerProvider.notifier).previousStep();
                 },
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Text(
-                'Où se trouve votre argent actuellement ?',
+                'Vos autres comptes',
                 style: Theme.of(context).textTheme.displayMedium,
+              ),
+              SizedBox(height: 6),
+              Text(
+                "Esp\u00e8ces, banque, \u00e9pargne. Le compte Mobile Money a \u00e9t\u00e9 configur\u00e9 \u00e0 l'\u00e9tape pr\u00e9c\u00e9dente.",
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),
@@ -119,26 +125,19 @@ class _AccountsInventoryScreenState
               _buildAccountCard(
                 AccountType.cash,
                 'Espèces (Cash)',
-                Icons.money,
+                Icons.payments_outlined,
                 currency,
-              ),
-              _buildAccountCard(
-                AccountType.mobileMoney,
-                'Mobile Money',
-                Icons.phone_android,
-                currency,
-                hasOperator: true,
               ),
               _buildAccountCard(
                 AccountType.bank,
                 'Compte Bancaire',
-                Icons.account_balance,
+                Icons.account_balance_outlined,
                 currency,
               ),
               _buildAccountCard(
                 AccountType.savings,
                 'Épargne',
-                Icons.savings,
+                Icons.savings_outlined,
                 currency,
               ),
             ],
@@ -149,7 +148,7 @@ class _AccountsInventoryScreenState
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surfaceColor,
+            color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),
@@ -170,17 +169,17 @@ class _AccountsInventoryScreenState
                   Text(
                     '${_totalBalance.toStringAsFixed(0)} $currency',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          color: AppColors.accentColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _canContinue ? _onContinue : null,
-                  child: const Text('Continuer'),
+                  child: Text('Continuer'),
                 ),
               ),
             ],
@@ -195,7 +194,7 @@ class _AccountsInventoryScreenState
     String name,
     IconData icon,
     String currency, {
-    bool hasOperator = false,
+    bool hasOperator = false, // paramètre gardé pour compatibilité future
   }) {
     final isSelected = _selectedAccounts[type] ?? false;
 
@@ -215,33 +214,14 @@ class _AccountsInventoryScreenState
               title: Row(
                 children: [
                   Icon(icon),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(name),
                 ],
               ),
               contentPadding: EdgeInsets.zero,
             ),
             if (isSelected) ...[
-              const SizedBox(height: 8),
-              if (hasOperator)
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedMobileOperator,
-                  decoration: const InputDecoration(
-                    labelText: 'Opérateur',
-                  ),
-                  items: AppConstants.mobileMoneyOperators.map((op) {
-                    return DropdownMenuItem(
-                      value: op,
-                      child: Text(op),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedMobileOperator = value;
-                    });
-                  },
-                ),
-              if (hasOperator) const SizedBox(height: 8),
+              SizedBox(height: 8),
               TextField(
                 controller: _amountControllers[type],
                 keyboardType: TextInputType.number,

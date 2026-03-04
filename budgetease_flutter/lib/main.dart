@@ -220,8 +220,8 @@ class _ErrorScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 64, color: Colors.red),
+            SizedBox(height: 16),
             Text('Erreur: $error'),
           ],
         ),

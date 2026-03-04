@@ -5388,6 +5388,479 @@ class BehavioralProfilesCompanion extends UpdateCompanion<BehavioralProfile> {
   }
 }
 
+class $RecurringIncomesTable extends RecurringIncomes
+    with TableInfo<$RecurringIncomesTable, RecurringIncome> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecurringIncomesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  @override
+  late final GeneratedColumnWithTypeConverter<IncomeCategory, int> type =
+      GeneratedColumn<int>('type', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<IncomeCategory>($RecurringIncomesTable.$convertertype);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  late final GeneratedColumnWithTypeConverter<IncomeFrequency, int> frequency =
+      GeneratedColumn<int>('frequency', aliasedName, false,
+              type: DriftSqlType.int, requiredDuringInsert: true)
+          .withConverter<IncomeFrequency>(
+              $RecurringIncomesTable.$converterfrequency);
+  static const VerificationMeta _daysPerWeekMeta =
+      const VerificationMeta('daysPerWeek');
+  @override
+  late final GeneratedColumn<int> daysPerWeek = GeneratedColumn<int>(
+      'days_per_week', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _nextDepositDateMeta =
+      const VerificationMeta('nextDepositDate');
+  @override
+  late final GeneratedColumn<DateTime> nextDepositDate =
+      GeneratedColumn<DateTime>('next_deposit_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        type,
+        amount,
+        frequency,
+        daysPerWeek,
+        nextDepositDate,
+        isActive,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recurring_incomes';
+  @override
+  VerificationContext validateIntegrity(Insertable<RecurringIncome> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('days_per_week')) {
+      context.handle(
+          _daysPerWeekMeta,
+          daysPerWeek.isAcceptableOrUnknown(
+              data['days_per_week']!, _daysPerWeekMeta));
+    }
+    if (data.containsKey('next_deposit_date')) {
+      context.handle(
+          _nextDepositDateMeta,
+          nextDepositDate.isAcceptableOrUnknown(
+              data['next_deposit_date']!, _nextDepositDateMeta));
+    } else if (isInserting) {
+      context.missing(_nextDepositDateMeta);
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RecurringIncome map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecurringIncome(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: $RecurringIncomesTable.$convertertype.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!),
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      frequency: $RecurringIncomesTable.$converterfrequency.fromSql(
+          attachedDatabase.typeMapping
+              .read(DriftSqlType.int, data['${effectivePrefix}frequency'])!),
+      daysPerWeek: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}days_per_week']),
+      nextDepositDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}next_deposit_date'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $RecurringIncomesTable createAlias(String alias) {
+    return $RecurringIncomesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<IncomeCategory, int, int> $convertertype =
+      const EnumIndexConverter<IncomeCategory>(IncomeCategory.values);
+  static JsonTypeConverter2<IncomeFrequency, int, int> $converterfrequency =
+      const EnumIndexConverter<IncomeFrequency>(IncomeFrequency.values);
+}
+
+class RecurringIncome extends DataClass implements Insertable<RecurringIncome> {
+  final int id;
+  final String name;
+  final IncomeCategory type;
+  final double amount;
+  final IncomeFrequency frequency;
+  final int? daysPerWeek;
+  final DateTime nextDepositDate;
+  final bool isActive;
+  final DateTime createdAt;
+  const RecurringIncome(
+      {required this.id,
+      required this.name,
+      required this.type,
+      required this.amount,
+      required this.frequency,
+      this.daysPerWeek,
+      required this.nextDepositDate,
+      required this.isActive,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    {
+      map['type'] =
+          Variable<int>($RecurringIncomesTable.$convertertype.toSql(type));
+    }
+    map['amount'] = Variable<double>(amount);
+    {
+      map['frequency'] = Variable<int>(
+          $RecurringIncomesTable.$converterfrequency.toSql(frequency));
+    }
+    if (!nullToAbsent || daysPerWeek != null) {
+      map['days_per_week'] = Variable<int>(daysPerWeek);
+    }
+    map['next_deposit_date'] = Variable<DateTime>(nextDepositDate);
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  RecurringIncomesCompanion toCompanion(bool nullToAbsent) {
+    return RecurringIncomesCompanion(
+      id: Value(id),
+      name: Value(name),
+      type: Value(type),
+      amount: Value(amount),
+      frequency: Value(frequency),
+      daysPerWeek: daysPerWeek == null && nullToAbsent
+          ? const Value.absent()
+          : Value(daysPerWeek),
+      nextDepositDate: Value(nextDepositDate),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory RecurringIncome.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecurringIncome(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      type: $RecurringIncomesTable.$convertertype
+          .fromJson(serializer.fromJson<int>(json['type'])),
+      amount: serializer.fromJson<double>(json['amount']),
+      frequency: $RecurringIncomesTable.$converterfrequency
+          .fromJson(serializer.fromJson<int>(json['frequency'])),
+      daysPerWeek: serializer.fromJson<int?>(json['daysPerWeek']),
+      nextDepositDate: serializer.fromJson<DateTime>(json['nextDepositDate']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'type': serializer
+          .toJson<int>($RecurringIncomesTable.$convertertype.toJson(type)),
+      'amount': serializer.toJson<double>(amount),
+      'frequency': serializer.toJson<int>(
+          $RecurringIncomesTable.$converterfrequency.toJson(frequency)),
+      'daysPerWeek': serializer.toJson<int?>(daysPerWeek),
+      'nextDepositDate': serializer.toJson<DateTime>(nextDepositDate),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  RecurringIncome copyWith(
+          {int? id,
+          String? name,
+          IncomeCategory? type,
+          double? amount,
+          IncomeFrequency? frequency,
+          Value<int?> daysPerWeek = const Value.absent(),
+          DateTime? nextDepositDate,
+          bool? isActive,
+          DateTime? createdAt}) =>
+      RecurringIncome(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        amount: amount ?? this.amount,
+        frequency: frequency ?? this.frequency,
+        daysPerWeek: daysPerWeek.present ? daysPerWeek.value : this.daysPerWeek,
+        nextDepositDate: nextDepositDate ?? this.nextDepositDate,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  RecurringIncome copyWithCompanion(RecurringIncomesCompanion data) {
+    return RecurringIncome(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      daysPerWeek:
+          data.daysPerWeek.present ? data.daysPerWeek.value : this.daysPerWeek,
+      nextDepositDate: data.nextDepositDate.present
+          ? data.nextDepositDate.value
+          : this.nextDepositDate,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringIncome(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('frequency: $frequency, ')
+          ..write('daysPerWeek: $daysPerWeek, ')
+          ..write('nextDepositDate: $nextDepositDate, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, type, amount, frequency,
+      daysPerWeek, nextDepositDate, isActive, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecurringIncome &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.amount == this.amount &&
+          other.frequency == this.frequency &&
+          other.daysPerWeek == this.daysPerWeek &&
+          other.nextDepositDate == this.nextDepositDate &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt);
+}
+
+class RecurringIncomesCompanion extends UpdateCompanion<RecurringIncome> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<IncomeCategory> type;
+  final Value<double> amount;
+  final Value<IncomeFrequency> frequency;
+  final Value<int?> daysPerWeek;
+  final Value<DateTime> nextDepositDate;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
+  const RecurringIncomesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.daysPerWeek = const Value.absent(),
+    this.nextDepositDate = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  RecurringIncomesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required IncomeCategory type,
+    required double amount,
+    required IncomeFrequency frequency,
+    this.daysPerWeek = const Value.absent(),
+    required DateTime nextDepositDate,
+    this.isActive = const Value.absent(),
+    required DateTime createdAt,
+  })  : name = Value(name),
+        type = Value(type),
+        amount = Value(amount),
+        frequency = Value(frequency),
+        nextDepositDate = Value(nextDepositDate),
+        createdAt = Value(createdAt);
+  static Insertable<RecurringIncome> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<int>? type,
+    Expression<double>? amount,
+    Expression<int>? frequency,
+    Expression<int>? daysPerWeek,
+    Expression<DateTime>? nextDepositDate,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (amount != null) 'amount': amount,
+      if (frequency != null) 'frequency': frequency,
+      if (daysPerWeek != null) 'days_per_week': daysPerWeek,
+      if (nextDepositDate != null) 'next_deposit_date': nextDepositDate,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  RecurringIncomesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<IncomeCategory>? type,
+      Value<double>? amount,
+      Value<IncomeFrequency>? frequency,
+      Value<int?>? daysPerWeek,
+      Value<DateTime>? nextDepositDate,
+      Value<bool>? isActive,
+      Value<DateTime>? createdAt}) {
+    return RecurringIncomesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      frequency: frequency ?? this.frequency,
+      daysPerWeek: daysPerWeek ?? this.daysPerWeek,
+      nextDepositDate: nextDepositDate ?? this.nextDepositDate,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(
+          $RecurringIncomesTable.$convertertype.toSql(type.value));
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<int>(
+          $RecurringIncomesTable.$converterfrequency.toSql(frequency.value));
+    }
+    if (daysPerWeek.present) {
+      map['days_per_week'] = Variable<int>(daysPerWeek.value);
+    }
+    if (nextDepositDate.present) {
+      map['next_deposit_date'] = Variable<DateTime>(nextDepositDate.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringIncomesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('amount: $amount, ')
+          ..write('frequency: $frequency, ')
+          ..write('daysPerWeek: $daysPerWeek, ')
+          ..write('nextDepositDate: $nextDepositDate, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabase.connect(DatabaseConnection c) : super.connect(c);
@@ -5404,12 +5877,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $InsightsTable insights = $InsightsTable(this);
   late final $BehavioralProfilesTable behavioralProfiles =
       $BehavioralProfilesTable(this);
+  late final $RecurringIncomesTable recurringIncomes =
+      $RecurringIncomesTable(this);
   late final AccountsDao accountsDao = AccountsDao(this as AppDatabase);
   late final TransactionsDao transactionsDao =
       TransactionsDao(this as AppDatabase);
   late final CategoriesDao categoriesDao = CategoriesDao(this as AppDatabase);
   late final RecurringChargesDao recurringChargesDao =
       RecurringChargesDao(this as AppDatabase);
+  late final RecurringIncomesDao recurringIncomesDao =
+      RecurringIncomesDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5423,7 +5900,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         settings,
         incomePatterns,
         insights,
-        behavioralProfiles
+        behavioralProfiles,
+        recurringIncomes
       ];
   @override
   DriftDatabaseOptions get options =>
@@ -8439,6 +8917,240 @@ typedef $$BehavioralProfilesTableProcessedTableManager = ProcessedTableManager<
     ),
     BehavioralProfile,
     PrefetchHooks Function()>;
+typedef $$RecurringIncomesTableCreateCompanionBuilder
+    = RecurringIncomesCompanion Function({
+  Value<int> id,
+  required String name,
+  required IncomeCategory type,
+  required double amount,
+  required IncomeFrequency frequency,
+  Value<int?> daysPerWeek,
+  required DateTime nextDepositDate,
+  Value<bool> isActive,
+  required DateTime createdAt,
+});
+typedef $$RecurringIncomesTableUpdateCompanionBuilder
+    = RecurringIncomesCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<IncomeCategory> type,
+  Value<double> amount,
+  Value<IncomeFrequency> frequency,
+  Value<int?> daysPerWeek,
+  Value<DateTime> nextDepositDate,
+  Value<bool> isActive,
+  Value<DateTime> createdAt,
+});
+
+class $$RecurringIncomesTableFilterComposer
+    extends Composer<_$AppDatabase, $RecurringIncomesTable> {
+  $$RecurringIncomesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<IncomeCategory, IncomeCategory, int>
+      get type => $composableBuilder(
+          column: $table.type,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<IncomeFrequency, IncomeFrequency, int>
+      get frequency => $composableBuilder(
+          column: $table.frequency,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<int> get daysPerWeek => $composableBuilder(
+      column: $table.daysPerWeek, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get nextDepositDate => $composableBuilder(
+      column: $table.nextDepositDate,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$RecurringIncomesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RecurringIncomesTable> {
+  $$RecurringIncomesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get frequency => $composableBuilder(
+      column: $table.frequency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get daysPerWeek => $composableBuilder(
+      column: $table.daysPerWeek, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get nextDepositDate => $composableBuilder(
+      column: $table.nextDepositDate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$RecurringIncomesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RecurringIncomesTable> {
+  $$RecurringIncomesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<IncomeCategory, int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<IncomeFrequency, int> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<int> get daysPerWeek => $composableBuilder(
+      column: $table.daysPerWeek, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextDepositDate => $composableBuilder(
+      column: $table.nextDepositDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$RecurringIncomesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RecurringIncomesTable,
+    RecurringIncome,
+    $$RecurringIncomesTableFilterComposer,
+    $$RecurringIncomesTableOrderingComposer,
+    $$RecurringIncomesTableAnnotationComposer,
+    $$RecurringIncomesTableCreateCompanionBuilder,
+    $$RecurringIncomesTableUpdateCompanionBuilder,
+    (
+      RecurringIncome,
+      BaseReferences<_$AppDatabase, $RecurringIncomesTable, RecurringIncome>
+    ),
+    RecurringIncome,
+    PrefetchHooks Function()> {
+  $$RecurringIncomesTableTableManager(
+      _$AppDatabase db, $RecurringIncomesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RecurringIncomesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RecurringIncomesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RecurringIncomesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<IncomeCategory> type = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<IncomeFrequency> frequency = const Value.absent(),
+            Value<int?> daysPerWeek = const Value.absent(),
+            Value<DateTime> nextDepositDate = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              RecurringIncomesCompanion(
+            id: id,
+            name: name,
+            type: type,
+            amount: amount,
+            frequency: frequency,
+            daysPerWeek: daysPerWeek,
+            nextDepositDate: nextDepositDate,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            required IncomeCategory type,
+            required double amount,
+            required IncomeFrequency frequency,
+            Value<int?> daysPerWeek = const Value.absent(),
+            required DateTime nextDepositDate,
+            Value<bool> isActive = const Value.absent(),
+            required DateTime createdAt,
+          }) =>
+              RecurringIncomesCompanion.insert(
+            id: id,
+            name: name,
+            type: type,
+            amount: amount,
+            frequency: frequency,
+            daysPerWeek: daysPerWeek,
+            nextDepositDate: nextDepositDate,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$RecurringIncomesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $RecurringIncomesTable,
+    RecurringIncome,
+    $$RecurringIncomesTableFilterComposer,
+    $$RecurringIncomesTableOrderingComposer,
+    $$RecurringIncomesTableAnnotationComposer,
+    $$RecurringIncomesTableCreateCompanionBuilder,
+    $$RecurringIncomesTableUpdateCompanionBuilder,
+    (
+      RecurringIncome,
+      BaseReferences<_$AppDatabase, $RecurringIncomesTable, RecurringIncome>
+    ),
+    RecurringIncome,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8461,4 +9173,6 @@ class $AppDatabaseManager {
       $$InsightsTableTableManager(_db, _db.insights);
   $$BehavioralProfilesTableTableManager get behavioralProfiles =>
       $$BehavioralProfilesTableTableManager(_db, _db.behavioralProfiles);
+  $$RecurringIncomesTableTableManager get recurringIncomes =>
+      $$RecurringIncomesTableTableManager(_db, _db.recurringIncomes);
 }

@@ -4,12 +4,12 @@ import '../../domain/services/income_predictor_service.dart';
 import '../../domain/services/insights_service.dart';
 import '../../domain/services/behavioral_profiler_service.dart';
 import '../../domain/services/advisory_service.dart';
+import 'database_provider.dart';
 
 // ========== Database Provider ==========
-
-final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
-});
+// Le provider singleton est défini dans database_provider.dart
+// Il est réexporté ici pour compatibilité avec les imports existants.
+export 'database_provider.dart' show databaseProvider;
 
 // ========== Service Providers ==========
 

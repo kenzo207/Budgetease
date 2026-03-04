@@ -86,7 +86,7 @@ class SmsParserService {
 
     final messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 200,
+      count: 500, // Bug #4 fix: augmentation de la limite pour éviter de rater des transactions
     );
 
     int newTransactions = 0;
@@ -140,9 +140,14 @@ class SmsParserService {
     }
 
     // Sauvegarder le timestamp du scan
+    // Bug #5 fix: on utilise toujours l'heure du scan pour que le timestamp
+    // progresse même si aucun SMS MoMo n'a été trouvé, évitant les rescans inutiles.
+    final scanTime = latestSmsDate.isAfter(lastScanDate)
+        ? latestSmsDate
+        : DateTime.now();
     await prefs.setInt(
       _lastScanTimestampKey,
-      latestSmsDate.millisecondsSinceEpoch,
+      scanTime.millisecondsSinceEpoch,
     );
 
     return newTransactions;
@@ -157,11 +162,12 @@ class SmsParserService {
           .getSingleOrNull();
       return existing != null;
     }
-    // Sinon, on vérifie par le SMS brut
-    final existing = await (_database.select(_database.pendingTransactions)
-          ..where((t) => t.rawSms.equals(rawSms)))
-        .getSingleOrNull();
-    return existing != null;
+    // Bug #7 fix: normaliser le SMS brut (collapse whitespace) avant comparaison
+    // pour éviter les faux doublons si le texte varie légèrement en espaces.
+    final normalizedRaw = rawSms.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final allPending = await _database.select(_database.pendingTransactions).get();
+    return allPending.any((t) =>
+        t.rawSms.trim().replaceAll(RegExp(r'\s+'), ' ') == normalizedRaw);
   }
 
   /// Trouver l'ID du compte Mobile Money correspondant à l'opérateur
@@ -208,7 +214,7 @@ class SmsParserService {
     final senderUpper = sender.toUpperCase();
 
     // MTN MoMo (Bénin)
-    if (senderUpper.contains('MTN') || senderUpper.contains('MOMO') || senderUpper.contains('MOMO')) {
+    if (senderUpper.contains('MTN') || senderUpper.contains('MOMO')) {
       return _parseMtnMomoBenin(body, date);
     }
     // Wave
@@ -387,17 +393,23 @@ class SmsParserService {
     final amount = double.tryParse(cleanAmount) ?? 0.0;
     if (amount <= 0) return null;
 
-    // Déterminer le type par mots-clés
+    // Bug #6 fix: détection du type avec des mots-clés plus spécifiques
+    // pour réduire les faux positifs sur des mots courts comme "de" ou "à".
     final bodyLower = body.toLowerCase();
     MomoTransactionType type = MomoTransactionType.unknown;
-    if (bodyLower.contains('reçu') || bodyLower.contains('recu') || bodyLower.contains(' de ')) {
+    if (bodyLower.contains('reçu') || bodyLower.contains('recu') ||
+        bodyLower.contains('vous avez re') || bodyLower.contains('crédité')) {
       type = MomoTransactionType.transferIn;
-    } else if (bodyLower.contains('envoy') || bodyLower.contains(' a ') || bodyLower.contains('transfert')) {
+    } else if (bodyLower.contains('envoy') || bodyLower.contains('transfert') ||
+        bodyLower.contains('vous avez envoy') || bodyLower.contains('débité')) {
       type = MomoTransactionType.transferOut;
     } else if (bodyLower.contains('retrait')) {
       type = MomoTransactionType.withdrawal;
-    } else if (bodyLower.contains('paiement') || bodyLower.contains('achat')) {
+    } else if (bodyLower.contains('paiement') || bodyLower.contains('achat') ||
+        bodyLower.contains('marchand')) {
       type = MomoTransactionType.payment;
+    } else if (bodyLower.contains('depôt') || bodyLower.contains('depot')) {
+      type = MomoTransactionType.deposit;
     }
 
     // Extraire le solde
@@ -461,6 +473,8 @@ class SmsParserService {
   }
 
   /// Valider une transaction et l'ajouter aux vraies transactions
+  /// Bug #2 fix: toutes les opérations sont dans une transaction DB atomique.
+  /// Si une étape échoue, rien n'est persisté (pas de double transaction possible).
   Future<void> approveTransaction({
     required int pendingId,
     required int categoryId,
@@ -473,51 +487,53 @@ class SmsParserService {
 
     if (pending == null) return;
 
-    // Déterminer le type de transaction
-    final isIncome = pending.momoType == MomoTransactionType.transferIn ||
-        pending.momoType == MomoTransactionType.deposit;
+    await _database.transaction(() async {
+      // Déterminer le type de transaction
+      final isIncome = pending.momoType == MomoTransactionType.transferIn ||
+          pending.momoType == MomoTransactionType.deposit;
 
-    // Créer la vraie transaction
-    await _database.into(_database.transactions).insert(
-      TransactionsCompanion(
-        amount: Value(pending.amount),
-        type: Value(isIncome
-            ? TransactionType.income
-            : TransactionType.expense),
-        date: Value(pending.transactionDate ?? pending.smsDate),
-        categoryId: Value(categoryId),
-        accountId: Value(accountId),
-        feeAmount: Value(pending.fee > 0 ? pending.fee : null),
-        description: Value(_buildDescription(pending)),
-        source: Value(isIncome ? pending.operator : null),
-        isException: Value(!countsInBudget),
-        createdAt: Value(DateTime.now()),
-      ),
-    );
+      // Créer la vraie transaction
+      await _database.into(_database.transactions).insert(
+        TransactionsCompanion(
+          amount: Value(pending.amount),
+          type: Value(isIncome
+              ? TransactionType.income
+              : TransactionType.expense),
+          date: Value(pending.transactionDate ?? pending.smsDate),
+          categoryId: Value(categoryId),
+          accountId: Value(accountId),
+          feeAmount: Value(pending.fee > 0 ? pending.fee : null),
+          description: Value(_buildDescription(pending)),
+          source: Value(isIncome ? pending.operator : null),
+          isException: Value(!countsInBudget),
+          createdAt: Value(DateTime.now()),
+        ),
+      );
 
-    // Mettre à jour le solde du compte
-    final account = await (_database.select(_database.accounts)
-          ..where((a) => a.id.equals(accountId)))
-        .getSingleOrNull();
+      // Mettre à jour le solde du compte
+      final account = await (_database.select(_database.accounts)
+            ..where((a) => a.id.equals(accountId)))
+          .getSingleOrNull();
 
-    if (account != null) {
-      double newBalance;
-      if (pending.balanceAfter != null) {
-        // Si on a le solde post-transaction, l'utiliser directement
-        newBalance = pending.balanceAfter!;
-      } else {
-        // Sinon, calculer manuellement
-        newBalance = isIncome
-            ? account.currentBalance + pending.amount
-            : account.currentBalance - pending.amount - pending.fee;
+      if (account != null) {
+        double newBalance;
+        if (pending.balanceAfter != null) {
+          // Si on a le solde post-transaction depuis le SMS, l'utiliser directement
+          newBalance = pending.balanceAfter!;
+        } else {
+          // Sinon, calculer manuellement
+          newBalance = isIncome
+              ? account.currentBalance + pending.amount
+              : account.currentBalance - pending.amount - pending.fee;
+        }
+        await _updateAccountBalance(accountId, newBalance);
       }
-      await _updateAccountBalance(accountId, newBalance);
-    }
 
-    // Marquer comme traitée
-    await (_database.update(_database.pendingTransactions)
-          ..where((t) => t.id.equals(pendingId)))
-        .write(const PendingTransactionsCompanion(isProcessed: Value(true)));
+      // Marquer comme traitée (dans la même transaction atomique)
+      await (_database.update(_database.pendingTransactions)
+            ..where((t) => t.id.equals(pendingId)))
+          .write(const PendingTransactionsCompanion(isProcessed: Value(true)));
+    });
   }
 
   /// Rejeter une transaction (la marquer comme traitée sans la créer)

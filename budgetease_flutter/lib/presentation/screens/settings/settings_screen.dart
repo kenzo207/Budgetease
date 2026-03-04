@@ -12,6 +12,9 @@ import '../../providers/theme_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/sms_parser_provider.dart';
 import '../../../services/analytics_service.dart';
+import '../charges/charges_screen.dart';
+import '../incomes/incomes_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Écran des paramètres
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -52,7 +55,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final calibrationData = ref.watch(calibrationDataProvider);
 
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed to use theme
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed to use theme
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -68,11 +71,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       'Paramètres',
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Bonjour, ${calibrationData.userName} 👋',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            // color: AppColors.textSecondary, // Removed to use theme
+                            // color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), // Removed to use theme
                           ),
                     ),
                   ],
@@ -85,11 +88,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(
                   'Profil',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               
               _buildSettingCard(
                 context,
@@ -126,7 +129,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 },
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // App Section
               Padding(
@@ -134,11 +137,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(
                   'Application',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               
               _buildSettingCard(
                 context,
@@ -148,6 +151,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () => _showNotificationsDialog(context),
               ),
               
+              _buildSettingCard(
+                context,
+                icon: Icons.receipt_long_outlined,
+                title: 'Mes charges fixes',
+                subtitle: 'Loyer, factures, abonnements · Réserve journalière',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChargesScreen()),
+                ),
+              ),
+
+              _buildSettingCard(
+                context,
+                icon: Icons.inventory_2_outlined,
+                title: 'Mes rentrées régulières',
+                subtitle: 'Argent de poche, salaire, paie de chantier',
+                iconColor: Theme.of(context).colorScheme.primary,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const IncomesScreen()),
+                ),
+              ),
+
               _buildSettingCard(
                 context,
                 icon: Icons.category_outlined,
@@ -213,52 +239,72 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                 ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
-              // Data Section
+              // Données Section
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
                   'Données',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               
               _buildSettingCard(
                 context,
                 icon: Icons.backup_outlined,
                 title: 'Sauvegarde',
-                subtitle: 'Exporter vos données',
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture('data_export_triggered');
-                  _exportData(context);
-                },
+                subtitle: 'Export de données — prochainement',
+                iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               ),
               
               _buildSettingCard(
                 context,
                 icon: Icons.restore_outlined,
                 title: 'Restaurer',
-                subtitle: 'Importer des données',
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture('data_import_triggered');
-                  _importData(context);
-                },
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: Icons.refresh_outlined,
-                title: 'Réinitialiser l\'application',
-                subtitle: 'Supprimer toutes les données',
-                iconColor: AppColors.errorColor,
-                onTap: () => _showResetDialog(context),
+                subtitle: 'Import de données — prochainement',
+                iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
+
+              // ⚠️ Zone dangereuse — isolée visuellement
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Zone dangereuse',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: _buildSettingCard(
+                        context,
+                        icon: Icons.delete_forever_outlined,
+                        title: 'Réinitialiser l\'application',
+                        subtitle: 'Supprime toutes les données — action irréversible',
+                        iconColor: Theme.of(context).colorScheme.primary,
+                        onTap: () => _showResetDialog(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 24),
 
               // About Section
               Padding(
@@ -266,11 +312,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(
                   'À propos',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               
               _buildSettingCard(
                 context,
@@ -294,18 +340,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 },
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Center(
                 child: Text(
                   'Signé par Kenzo O\'Bryan',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                         fontStyle: FontStyle.italic,
                       ),
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
+
+              // Divers Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Aide & Tutoriel',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ),
+              SizedBox(height: 12),
+
+              _buildSettingCard(
+                context,
+                icon: Icons.lightbulb_outline,
+                title: 'Revoir le tutoriel',
+                subtitle: 'Relancer le guide visuel de l\'écran d\'accueil',
+                iconColor: Theme.of(context).colorScheme.primary,
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('has_seen_tutorial', false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Tutoriel réinitialisé ! Retournez à l\'accueil pour le voir.')),
+                    );
+                    Navigator.of(context).pop(); // Retourne de force à l'accueil
+                  }
+                },
+              ),
+
+              SizedBox(height: 32),
             ],
           ),
         ),
@@ -329,12 +407,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: (iconColor ?? AppColors.primaryColor).withValues(alpha: 0.2),
+            color: (iconColor ?? Theme.of(context).colorScheme.primary).withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: iconColor ?? AppColors.primaryColor,
+            color: iconColor ?? Theme.of(context).colorScheme.primary,
             size: 20,
           ),
         ),
@@ -350,7 +428,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             : null,
         trailing: trailing ??
             (onTap != null
-                ? const Icon(Icons.chevron_right, color: AppColors.textSecondary)
+                ? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
                 : null),
         onTap: onTap,
       ),
@@ -361,15 +439,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Réinitialiser l\'application ?'),
-        content: const Text(
+        title: Text('Réinitialiser l\'application ?'),
+        content: Text(
           'Cette action supprimera toutes vos données (comptes, transactions, paramètres). '
           'Cette action est irréversible.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -377,9 +455,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               await _resetApp(context);
             },
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.errorColor,
+              foregroundColor: Theme.of(context).colorScheme.primary,
             ),
-            child: const Text('Réinitialiser'),
+            child: Text('Réinitialiser'),
           ),
         ],
       ),
@@ -408,9 +486,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Application réinitialisée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -419,7 +497,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -432,7 +510,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Modifier le nom'),
+        title: Text('Modifier le nom'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -444,7 +522,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -454,7 +532,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Enregistrer'),
+            child: Text('Enregistrer'),
           ),
         ],
       ),
@@ -467,7 +545,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choisir la devise'),
+        title: Text('Choisir la devise'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: currencies.map((currency) {
@@ -487,7 +565,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
         ],
       ),
@@ -516,9 +594,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Nom mis à jour'),
-              backgroundColor: AppColors.accentColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -528,7 +606,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -557,9 +635,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Devise mise à jour'),
-              backgroundColor: AppColors.accentColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -569,7 +647,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -594,7 +672,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(value ? 'Analyse SMS activée' : 'Analyse SMS désactivée'),
-              backgroundColor: AppColors.accentColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -604,7 +682,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -626,7 +704,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Sauvegarde créée: $exportCount éléments\n(Fonctionnalité d\'export fichier à venir)'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 3),
           ),
         );
@@ -636,7 +714,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur lors de la sauvegarde: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -648,15 +726,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Restaurer les données'),
-        content: const Text(
+        title: Text('Restaurer les données'),
+        content: Text(
           'Cette fonctionnalité permet d\'importer des données depuis une sauvegarde.\n\n'
           'L\'import de fichiers sera disponible dans une prochaine version.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -667,22 +745,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Notifications'),
+        title: Text('Notifications'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Configurez vos préférences de notifications',
               style: TextStyle(fontSize: 14),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Budget alerts
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -692,7 +770,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       Text(
                         'Recevoir une alerte quand le budget est dépassé',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -712,13 +790,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
             
-            const Divider(),
+            Divider(),
             
             // Daily check-in
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -728,7 +806,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       Text(
                         'Petit rappel le soir pour noter vos dépenses',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                       ),
                     ],
                   ),
@@ -748,7 +826,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             
             // Test notification button
             SizedBox(
@@ -756,8 +834,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Consumer(
                 builder: (context, ref, child) {
                   return OutlinedButton.icon(
-                    icon: const Icon(Icons.notifications_active, size: 18),
-                    label: const Text('Tester les notifications'),
+                    icon: Icon(Icons.notifications_active_outlined, size: 18),
+                    label: Text('Tester les notifications'),
                     onPressed: () async {
                       final service = ref.read(notificationServiceProvider);
                       await service.showTestNotification();
@@ -771,7 +849,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Fermer'),
+            child: Text('Fermer'),
           ),
         ],
       ),
@@ -793,7 +871,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Couleur des bordures'),
+        title: Text('Couleur des bordures'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: colors.entries.map((entry) {
@@ -819,7 +897,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
         ],
       ),
@@ -845,9 +923,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Couleur mise à jour instantanément !'),
-              backgroundColor: AppColors.accentColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               duration: Duration(seconds: 2),
             ),
           );
@@ -858,7 +936,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -883,12 +961,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choisir le thème'),
+        title: Text('Choisir le thème'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<ThemeMode>(
-              title: const Text('Système'),
+              title: Text('Système'),
               value: ThemeMode.system,
               groupValue: currentmode,
               onChanged: (value) {
@@ -899,7 +977,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('Clair'),
+              title: Text('Clair'),
               value: ThemeMode.light,
               groupValue: currentmode,
               onChanged: (value) {
@@ -910,7 +988,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<ThemeMode>(
-              title: const Text('Sombre'),
+              title: Text('Sombre'),
               value: ThemeMode.dark,
               groupValue: currentmode,
               onChanged: (value) {
@@ -925,7 +1003,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
         ],
       ),

@@ -72,27 +72,27 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Text(
             'Vos dépenses obligatoires récurrentes',
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           Text(
             'Loyer, factures, abonnements...',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           if (_charges.isEmpty)
             Expanded(
@@ -100,12 +100,12 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.receipt_long_outlined,
                       size: 64,
-                      color: AppColors.textTertiary,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
                       'Aucune charge fixe ajoutée',
                       style: Theme.of(context).textTheme.bodyLarge,
@@ -134,7 +134,7 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete_outline),
+                            icon: Icon(Icons.delete_outline),
                             onPressed: () => _removeCharge(index),
                           ),
                         ],
@@ -150,7 +150,7 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceColor,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -163,7 +163,7 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
                   Text(
                     '${totalCharges.toStringAsFixed(0)} $currency',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.warningColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                   ),
                 ],
@@ -172,14 +172,14 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
           
           OutlinedButton.icon(
             onPressed: _addCharge,
-            icon: const Icon(Icons.add),
-            label: const Text('Ajouter une charge'),
+            icon: Icon(Icons.add),
+            label: Text('Ajouter une charge'),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
             ),
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           SizedBox(
             width: double.infinity,
@@ -196,19 +196,19 @@ class _FixedChargesScreenState extends ConsumerState<FixedChargesScreen> {
   IconData _getChargeIcon(ChargeType type) {
     switch (type) {
       case ChargeType.rent:
-        return Icons.home;
+        return Icons.home_outlined;
       case ChargeType.electricity:
         return Icons.bolt;
       case ChargeType.water:
-        return Icons.water_drop;
+        return Icons.water_drop_outlined;
       case ChargeType.internet:
-        return Icons.wifi;
+        return Icons.wifi_outlined;
       case ChargeType.school:
-        return Icons.school;
+        return Icons.school_outlined;
       case ChargeType.transport:
-        return Icons.directions_bus;
+        return Icons.directions_bus_outlined;
       case ChargeType.other:
-        return Icons.receipt;
+        return Icons.receipt_outlined;
     }
   }
 
@@ -274,7 +274,7 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Ajouter une charge fixe'),
+      title: Text('Ajouter une charge fixe'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -287,7 +287,7 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
               ),
               onChanged: (_) => setState(() {}),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             DropdownButtonFormField<ChargeType>(
               initialValue: _selectedType,
               decoration: const InputDecoration(labelText: 'Type'),
@@ -303,7 +303,7 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
                 });
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
@@ -319,11 +319,11 @@ class _AddChargeDialogState extends ConsumerState<_AddChargeDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
+          child: Text('Annuler'),
         ),
         ElevatedButton(
           onPressed: _canAdd ? _onAdd : null,
-          child: const Text('Ajouter'),
+          child: Text('Ajouter'),
         ),
       ],
     );

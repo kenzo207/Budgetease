@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
+import "../../core/utils/ui_helpers.dart";
+
 import '../../data/database/app_database.dart';
 import '../providers/phase7_providers.dart';
 
@@ -12,7 +14,7 @@ class GhostMoneyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
+    return UIHelpers.withSurfaceTheme(context, Card(
       color: AppColors.cardColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -172,6 +174,6 @@ class GhostMoneyCard extends ConsumerWidget {
           ],
         ),
       ),
-    );
+      ));
   }
 }

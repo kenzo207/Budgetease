@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/border_color_provider.dart';
+import "../../core/utils/ui_helpers.dart";
+
 
 /// Widget Card avec bordure dynamique
 class DynamicCard extends ConsumerWidget {
@@ -26,7 +28,7 @@ class DynamicCard extends ConsumerWidget {
     final borderAsync = ref.watch(cardBorderProvider);
 
     return borderAsync.when(
-      data: (border) => Container(
+        data: (border) => UIHelpers.withSurfaceTheme(context, Container(
         margin: margin,
         decoration: BoxDecoration(
           color: color ?? Theme.of(context).cardTheme.color,
@@ -40,7 +42,7 @@ class DynamicCard extends ConsumerWidget {
               ? Padding(padding: padding!, child: child)
               : child,
         ),
-      ),
+        )),
       loading: () => Card(
         margin: margin,
         elevation: elevation ?? 0,

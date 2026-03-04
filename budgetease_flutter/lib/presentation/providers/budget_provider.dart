@@ -6,6 +6,7 @@ import '../../data/database/daos/recurring_charges_dao.dart';
 import '../../domain/services/budget_calculator_service.dart';
 import '../../domain/services/cycle_manager_service.dart';
 import '../../domain/services/transport_manager_service.dart';
+import 'database_provider.dart';
 
 part 'budget_provider.g.dart';
 
@@ -14,14 +15,14 @@ part 'budget_provider.g.dart';
 class BudgetProvider extends _$BudgetProvider {
   @override
   Future<double> build() async {
-    final database = AppDatabase();
-    
+    final database = ref.watch(databaseProvider);
+
     // 1. Récupérer les paramètres globaux
     final settings = await database.select(database.settings).getSingle();
 
     // 2. Initialiser les services
     final cycleManager = CycleManagerService(cycle: settings.financialCycle);
-    
+
     final transportManager = TransportManagerService(
       mode: settings.transportMode,
       dailyCost: settings.dailyTransportCost,

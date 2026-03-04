@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/utils/ui_helpers.dart';
+
 import '../../data/database/tables/transactions_table.dart';
 import '../../data/database/tables/categories_table.dart';
 import '../../data/database/app_database.dart';
@@ -26,7 +28,7 @@ class TriageZoneWidget extends ConsumerWidget {
 
         return Card(
           margin: const EdgeInsets.all(16),
-          color: AppColors.warningColor.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           child: InkWell(
             onTap: () {
               _showTriageDialog(context, ref, pending);
@@ -40,15 +42,15 @@ class TriageZoneWidget extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.warningColor.withValues(alpha: 0.2),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.notification_important,
-                      color: AppColors.warningColor,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +59,7 @@ class TriageZoneWidget extends ConsumerWidget {
                           '${pending.length} Transaction${pending.length > 1 ? 's' : ''} en attente',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           'Tapez pour qualifier',
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -65,7 +67,7 @@ class TriageZoneWidget extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios, size: 16),
+                  Icon(Icons.arrow_forward_ios, size: 16),
                 ],
               ),
             ),
@@ -121,9 +123,9 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
     if (accountId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Aucun compte associé. Veuillez lier un compte Mobile Money.'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -149,9 +151,9 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
     if (accountId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Aucun compte associé. Veuillez lier un compte Mobile Money.'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -181,10 +183,12 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
     final currency = ref.watch(calibrationDataProvider).currency;
     final categoriesAsync = ref.watch(categoriesProviderProvider);
 
-    return Container(
+          return UIHelpers.withSurfaceTheme(
+            context,
+            Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceColor,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -209,7 +213,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                   'Qualifier la transaction',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '${_currentIndex + 1} sur ${widget.pending.length}',
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -223,7 +227,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
             margin: const EdgeInsets.symmetric(horizontal: 24),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.cardColor,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -238,18 +242,18 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                     Text(
                       '${_current.amount.toStringAsFixed(0)} $currency',
                       style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            color: AppColors.primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   DateFormat('dd/MM/yyyy HH:mm').format(_current.smsDate),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 if (_current.transactionId != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     'ID: ${_current.transactionId}',
                     style: Theme.of(context).textTheme.bodySmall,
@@ -259,7 +263,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Actions
           Expanded(
@@ -281,7 +285,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                         'C\'est une dépense ?',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -293,12 +297,12 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                           );
                         }).toList(),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       Text(
                         'C\'est un revenu ?',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -307,7 +311,7 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                             label: Text(category.name),
                             avatar: Text(category.icon),
                             onPressed: () => _qualifyAsIncome(category.id),
-                            backgroundColor: AppColors.accentColor.withValues(alpha: 0.2),
+                            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                           );
                         }).toList(),
                       ),
@@ -315,8 +319,8 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
                   ),
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => const Text('Erreur de chargement'),
+              loading: () => Center(child: CircularProgressIndicator()),
+              error: (e, s) => Text('Erreur de chargement'),
             ),
           ),
 
@@ -325,10 +329,11 @@ class _TriageBottomSheetState extends ConsumerState<_TriageBottomSheet> {
             padding: const EdgeInsets.all(24.0),
             child: TextButton(
               onPressed: _ignore,
-              child: const Text('Ignorer cette transaction'),
+              child: Text('Ignorer cette transaction'),
             ),
           ),
         ],
+      ),
       ),
     );
   }

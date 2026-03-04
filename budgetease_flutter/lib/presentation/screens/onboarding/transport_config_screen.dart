@@ -94,27 +94,27 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Text(
             'Comment gérez-vous vos frais de transport ?',
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           Text(
             'Le transport est souvent une charge quotidienne cachée',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           Expanded(
             child: SingleChildScrollView(
@@ -125,7 +125,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                     mode: TransportMode.fixed,
                     title: 'Abonnement / Fixe',
                     subtitle: 'Ex: Plein d\'essence mensuel, abonnement bus',
-                    icon: Icons.credit_card,
+                    icon: Icons.credit_card_outlined,
                     child: _selectedMode == TransportMode.fixed
                         ? Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -142,14 +142,14 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                         : null,
                   ),
                   
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   // Option B: Quotidien
                   _buildModeCard(
                     mode: TransportMode.daily,
                     title: 'Quotidien',
                     subtitle: 'Ex: Taxi, moto-taxi, bus quotidien',
-                    icon: Icons.directions_bus,
+                    icon: Icons.directions_bus_outlined,
                     child: _selectedMode == TransportMode.daily
                         ? Padding(
                             padding: const EdgeInsets.only(top: 16),
@@ -164,7 +164,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                                   ),
                                   onChanged: (_) => setState(() {}),
                                 ),
-                                const SizedBox(height: 16),
+                                SizedBox(height: 16),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -198,7 +198,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                         : null,
                   ),
                   
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   // Option C: Aucun
                   _buildModeCard(
@@ -212,13 +212,13 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
             ),
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _canContinue ? _onContinue : null,
-              child: const Text('Continuer'),
+              child: Text('Continuer'),
             ),
           ),
         ],
@@ -236,7 +236,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
     final isSelected = _selectedMode == mode;
 
     return Card(
-      color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.2) : null,
+      color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2) : null,
       child: InkWell(
         onTap: () {
           setState(() {
@@ -254,10 +254,10 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                     icon,
                     size: 32,
                     color: isSelected
-                        ? AppColors.primaryColor
-                        : AppColors.textSecondary,
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +266,7 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                           title,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           subtitle,
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -275,9 +275,9 @@ class _TransportConfigScreenState extends ConsumerState<TransportConfigScreen> {
                     ),
                   ),
                   if (isSelected)
-                    const Icon(
-                      Icons.check_circle,
-                      color: AppColors.primaryColor,
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                 ],
               ),

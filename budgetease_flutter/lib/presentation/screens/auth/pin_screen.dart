@@ -127,7 +127,7 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.errorColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -145,13 +145,13 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: widget.onCancel != null
             ? IconButton(
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
                 onPressed: widget.onCancel,
               )
             : null,
@@ -168,7 +168,7 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
               textAlign: TextAlign.center,
             ),
             
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             
             // Sous-titre
             if (widget.subtitle != null || _confirmPin != null)
@@ -178,7 +178,7 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
                 textAlign: TextAlign.center,
               ),
             
-            const SizedBox(height: 48),
+            SizedBox(height: 48),
             
             // Indicateurs de PIN
             AnimatedBuilder(
@@ -199,13 +199,13 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: index < _pin.length
-                          ? (_isError ? AppColors.errorColor : AppColors.primaryColor)
+                          ? (_isError ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary)
                           : Theme.of(context).dividerColor,
                       border: Border.all(
                         color: _isError
-                            ? AppColors.errorColor
+                            ? Theme.of(context).colorScheme.primary
                             : (index < _pin.length
-                                ? AppColors.primaryColor
+                                ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).dividerColor),
                         width: 2,
                       ),
@@ -220,7 +220,7 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
             // Clavier numérique
             _buildNumericKeypad(),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
           ],
         ),
       ),
@@ -244,11 +244,11 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
       child: Column(
         children: [
           _buildKeypadRow(['1', '2', '3']),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildKeypadRow(['4', '5', '6']),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildKeypadRow(['7', '8', '9']),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildKeypadRow(['', '0', 'backspace']),
         ],
       ),
@@ -260,13 +260,13 @@ class _PinScreenState extends ConsumerState<PinScreen> with SingleTickerProvider
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: numbers.map((number) {
         if (number.isEmpty) {
-          return const SizedBox(width: 80, height: 80);
+          return SizedBox(width: 80, height: 80);
         }
 
         if (number == 'backspace') {
           return _buildKeypadButton(
             onPressed: _onBackspace,
-            child: const Icon(Icons.backspace_outlined, size: 28),
+            child: Icon(Icons.backspace_outlined, size: 28),
           );
         }
 

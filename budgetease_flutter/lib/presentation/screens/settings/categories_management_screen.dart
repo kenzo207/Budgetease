@@ -22,10 +22,10 @@ class CategoriesManagementScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed
       appBar: AppBar(
-        title: const Text('Gérer les catégories'),
-        // backgroundColor: AppColors.backgroundColor, // Removed
+        title: Text('Gérer les catégories'),
+        // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed
       ),
       body: categoriesAsync.when(
         data: (categories) {
@@ -41,38 +41,38 @@ class CategoriesManagementScreen extends ConsumerWidget {
                 'Catégories de dépenses',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               ...expenseCategories.map((category) => _buildCategoryCard(
                     context,
                     ref,
                     category,
                   )),
               
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               
               // Income Categories
               Text(
                 'Catégories de revenus',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               ...incomeCategories.map((category) => _buildCategoryCard(
                     context,
                     ref,
                     category,
                   )),
               
-              const SizedBox(height: 80),
+              SizedBox(height: 80),
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => const Center(child: Text('Erreur de chargement')),
+        loading: () => Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Erreur de chargement')),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddCategoryDialog(context, ref),
-        icon: const Icon(Icons.add),
-        label: const Text('Ajouter'),
+        icon: Icon(Icons.add),
+        label: Text('Ajouter'),
       ),
     );
   }
@@ -103,11 +103,11 @@ class CategoriesManagementScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit, size: 20),
+              icon: Icon(Icons.edit_outlined, size: 20),
               onPressed: () => _showEditCategoryDialog(context, ref, category),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, size: 20, color: AppColors.errorColor),
+              icon: Icon(Icons.delete_outline, size: 20, color: Theme.of(context).colorScheme.primary),
               onPressed: () => _showDeleteConfirmation(context, ref, category),
             ),
           ],
@@ -124,7 +124,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Nouvelle catégorie'),
+          title: Text('Nouvelle catégorie'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -136,7 +136,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
                 ),
                 autofocus: true,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               DropdownButtonFormField<CategoryType>(
                 initialValue: selectedType,
                 decoration: const InputDecoration(labelText: 'Type'),
@@ -163,7 +163,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Annuler'),
+              child: Text('Annuler'),
             ),
             TextButton(
               onPressed: () async {
@@ -173,7 +173,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
                   if (context.mounted) Navigator.pop(context);
                 }
               },
-              child: const Text('Ajouter'),
+              child: Text('Ajouter'),
             ),
           ],
         ),
@@ -187,7 +187,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Modifier la catégorie'),
+        title: Text('Modifier la catégorie'),
         content: TextField(
           controller: nameController,
           decoration: const InputDecoration(
@@ -198,7 +198,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -208,7 +208,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: const Text('Enregistrer'),
+            child: Text('Enregistrer'),
           ),
         ],
       ),
@@ -219,20 +219,20 @@ class CategoriesManagementScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer la catégorie ?'),
+        title: Text('Supprimer la catégorie ?'),
         content: Text('Voulez-vous vraiment supprimer "${category.name}" ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await _deleteCategory(context, ref, category);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.errorColor),
-            child: const Text('Supprimer'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
+            child: Text('Supprimer'),
           ),
         ],
       ),
@@ -267,9 +267,9 @@ class CategoriesManagementScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Catégorie ajoutée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -278,7 +278,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -307,9 +307,9 @@ class CategoriesManagementScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Catégorie modifiée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -318,7 +318,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -349,7 +349,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Impossible de supprimer: $transactionsCount transaction(s) utilisent cette catégorie'),
-              backgroundColor: AppColors.errorColor,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               duration: const Duration(seconds: 3),
             ),
           );
@@ -371,9 +371,9 @@ class CategoriesManagementScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Catégorie supprimée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -382,7 +382,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }

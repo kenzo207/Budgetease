@@ -100,7 +100,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                     content: Text(
                       'Code PIN incorrect (${maxAttempts - _failedAttempts} tentatives restantes)',
                     ),
-                    backgroundColor: AppColors.errorColor,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                 );
               }
@@ -122,8 +122,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Trop de tentatives'),
-        content: const Text(
+        title: Text('Trop de tentatives'),
+        content: Text(
           'Vous avez dépassé le nombre maximum de tentatives. '
           'Veuillez réessayer dans 30 secondes.',
         ),
@@ -135,7 +135,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                 _failedAttempts = 0;
               });
             },
-            child: const Text('OK'),
+            child: Text('OK'),
           ),
         ],
       ),
@@ -145,7 +145,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed
       body: SafeArea(
         child: Center(
           child: Column(
@@ -157,24 +157,24 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                 height: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.primaryColor.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.lock_outline,
                   size: 60,
-                  color: AppColors.primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               
               // Titre
               Text(
-                'BudgetEase',
+                'Zolt',
                 style: Theme.of(context).textTheme.displayLarge,
               ),
               
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               
               // Sous-titre
               Text(
@@ -182,7 +182,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               
               // Bouton Biométrie
               FutureBuilder<bool>(
@@ -193,8 +193,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: _isAuthenticating ? null : _attemptBiometricAuth,
-                          icon: const Icon(Icons.fingerprint),
-                          label: const Text('Déverrouiller avec biométrie'),
+                          icon: Icon(Icons.fingerprint),
+                          label: Text('Déverrouiller avec biométrie'),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 32,
@@ -203,19 +203,19 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           ),
                         ),
                         
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         
                         TextButton(
                           onPressed: _showPinScreen,
-                          child: const Text('Utiliser le code PIN'),
+                          child: Text('Utiliser le code PIN'),
                         ),
                       ],
                     );
                   } else {
                     return ElevatedButton.icon(
                       onPressed: _showPinScreen,
-                      icon: const Icon(Icons.pin),
-                      label: const Text('Entrer le code PIN'),
+                      icon: Icon(Icons.pin),
+                      label: Text('Entrer le code PIN'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
@@ -228,7 +228,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
               ),
               
               if (_isAuthenticating)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: CircularProgressIndicator(),
                 ),

@@ -51,13 +51,15 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
+    return UIHelpers.withSurfaceTheme(
+      context,
+      Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
         children: [
           // Handle
           Container(
@@ -73,9 +75,9 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
           // Tabs
           TabBar(
             controller: _tabController,
-            indicatorColor: AppColors.primaryColor,
-            labelColor: AppColors.primaryColor,
-            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             tabs: const [
               Tab(text: 'Dépense', icon: Icon(Icons.remove_circle_outline)),
               Tab(text: 'Revenu', icon: Icon(Icons.add_circle_outline)),
@@ -96,7 +98,7 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -160,9 +162,9 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Dépense enregistrée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -171,7 +173,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -201,19 +203,19 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: const Icon(Icons.attach_money),
+              prefixIcon: Icon(Icons.attach_money),
             ),
             onChanged: (_) => setState(() {}),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Catégorie
           Text(
             'Catégorie',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           categoriesAsync.when(
             data: (categories) {
               final expenseCategories = categories
@@ -230,7 +232,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
                     avatar: Icon(
                       UIHelpers.getIconForCategory(category.icon, category.type),
                       size: 18,
-                      color: isSelected ? Colors.white : AppColors.primaryColor,
+                      color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -243,17 +245,17 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Compte débité
           Text(
             'Compte débité',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
@@ -271,7 +273,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
                           color: UIHelpers.getAccountColor(account.type),
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(account.name),
                       ],
                     ),
@@ -285,15 +287,15 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Date
           ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Date'),
+            leading: Icon(Icons.calendar_today),
+            title: Text('Date'),
             subtitle: Text(
               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
             ),
@@ -312,12 +314,12 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             },
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Exceptionnel
           SwitchListTile(
-            title: const Text('Dépense exceptionnelle'),
-            subtitle: const Text('Exclue du calcul du budget quotidien'),
+            title: Text('Dépense exceptionnelle'),
+            subtitle: Text('Exclue du calcul du budget quotidien'),
             value: _isException,
             onChanged: (value) {
               setState(() {
@@ -326,7 +328,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             },
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Bouton Enregistrer
           SizedBox(
@@ -335,7 +337,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
               onPressed: _canSave && !_isSaving ? _save : null,
               child: _isSaving
                   ? const CircularProgressIndicator()
-                  : const Text('Enregistrer'),
+                  : Text('Enregistrer'),
             ),
           ),
         ],
@@ -409,9 +411,9 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Revenu enregistré'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -420,7 +422,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -450,12 +452,12 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: const Icon(Icons.attach_money),
+              prefixIcon: Icon(Icons.attach_money),
             ),
             onChanged: (_) => setState(() {}),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Source
           TextField(
@@ -466,14 +468,14 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Catégorie
           Text(
             'Catégorie',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           categoriesAsync.when(
             data: (categories) {
               final incomeCategories = categories
@@ -490,7 +492,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
                     avatar: Icon(
                       UIHelpers.getIconForCategory(category.icon, category.type),
                       size: 18,
-                      color: isSelected ? Colors.white : AppColors.accentColor,
+                      color: isSelected ? Colors.white : Theme.of(context).colorScheme.primary,
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -503,17 +505,17 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Compte crédité
           Text(
             'Compte crédité',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
@@ -531,7 +533,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
                           color: UIHelpers.getAccountColor(account.type),
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(account.name),
                       ],
                     ),
@@ -545,20 +547,20 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Portée (Scope)
           Text(
             'Portée du revenu',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           RadioListTile<String>(
-            title: const Text('Augmenter mon niveau de vie'),
-            subtitle: const Text('Lissé sur tout le cycle'),
+            title: Text('Augmenter mon niveau de vie'),
+            subtitle: Text('Lissé sur tout le cycle'),
             value: 'global',
             groupValue: _scopeType,
             onChanged: (value) {
@@ -569,8 +571,8 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             },
           ),
           RadioListTile<String>(
-            title: const Text('Couvrir une période spécifique'),
-            subtitle: const Text('Budget temporaire'),
+            title: Text('Couvrir une période spécifique'),
+            subtitle: Text('Budget temporaire'),
             value: 'temporary',
             groupValue: _scopeType,
             onChanged: (value) {
@@ -596,8 +598,8 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               ),
             ),
           RadioListTile<String>(
-            title: const Text('Épargne pure'),
-            subtitle: const Text('N\'affecte pas le budget'),
+            title: Text('Épargne pure'),
+            subtitle: Text('N\'affecte pas le budget'),
             value: 'savings',
             groupValue: _scopeType,
             onChanged: (value) {
@@ -608,7 +610,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             },
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Bouton Enregistrer
           SizedBox(
@@ -617,7 +619,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
               onPressed: _canSave && !_isSaving ? _save : null,
               child: _isSaving
                   ? const CircularProgressIndicator()
-                  : const Text('Enregistrer'),
+                  : Text('Enregistrer'),
             ),
           ),
         ],
@@ -690,9 +692,9 @@ class _TransferTabState extends ConsumerState<TransferTab> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Virement enregistré'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -701,7 +703,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -730,19 +732,19 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: const Icon(Icons.attach_money),
+              prefixIcon: Icon(Icons.attach_money),
             ),
             onChanged: (_) => setState(() {}),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Compte source
           Text(
             'De',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
@@ -760,7 +762,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
                           color: UIHelpers.getAccountColor(account.type),
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(account.name),
                       ],
                     ),
@@ -774,17 +776,17 @@ class _TransferTabState extends ConsumerState<TransferTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Compte destination
           Text(
             'Vers',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           accountsAsync.when(
             data: (accounts) {
               return DropdownButtonFormField<int>(
@@ -802,7 +804,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
                           color: UIHelpers.getAccountColor(account.type),
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(account.name),
                       ],
                     ),
@@ -816,10 +818,10 @@ class _TransferTabState extends ConsumerState<TransferTab> {
               );
             },
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => const Text('Erreur'),
+            error: (e, s) => Text('Erreur'),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Frais
           TextField(
@@ -828,16 +830,16 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             decoration: InputDecoration(
               labelText: 'Frais (optionnel)',
               suffixText: currency,
-              prefixIcon: const Icon(Icons.money_off),
+              prefixIcon: Icon(Icons.money_off),
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Date
           ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Date'),
+            leading: Icon(Icons.calendar_today),
+            title: Text('Date'),
             subtitle: Text(
               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
             ),
@@ -856,7 +858,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             },
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Bouton Enregistrer
           SizedBox(
@@ -865,7 +867,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
               onPressed: _canSave && !_isSaving ? _save : null,
               child: _isSaving
                   ? const CircularProgressIndicator()
-                  : const Text('Enregistrer'),
+                  : Text('Enregistrer'),
             ),
           ),
         ],

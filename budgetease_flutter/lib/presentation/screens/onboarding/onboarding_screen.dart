@@ -6,6 +6,7 @@ import 'welcome_screen.dart';
 import 'calibration_screen.dart';
 import 'financial_rhythm_screen.dart';
 import 'accounts_inventory_screen.dart';
+import 'momo_setup_screen.dart';
 import 'fixed_charges_screen.dart';
 import 'transport_config_screen.dart';
 import 'security_setup_screen.dart';
@@ -16,7 +17,7 @@ class OnboardingController extends StateNotifier<int> {
   OnboardingController() : super(0);
 
   void nextStep() {
-    if (state < 7) {
+    if (state < 8) {
       state++;
     }
   }
@@ -28,7 +29,7 @@ class OnboardingController extends StateNotifier<int> {
   }
 
   void goToStep(int step) {
-    if (step >= 0 && step <= 7) {
+    if (step >= 0 && step <= 8) {
       state = step;
     }
   }
@@ -61,6 +62,7 @@ class OnboardingScreen extends ConsumerWidget {
       const CalibrationScreen(),
       const FinancialRhythmScreen(),
       const AccountsInventoryScreen(),
+      const MomoSetupScreen(),       // étape 4 : détection MoMo automatique
       const FixedChargesScreen(),
       const TransportConfigScreen(),
       const SecuritySetupScreen(),
@@ -68,7 +70,7 @@ class OnboardingScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed
       body: SafeArea(
         child: Column(
           children: [
@@ -89,17 +91,17 @@ class OnboardingScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
-        children: List.generate(8, (index) {
+        children: List.generate(9, (index) {  // 9 étapes maintenant
           final isCompleted = index < currentStep;
           final isCurrent = index == currentStep;
-          
+
           return Expanded(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 2),
               height: 4,
               decoration: BoxDecoration(
                 color: isCompleted || isCurrent
-                    ? AppColors.primaryColor
+                    ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),

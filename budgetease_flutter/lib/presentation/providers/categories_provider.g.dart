@@ -7,7 +7,7 @@ part of 'categories_provider.dart';
 // **************************************************************************
 
 String _$categoriesProviderHash() =>
-    r'c4315ea209c4d50d6994ddda844ede993d857c42';
+    r'b6819d66f40fab255dd31c03f5fad6983617b732';
 
 /// Provider des catégories
 ///

@@ -2,13 +2,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/services/sms_parser_service.dart';
 import '../../domain/services/notification_service.dart';
 import '../../data/database/app_database.dart';
+import 'database_provider.dart';
 
 part 'sms_parser_provider.g.dart';
 
 /// Provider du service de parsing SMS
 @riverpod
 SmsParserService smsParserService(SmsParserServiceRef ref) {
-  final database = AppDatabase();
+  final database = ref.watch(databaseProvider);
   return SmsParserService(database: database);
 }
 

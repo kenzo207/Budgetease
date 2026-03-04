@@ -6,7 +6,7 @@ part of 'budget_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$budgetProviderHash() => r'c5070442daafccf8837b49104d05d45bf2d1de53';
+String _$budgetProviderHash() => r'8441e799d2ced14218ef81e0f8861a8c981af4b3';
 
 /// Provider du budget quotidien
 ///

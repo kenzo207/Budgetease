@@ -8,6 +8,7 @@ import '../screens/settings/settings_screen.dart';
 import '../widgets/action_bottom_sheet.dart';
 import '../providers/navigation_provider.dart';
 import '../../services/analytics_service.dart';
+import '../../core/utils/tutorial_keys.dart';
 
 /// Écran principal avec Bottom Navigation
 class MainScreen extends ConsumerStatefulWidget {
@@ -59,17 +60,17 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor: AppColors.primaryColor,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            activeIcon: Icon(Icons.home_outlined),
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_long_outlined),
-            activeIcon: Icon(Icons.receipt_long),
+            activeIcon: Icon(Icons.receipt_long_outlined),
             label: 'Transactions',
           ),
           BottomNavigationBarItem(
@@ -78,16 +79,19 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             label: 'Analyse',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
+            icon: Container(
+              key: TutorialKeys.settingsTabKey,
+              child: Icon(Icons.settings_outlined),
+            ),
+            activeIcon: Icon(Icons.settings_outlined),
             label: 'Paramètres',
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showActionBottomSheet,
-        backgroundColor: AppColors.primaryColor,
-        child: const Icon(Icons.add, size: 32),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.add, size: 32),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

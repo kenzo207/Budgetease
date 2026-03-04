@@ -23,31 +23,31 @@ class PendingTransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions SMS'),
+        title: Text('Transactions SMS'),
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.sync),
+            icon: Icon(Icons.sync),
             tooltip: 'Scanner les SMS',
             onPressed: () => _scanSms(context, ref),
           ),
         ],
       ),
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: pendingAsync.when(
         data: (transactions) {
           if (transactions.isEmpty) {
-            return _buildEmptyState(ref);
+            return _buildEmptyState(context, ref);
           }
           return _buildTransactionList(context, ref, transactions);
         },
-        loading: () => const Center(
+        loading: () => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 16),
-              Text('Analyse des SMS...', style: TextStyle(color: AppColors.textSecondary)),
+              Text('Analyse des SMS...', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
             ],
           ),
         ),
@@ -57,14 +57,14 @@ class PendingTransactionsScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 64, color: AppColors.errorColor),
-                const SizedBox(height: 16),
+                Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.primary),
+                SizedBox(height: 16),
                 Text('Erreur: $e', textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondary)),
-                const SizedBox(height: 16),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+                SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () => ref.invalidate(pendingTransactionsProvider),
-                  child: const Text('Réessayer'),
+                  child: Text('Réessayer'),
                 ),
               ],
             ),
@@ -74,7 +74,7 @@ class PendingTransactionsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(WidgetRef ref) {
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -82,27 +82,27 @@ class PendingTransactionsScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.check_circle_outline, size: 80,
-                color: AppColors.accentColor.withValues(alpha: 0.5)),
-            const SizedBox(height: 24),
-            const Text(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+            SizedBox(height: 24),
+            Text(
               'Aucune transaction en attente',
               style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Les SMS Mobile Money détectés apparaîtront ici pour validation.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             ElevatedButton.icon(
-              icon: const Icon(Icons.sync),
-              label: const Text('Scanner maintenant'),
+              icon: Icon(Icons.sync),
+              label: Text('Scanner maintenant'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
@@ -126,8 +126,8 @@ class PendingTransactionsScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               '${transactions.length} transaction${transactions.length > 1 ? 's' : ''} à valider',
-              style: const TextStyle(
-                color: AppColors.textSecondary, fontSize: 14,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14,
               ),
             ),
           );
@@ -152,14 +152,14 @@ class PendingTransactionsScreen extends ConsumerWidget {
             content: Text(count > 0
                 ? '$count nouvelle${count > 1 ? 's' : ''} transaction${count > 1 ? 's' : ''} détectée${count > 1 ? 's' : ''}'
                 : 'Aucune nouvelle transaction'),
-            backgroundColor: count > 0 ? AppColors.accentColor : AppColors.surfaceColor,
+            backgroundColor: count > 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
           ),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.errorColor),
+          SnackBar(content: Text('Erreur: $e'), backgroundColor: Theme.of(context).colorScheme.primary),
         );
       }
     }
@@ -181,7 +181,7 @@ class _PendingTransactionCard extends ConsumerWidget {
         momoType == MomoTransactionType.deposit;
 
     return Card(
-      color: AppColors.cardColor,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -195,16 +195,16 @@ class _PendingTransactionCard extends ConsumerWidget {
               // ── Ligne 1: Type + Montant ──
               Row(
                 children: [
-                  _buildTypeIcon(momoType),
-                  const SizedBox(width: 12),
+                  _buildTypeIcon(context, momoType),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _typeLabel(momoType),
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                           ),
@@ -212,8 +212,8 @@ class _PendingTransactionCard extends ConsumerWidget {
                         if (transaction.counterpart != null)
                           Text(
                             '${isIncome ? 'De' : 'À'} ${transaction.counterpart}',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 13,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13,
                             ),
                           ),
                       ],
@@ -225,7 +225,7 @@ class _PendingTransactionCard extends ConsumerWidget {
                       Text(
                         '${isIncome ? '+' : '-'}${MoneyFormatter.formatCompact(transaction.amount, 'F')}',
                         style: TextStyle(
-                          color: isIncome ? AppColors.accentColor : AppColors.errorColor,
+                          color: isIncome ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -233,8 +233,8 @@ class _PendingTransactionCard extends ConsumerWidget {
                       if (transaction.fee > 0)
                         Text(
                           'Frais: ${MoneyFormatter.formatCompact(transaction.fee, 'F')}',
-                          style: const TextStyle(
-                            color: AppColors.textTertiary, fontSize: 11,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11,
                           ),
                         ),
                     ],
@@ -242,53 +242,53 @@ class _PendingTransactionCard extends ConsumerWidget {
                 ],
               ),
 
-              const SizedBox(height: 10),
-              const Divider(color: AppColors.surfaceColor, height: 1),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
+              Divider(color: Theme.of(context).colorScheme.surface, height: 1),
+              SizedBox(height: 10),
 
               // ── Ligne 2: Détails (opérateur, date, solde) ──
               Row(
                 children: [
-                  _chip(transaction.operator),
-                  const SizedBox(width: 8),
-                  _chip(DateFormatter.formatRelative(
+                  _chip(context, transaction.operator),
+                  SizedBox(width: 4),
+                  _chip(context, DateFormatter.formatRelative(
                     transaction.transactionDate ?? transaction.smsDate,
                   )),
                   const Spacer(),
                   if (transaction.balanceAfter != null)
                     Text(
                       'Solde: ${MoneyFormatter.formatCompact(transaction.balanceAfter!, 'F')}',
-                      style: const TextStyle(
-                        color: AppColors.textTertiary, fontSize: 12,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 12,
                       ),
                     ),
                 ],
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // ── Ligne 3: Actions rapides ──
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      icon: const Icon(Icons.close, size: 18),
-                      label: const Text('Ignorer'),
+                      icon: Icon(Icons.close, size: 18),
+                      label: Text('Ignorer'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        side: const BorderSide(color: AppColors.surfaceColor),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        side: BorderSide(color: Theme.of(context).colorScheme.surface),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
                       onPressed: () => _rejectTransaction(context, ref),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.check, size: 18),
-                      label: const Text('Valider'),
+                      icon: Icon(Icons.check, size: 18),
+                      label: Text('Valider'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                       ),
@@ -304,14 +304,14 @@ class _PendingTransactionCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildTypeIcon(MomoTransactionType type) {
+  Widget _buildTypeIcon(BuildContext context, MomoTransactionType type) {
     final (IconData icon, Color color) = switch (type) {
-      MomoTransactionType.transferOut => (Icons.arrow_upward, AppColors.errorColor),
-      MomoTransactionType.transferIn => (Icons.arrow_downward, AppColors.accentColor),
-      MomoTransactionType.withdrawal => (Icons.money_off, AppColors.warningColor),
-      MomoTransactionType.payment => (Icons.shopping_cart, AppColors.errorColor),
-      MomoTransactionType.deposit => (Icons.account_balance_wallet, AppColors.accentColor),
-      MomoTransactionType.unknown => (Icons.help_outline, AppColors.textSecondary),
+      MomoTransactionType.transferOut => (Icons.arrow_upward, Theme.of(context).colorScheme.primary),
+      MomoTransactionType.transferIn => (Icons.arrow_downward, Theme.of(context).colorScheme.primary),
+      MomoTransactionType.withdrawal => (Icons.money_off, Theme.of(context).colorScheme.primary),
+      MomoTransactionType.payment => (Icons.shopping_cart_outlined, Theme.of(context).colorScheme.primary),
+      MomoTransactionType.deposit => (Icons.account_balance_wallet_outlined, Theme.of(context).colorScheme.primary),
+      MomoTransactionType.unknown => (Icons.help_outline, Theme.of(context).colorScheme.onSurface),
     };
     return CircleAvatar(
       radius: 20,
@@ -331,15 +331,15 @@ class _PendingTransactionCard extends ConsumerWidget {
     };
   }
 
-  Widget _chip(String label) {
+  Widget _chip(BuildContext context, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surfaceColor,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(label, style: const TextStyle(
-        color: AppColors.textTertiary, fontSize: 11,
+      child: Text(label, style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11,
       )),
     );
   }
@@ -356,7 +356,7 @@ class _PendingTransactionCard extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -384,6 +384,7 @@ class _TransactionReviewSheetState
   int? _selectedCategoryId;
   int? _selectedAccountId;
   bool _isSubmitting = false;
+  bool _hasSuggestedCategory = false; // garde un suivi de la suggestion auto
 
   @override
   void initState() {
@@ -397,6 +398,59 @@ class _TransactionReviewSheetState
   bool get _isIncome =>
       _momoType == MomoTransactionType.transferIn ||
       _momoType == MomoTransactionType.deposit;
+
+  /// Suggère automatiquement la meilleure catégorie pour ce type de transaction.
+  /// Logique à 3 niveaux :
+  ///   1. Match par mot-clé dans le nom de catégorie
+  ///   2. Première catégorie isDefault du bon type
+  ///   3. Première catégorie du bon type
+  void _suggestCategory(List<Category> allCategories) {
+    if (_hasSuggestedCategory) return;
+
+    // Filtrer par type income/expense
+    final filtered = allCategories.where((c) {
+      return _isIncome
+          ? c.type == CategoryType.income
+          : c.type == CategoryType.expense;
+    }).toList();
+
+    if (filtered.isEmpty) return;
+
+    // Niveau 1 : match par mot-clé selon le type MoMo
+    final keywords = _keywordsForType(_momoType);
+    Category? best;
+    for (final keyword in keywords) {
+      best = filtered.where((c) =>
+        c.name.toLowerCase().contains(keyword)
+      ).firstOrNull;
+      if (best != null) break;
+    }
+
+    // Niveau 2 : catégorie par défaut du bon type
+    best ??= filtered.where((c) => c.isDefault).firstOrNull;
+
+    // Niveau 3 : première du bon type
+    best ??= filtered.firstOrNull;
+
+    if (best != null) {
+      setState(() {
+        _selectedCategoryId = best!.id;
+        _hasSuggestedCategory = true;
+      });
+    }
+  }
+
+  /// Mots-clés à chercher dans les noms de catégories selon le type MoMo
+  List<String> _keywordsForType(MomoTransactionType type) {
+    return switch (type) {
+      MomoTransactionType.transferOut => ['transfert', 'envoi', 'virement'],
+      MomoTransactionType.transferIn  => ['transfert', 'revenu', 'reçu', 'salaire'],
+      MomoTransactionType.withdrawal  => ['retrait', 'espèces', 'cash'],
+      MomoTransactionType.payment     => ['paiement', 'achat', 'courses', 'commerce'],
+      MomoTransactionType.deposit     => ['dépôt', 'depot', 'revenu', 'salaire'],
+      MomoTransactionType.unknown     => [],
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -420,45 +474,45 @@ class _TransactionReviewSheetState
                 child: Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiary,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Titre ──
-              const Text(
+              Text(
                 'Valider la transaction',
                 style: TextStyle(
                   fontSize: 20, fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── Résumé de la transaction ──
               _buildSummaryCard(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ══════════════════════════════════════
               // TOGGLE "COMPTER DANS LE BUDGET"
               // ══════════════════════════════════════
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.cardColor,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _countsInBudget
-                        ? AppColors.primaryColor.withValues(alpha: 0.5)
-                        : AppColors.surfaceColor,
+                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)
+                        : Theme.of(context).colorScheme.surface,
                   ),
                 ),
                 child: SwitchListTile(
-                  title: const Text(
+                  title: Text(
                     'Compter dans le budget ?',
                     style: TextStyle(
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -466,48 +520,54 @@ class _TransactionReviewSheetState
                     _countsInBudget
                         ? 'Cette transaction sera incluse dans vos calculs de budget.'
                         : 'Cette transaction sera enregistrée mais n\'affectera pas votre budget.',
-                    style: const TextStyle(
-                      color: AppColors.textTertiary, fontSize: 12,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 12,
                     ),
                   ),
                   value: _countsInBudget,
-                  activeColor: AppColors.primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                   onChanged: (value) => setState(() => _countsInBudget = value),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── Sélection du compte ──
-              const Text(
+              Text(
                 'Compte',
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600, fontSize: 14,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               accountsAsync.when(
                 data: (accounts) => _buildAccountSelector(accounts),
                 loading: () => const LinearProgressIndicator(),
                 error: (e, _) => Text('Erreur: $e'),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── Sélection de la catégorie ──
-              const Text(
+              Text(
                 'Catégorie',
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600, fontSize: 14,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               categoriesAsync.when(
-                data: (categories) => _buildCategorySelector(categories),
+                data: (categories) {
+                  // Déclencher la suggestion auto (appel idempotent)
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _suggestCategory(categories);
+                  });
+                  return _buildCategorySelector(categories);
+                },
                 loading: () => const LinearProgressIndicator(),
                 error: (e, _) => Text('Erreur: $e'),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // ── Boutons ──
               Row(
@@ -516,14 +576,14 @@ class _TransactionReviewSheetState
                     child: OutlinedButton(
                       onPressed: _isSubmitting ? null : () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                        side: const BorderSide(color: AppColors.surfaceColor),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        side: BorderSide(color: Theme.of(context).colorScheme.surface),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Annuler'),
+                      child: Text('Annuler'),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(
@@ -533,28 +593,28 @@ class _TransactionReviewSheetState
                           ? _approve
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: AppColors.surfaceColor,
+                        disabledBackgroundColor: Theme.of(context).colorScheme.surface,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: _isSubmitting
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20, width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2, color: Colors.white,
                               ),
                             )
-                          : const Text('Confirmer',
+                          : Text('Confirmer',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
             ],
           ),
         );
@@ -567,7 +627,7 @@ class _TransactionReviewSheetState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardColor,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -577,17 +637,17 @@ class _TransactionReviewSheetState
             '${_isIncome ? '+' : '-'}${MoneyFormatter.formatCompact(tx.amount, 'FCFA')}',
             style: TextStyle(
               fontSize: 28, fontWeight: FontWeight.bold,
-              color: _isIncome ? AppColors.accentColor : AppColors.errorColor,
+              color: _isIncome ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
             ),
           ),
           if (tx.fee > 0)
             Text(
               'Frais: ${MoneyFormatter.formatCompact(tx.fee, 'FCFA')}',
-              style: const TextStyle(color: AppColors.warningColor, fontSize: 13),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 13),
             ),
-          const SizedBox(height: 12),
-          const Divider(color: AppColors.surfaceColor),
-          const SizedBox(height: 8),
+          SizedBox(height: 12),
+          Divider(color: Theme.of(context).colorScheme.surface),
+          SizedBox(height: 8),
           // Détails en grille
           _detailRow('Type', _typeLabel(_momoType)),
           if (tx.counterpart != null)
@@ -613,13 +673,13 @@ class _TransactionReviewSheetState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(
-            color: AppColors.textTertiary, fontSize: 13,
+          Text(label, style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 13,
           )),
           Flexible(
             child: Text(value, textAlign: TextAlign.end,
-              style: const TextStyle(
-                color: AppColors.textPrimary, fontSize: 13,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface, fontSize: 13,
               ),
             ),
           ),
@@ -637,14 +697,14 @@ class _TransactionReviewSheetState
         return ChoiceChip(
           label: Text(account.name),
           selected: isSelected,
-          selectedColor: AppColors.primaryColor.withValues(alpha: 0.3),
-          backgroundColor: AppColors.cardColor,
+          selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           labelStyle: TextStyle(
-            color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
           side: BorderSide(
-            color: isSelected ? AppColors.primaryColor : AppColors.surfaceColor,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
           ),
           onSelected: (_) => setState(() => _selectedAccountId = account.id),
         );
@@ -661,9 +721,9 @@ class _TransactionReviewSheetState
     }).toList();
 
     if (filtered.isEmpty) {
-      return const Text(
+      return Text(
         'Aucune catégorie disponible',
-        style: TextStyle(color: AppColors.textTertiary),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
       );
     }
 
@@ -672,20 +732,49 @@ class _TransactionReviewSheetState
       runSpacing: 8,
       children: filtered.map((cat) {
         final isSelected = _selectedCategoryId == cat.id;
-        return ChoiceChip(
-          avatar: Text(cat.icon, style: const TextStyle(fontSize: 16)),
-          label: Text(cat.name),
-          selected: isSelected,
-          selectedColor: AppColors.primaryColor.withValues(alpha: 0.3),
-          backgroundColor: AppColors.cardColor,
-          labelStyle: TextStyle(
-            color: isSelected ? AppColors.primaryColor : AppColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-          side: BorderSide(
-            color: isSelected ? AppColors.primaryColor : AppColors.surfaceColor,
-          ),
-          onSelected: (_) => setState(() => _selectedCategoryId = cat.id),
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ChoiceChip(
+              avatar: Text(cat.icon, style: const TextStyle(fontSize: 16)),
+              label: Text(cat.name),
+              selected: isSelected,
+              selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              labelStyle: TextStyle(
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              side: BorderSide(
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+              ),
+              onSelected: (_) => setState(() {
+                _selectedCategoryId = cat.id;
+                _hasSuggestedCategory = true; // l'utilisateur a fait un choix explicite
+              }),
+            ),
+            // Badge "suggestion" discret sur la catégorie auto-sélectionnée
+            if (isSelected && _hasSuggestedCategory && _selectedCategoryId == cat.id)
+              Positioned(
+                top: -6,
+                right: -6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Auto',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         );
       }).toList(),
     );
@@ -728,9 +817,9 @@ class _TransactionReviewSheetState
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Transaction ajoutée ✓'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -740,7 +829,7 @@ class _TransactionReviewSheetState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }

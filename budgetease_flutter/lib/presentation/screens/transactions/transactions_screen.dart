@@ -9,7 +9,7 @@ import '../../../data/database/daos/transactions_dao.dart';
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../../providers/accounts_provider.dart';
-import '../../providers/budget_provider.dart';
+import '../../providers/engine_provider.dart';
 import '../onboarding/calibration_screen.dart';
 import '../../../services/analytics_service.dart';
 
@@ -41,7 +41,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final accountsAsync = ref.watch(accountsProviderProvider);
 
     return Scaffold(
-      // backgroundColor: AppColors.backgroundColor, // Removed to use theme
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed to use theme
       body: SafeArea(
         child: Column(
           children: [
@@ -55,16 +55,16 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     'Transactions',
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   // Search Bar
                   TextField(
                     decoration: InputDecoration(
                       hintText: 'Rechercher...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: Icon(Icons.search),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear),
+                              icon: Icon(Icons.clear),
                               onPressed: () {
                                 setState(() {
                                   _searchQuery = '';
@@ -90,7 +90,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     },
                   ),
                   
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   
                   // Filters
                   SingleChildScrollView(
@@ -98,7 +98,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     child: Row(
                       children: [
                         FilterChip(
-                          label: const Text('Tout'),
+                          label: Text('Tout'),
                           selected: _filterType == null,
                           onSelected: (selected) {
                             setState(() {
@@ -110,10 +110,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             );
                           },
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         FilterChip(
-                          label: const Text('Dépenses'),
-                          avatar: const Icon(Icons.remove_circle_outline, size: 18),
+                          label: Text('Dépenses'),
+                          avatar: Icon(Icons.remove_circle_outline, size: 18),
                           selected: _filterType == TransactionType.expense,
                           onSelected: (selected) {
                             setState(() {
@@ -125,10 +125,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             );
                           },
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         FilterChip(
-                          label: const Text('Revenus'),
-                          avatar: const Icon(Icons.add_circle_outline, size: 18),
+                          label: Text('Revenus'),
+                          avatar: Icon(Icons.add_circle_outline, size: 18),
                           selected: _filterType == TransactionType.income,
                           onSelected: (selected) {
                             setState(() {
@@ -140,10 +140,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             );
                           },
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         FilterChip(
-                          label: const Text('Virements'),
-                          avatar: const Icon(Icons.swap_horiz, size: 18),
+                          label: Text('Virements'),
+                          avatar: Icon(Icons.swap_horiz, size: 18),
                           selected: _filterType == TransactionType.transfer,
                           onSelected: (selected) {
                             setState(() {
@@ -205,15 +205,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                   Icon(
                                     Icons.receipt_long_outlined,
                                     size: 64,
-                                    color: AppColors.textSecondary.withValues(alpha: 0.5),
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.5),
                                   ),
-                                  const SizedBox(height: 16),
+                                  SizedBox(height: 16),
                                   Text(
                                     _searchQuery.isNotEmpty || _filterType != null
                                         ? 'Aucune transaction trouvée'
                                         : 'Aucune transaction',
                                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          color: AppColors.textSecondary,
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                         ),
                                   ),
                                 ],
@@ -250,7 +250,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                                     child: Text(
                                       _formatDateHeader(date),
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                            color: AppColors.textSecondary,
+                                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                                           ),
                                     ),
                                   ),
@@ -280,17 +280,48 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             },
                           );
                         },
-                        loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (e, s) => const Center(child: Text('Erreur de chargement des comptes')),
+                        loading: () => Center(child: CircularProgressIndicator()),
+                        error: (e, s) => _buildErrorRetry(
+                          message: 'Erreur de chargement des comptes',
+                          onRetry: () => ref.invalidate(accountsProviderProvider),
+                        ),
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, s) => const Center(child: Text('Erreur de chargement des catégories')),
+                    loading: () => Center(child: CircularProgressIndicator()),
+                    error: (e, s) => _buildErrorRetry(
+                      message: 'Erreur de chargement des catégories',
+                      onRetry: () => ref.invalidate(categoriesProviderProvider),
+                    ),
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => const Center(child: Text('Erreur de chargement des transactions')),
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (e, s) => _buildErrorRetry(
+                  message: 'Erreur de chargement des transactions',
+                  onRetry: () => ref.invalidate(transactionsProviderProvider),
+                ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorRetry({required String message, required VoidCallback onRetry}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cloud_off_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+            SizedBox(height: 12),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
+            SizedBox(height: 16),
+            TextButton.icon(
+              icon: Icon(Icons.refresh, size: 18),
+              label: Text('Réessayer'),
+              onPressed: onRetry,
             ),
           ],
         ),
@@ -311,15 +342,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     
     switch (transaction.type) {
       case TransactionType.expense:
-        amountColor = AppColors.errorColor;
+        amountColor = Theme.of(context).colorScheme.primary;
         amountPrefix = '-';
         break;
       case TransactionType.income:
-        amountColor = AppColors.accentColor;
+        amountColor = Theme.of(context).colorScheme.primary;
         amountPrefix = '+';
         break;
       case TransactionType.transfer:
-        amountColor = AppColors.primaryColor;
+        amountColor = Theme.of(context).colorScheme.primary;
         amountPrefix = '';
         break;
     }
@@ -353,15 +384,15 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
               Icon(
                 UIHelpers.getAccountIcon(account.type),
                 size: 14,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
                 account.name,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               if (transaction.description != null && transaction.description!.isNotEmpty) ...[
-                const Text(' • '),
+                Text(' • '),
                 Flexible(
                   child: Text(
                     transaction.description!,
@@ -387,7 +418,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 Text(
                   'Frais: ${transaction.feeAmount!.toStringAsFixed(0)} $currency',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
             ],
@@ -413,29 +444,29 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit, color: AppColors.primaryColor),
-              title: const Text('Modifier'),
+              leading: Icon(Icons.edit_outlined, color: Theme.of(context).colorScheme.primary),
+              title: Text('Modifier'),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('Modification de transaction à venir'),
-                    backgroundColor: AppColors.accentColor,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                 );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: AppColors.errorColor),
-              title: const Text('Supprimer'),
+              leading: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.primary),
+              title: Text('Supprimer'),
               onTap: () {
                 Navigator.pop(context);
-                _showDeleteConfirmation(context, ref, transaction);
+                _showDeleteConfirmation(context, ref, transaction, category, account, currency);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.close),
-              title: const Text('Annuler'),
+              leading: Icon(Icons.close),
+              title: Text('Annuler'),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -448,24 +479,78 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     BuildContext context,
     WidgetRef ref,
     Transaction transaction,
+    Category category,
+    Account account,
+    String currency,
   ) {
+    final sign = transaction.type == TransactionType.expense ? '-' : '+';
+    final amountStr = '$sign${transaction.amount.toStringAsFixed(0)} $currency';
+    final color = transaction.type == TransactionType.expense
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.primary;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer la transaction ?'),
-        content: const Text('Cette action est irréversible.'),
+        title: Text('Supprimer cette transaction ?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Récap de ce qu'on va supprimer
+              UIHelpers.withSurfaceTheme(context, Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          category.name,
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                        Text(
+                          account.name,
+                          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    amountStr,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+              )),
+            SizedBox(height: 14),
+            Text(
+              'Cette action est irréversible.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await _deleteTransaction(context, ref, transaction);
             },
-            style: TextButton.styleFrom(foregroundColor: AppColors.errorColor),
-            child: const Text('Supprimer'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.primary),
+            child: Text('Supprimer'),
           ),
         ],
       ),
@@ -497,13 +582,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       // Refresh providers
       ref.invalidate(transactionsProviderProvider);
       ref.invalidate(accountsProviderProvider);
-      ref.invalidate(budgetProviderProvider);
+      ref.invalidate(zoltEngineProviderProvider);
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Transaction supprimée'),
-            backgroundColor: AppColors.accentColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -512,7 +597,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur: $e'),
-            backgroundColor: AppColors.errorColor,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }

@@ -7,6 +7,7 @@ import '../../data/database/daos/accounts_dao.dart';
 import '../providers/accounts_provider.dart';
 import '../providers/budget_provider.dart';
 import '../providers/notification_provider.dart';
+import 'database_provider.dart';
 
 part 'transactions_provider.g.dart';
 
@@ -15,7 +16,7 @@ part 'transactions_provider.g.dart';
 class TransactionsProvider extends _$TransactionsProvider {
   @override
   Future<List<Transaction>> build() async {
-    final database = AppDatabase();
+    final database = ref.watch(databaseProvider);
     final dao = TransactionsDao(database);
     return await dao.getAllTransactions();
   }
@@ -39,7 +40,7 @@ class TransactionsProvider extends _$TransactionsProvider {
       throw ArgumentError('Le montant doit être positif: $amount');
     }
 
-    final database = AppDatabase();
+    final database = ref.read(databaseProvider);
     final dao = TransactionsDao(database);
 
     // Utiliser une transaction DB pour atomicité (éviter les race conditions)
@@ -84,10 +85,9 @@ class TransactionsProvider extends _$TransactionsProvider {
         if (notificationSettings['budget'] == true) {
           final dailyBudget = await ref.read(budgetProviderProvider.future);
           final totalDeduction = amount + (feeAmount ?? 0);
-          
+
           if (dailyBudget < 0) {
             final notificationService = ref.read(notificationServiceProvider);
-            // Budget négatif = en dette
             final spentRatio = dailyBudget.abs() > 0
                 ? 1.0 + (totalDeduction / dailyBudget.abs())
                 : 2.0;
@@ -128,7 +128,6 @@ class TransactionsProvider extends _$TransactionsProvider {
       case TransactionType.expense:
         final account = await accountsDao.getAccountById(accountId);
         if (account != null) {
-          // Déduire le montant ET les frais éventuels
           final totalDeduction = amount + (feeAmount ?? 0);
           await accountsDao.updateAccountBalance(
             accountId,

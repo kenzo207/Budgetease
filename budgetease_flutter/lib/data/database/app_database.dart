@@ -18,12 +18,14 @@ import 'tables/settings_table.dart';
 import 'tables/income_patterns_table.dart';
 import 'tables/insights_table.dart';
 import 'tables/behavioral_profiles_table.dart';
+import 'tables/recurring_incomes_table.dart';
 
 // Import DAOs
 import 'daos/accounts_dao.dart';
 import 'daos/transactions_dao.dart';
 import 'daos/categories_dao.dart';
 import 'daos/recurring_charges_dao.dart';
+import 'daos/recurring_incomes_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -40,12 +42,14 @@ part 'app_database.g.dart';
     IncomePatterns,
     Insights,
     BehavioralProfiles,
+    RecurringIncomes,
   ],
   daos: [
     AccountsDao,
     TransactionsDao,
     CategoriesDao,
     RecurringChargesDao,
+    RecurringIncomesDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -55,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase._internal() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6; // v6: Better category icons
+  int get schemaVersion => 7; // v7: Ajout table RecurringIncomes
   
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -126,6 +130,16 @@ class AppDatabase extends _$AppDatabase {
               print('✅ Migration v5→v6: Icônes des catégories mises à jour');
             } catch (e) {
               print('⚠️ Migration v5→v6: Erreur mise à jour icônes: $e');
+            }
+          }
+
+          // Migration de v6 à v7 : Ajout table RecurringIncomes
+          if (from < 7) {
+            try {
+              await m.createTable(recurringIncomes);
+              print('✅ Migration v6→v7: Table recurring_incomes créée');
+            } catch (e) {
+              print('⚠️ Migration v6→v7: Erreur création recurring_incomes: $e');
             }
           }
         },

@@ -6,7 +6,7 @@ part of 'accounts_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$accountsProviderHash() => r'6cea68c3ae402b08a12155a44fee4151f430df01';
+String _$accountsProviderHash() => r'c796c2e6236ae1e03d966d45090863ae118766df';
 
 /// Provider des comptes
 ///

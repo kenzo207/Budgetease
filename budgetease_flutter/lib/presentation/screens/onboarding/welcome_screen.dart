@@ -22,16 +22,16 @@ class WelcomeScreen extends ConsumerWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primaryColor.withValues(alpha: 0.2),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
             ),
-            child: const Icon(
-              Icons.account_balance_wallet,
+            child: Icon(
+              Icons.account_balance_wallet_outlined,
               size: 60,
-              color: AppColors.primaryColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           
-          const SizedBox(height: 48),
+          SizedBox(height: 48),
           
           // Titre
           Text(
@@ -40,7 +40,7 @@ class WelcomeScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           // Sous-titre
           Text(
@@ -49,7 +49,7 @@ class WelcomeScreen extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           // Points clés
           _buildFeaturePoint(
@@ -59,7 +59,7 @@ class WelcomeScreen extends ConsumerWidget {
             'Aucune connexion serveur',
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           
           _buildFeaturePoint(
             context,
@@ -68,7 +68,7 @@ class WelcomeScreen extends ConsumerWidget {
             'Sécurité maximale',
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           
           _buildFeaturePoint(
             context,
@@ -86,7 +86,7 @@ class WelcomeScreen extends ConsumerWidget {
               onPressed: () {
                 ref.read(onboardingControllerProvider.notifier).nextStep();
               },
-              child: const Text('Commencer la configuration'),
+              child: Text('Commencer la configuration'),
             ),
           ),
         ],
@@ -102,8 +102,8 @@ class WelcomeScreen extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        Icon(icon, color: AppColors.accentColor, size: 24),
-        const SizedBox(width: 16),
+        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
+        SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

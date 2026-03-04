@@ -6,15 +6,24 @@ import '../../../core/utils/formatters.dart';
 import '../../../data/database/tables/transactions_table.dart';
 import '../../../data/database/tables/categories_table.dart';
 import '../../../data/database/app_database.dart';
-import '../../providers/budget_provider.dart';
+import '../../providers/engine_provider.dart';
 import '../../providers/accounts_provider.dart';
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../../providers/navigation_provider.dart';
+import '../../providers/discrete_mode_provider.dart';
 import '../../widgets/dynamic_card.dart';
 import '../../widgets/triage_zone_widget.dart';
+import '../../widgets/action_bottom_sheet.dart';
+import '../../widgets/upcoming_charge_card.dart';
+import '../../widgets/pending_income_card.dart';
+import '../../providers/incomes_provider.dart';
 import '../onboarding/calibration_screen.dart';
 import '../../../services/analytics_service.dart';
+
+import '../../widgets/app_tutorial.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Écran d'accueil (Dashboard)
 class HomeScreen extends ConsumerStatefulWidget {
@@ -25,7 +34,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _discreteMode = false;
+  // Plus de state local — le mode discret est global via discreteModeProvider
+  
+  // Tutorial Keys
+  final GlobalKey _dailyBudgetKey = GlobalKey();
+  final GlobalKey _totalBalanceKey = GlobalKey();
+  final GlobalKey _triageKey = GlobalKey();
+  final GlobalKey _zoltMessagesKey = GlobalKey();
+  TutorialCoachMark? _tutorialCoachMark;
 
   @override
   void initState() {
@@ -33,14 +49,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Track screen view
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(analyticsServiceProvider).screen('Home');
+      _checkAndShowTutorial();
     });
+  }
+
+  Future<void> _checkAndShowTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeen = prefs.getBool('has_seen_tutorial') ?? false;
+    
+    // Pour des raisons de test ou si on veut forcer :
+    // await prefs.setBool('has_seen_tutorial', false);
+    
+    if (!hasSeen && mounted) {
+      _showTutorial();
+      await prefs.setBool('has_seen_tutorial', true);
+    }
+  }
+
+  void _showTutorial() {
+    _tutorialCoachMark = AppTutorial.createTutorial(
+      context: context,
+      ref: ref,
+      dailyBudgetKey: _dailyBudgetKey,
+      totalBalanceKey: _totalBalanceKey,
+      triageKey: _triageKey,
+      zoltMessagesKey: _zoltMessagesKey,
+      onFinish: () {},
+    )..show(context: context);
   }
 
   Future<void> _refresh() async {
     // Analytics
     ref.read(analyticsServiceProvider).capture('home_refreshed');
     // Recharger toutes les données essentielles
-    ref.invalidate(budgetProviderProvider);
+    ref.invalidate(zoltEngineProviderProvider);
     ref.invalidate(accountsProviderProvider);
     ref.invalidate(transactionsProviderProvider);
     // Attendre un court instant pour l'effet visuel
@@ -55,57 +97,49 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final userName = ref.watch(calibrationDataProvider).userName;
     final currency = ref.watch(calibrationDataProvider).currency;
+    final discreteMode = ref.watch(discreteModeProvider);
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _refresh,
-        color: AppColors.primaryColor,
+        color: Theme.of(context).colorScheme.primary,
         backgroundColor: Theme.of(context).cardColor,
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
-              // Header
+              SliverToBoxAdapter(child: _buildHeader(userName, discreteMode)),
               SliverToBoxAdapter(
-                child: _buildHeader(userName),
+                child: Container(
+                  key: _triageKey,
+                  child: const TriageZoneWidget(),
+                ),
               ),
-
-              // Zone de Triage (conditionnelle)
-              const SliverToBoxAdapter(
-                child: TriageZoneWidget(),
-              ),
-
-              // Carrousel de cartes
+              SliverToBoxAdapter(child: _buildCardsCarousel(currency, discreteMode)),
+              // ── Messages intelligents du Zolt Engine ──
               SliverToBoxAdapter(
-                child: _buildCardsCarousel(currency),
+                child: Container(
+                  key: _zoltMessagesKey,
+                  child: _buildZoltMessages(),
+                ),
               ),
-
-              // Titre Transactions Récentes + Voir tout
+              // ── Rentrée d'argent urgente ──
+              SliverToBoxAdapter(child: _buildPendingIncome(currency)),
+              // ── Charge urgente (auto-hidden si rien dans 7j) ──
+              SliverToBoxAdapter(child: UpcomingChargeCard(currency: currency)),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Transactions récentes',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      TextButton(
-                        onPressed: _navigateToTransactions,
-                        child: const Text('Voir tout'),
-                      ),
+                      Text('Transactions récentes', style: Theme.of(context).textTheme.titleLarge),
+                      TextButton(onPressed: _navigateToTransactions, child: Text('Voir tout')),
                     ],
                   ),
                 ),
               ),
-
-              // Liste des transactions récentes
-              _buildRecentTransactions(currency),
-              
-              // Espace pour le scroll
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 80),
-              ),
+              _buildRecentTransactions(currency, discreteMode),
+              const SliverToBoxAdapter(child: SizedBox(height: 80)),
             ],
           ),
         ),
@@ -113,16 +147,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildHeader(String userName) {
+  Widget _buildHeader(String userName, bool discreteMode) {
     final hour = DateTime.now().hour;
-    String greeting = 'Bonjour';
-    if (hour < 12) {
-      greeting = 'Bonjour';
-    } else if (hour < 18) {
-      greeting = 'Bon après-midi';
-    } else {
-      greeting = 'Bonsoir';
-    }
+    final greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon apr\u00e8s-midi' : 'Bonsoir';
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -133,10 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  greeting,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+                Text(greeting, style: Theme.of(context).textTheme.bodyLarge),
                 Text(
                   userName,
                   style: Theme.of(context).textTheme.displayMedium,
@@ -147,15 +171,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           IconButton(
             icon: Icon(
-              _discreteMode ? Icons.visibility_off : Icons.visibility,
-              color: AppColors.textSecondary,
+              discreteMode ? Icons.visibility_off : Icons.visibility,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
+            tooltip: discreteMode ? 'Afficher les montants' : 'Masquer les montants',
             onPressed: () {
-              final newMode = !_discreteMode;
-              setState(() {
-                _discreteMode = newMode;
-              });
-              // Analytics
+              final newMode = !discreteMode;
+              ref.read(discreteModeProvider.notifier).state = newMode;
               ref.read(analyticsServiceProvider).capture(
                 'discrete_mode_toggled',
                 properties: {'enabled': newMode},
@@ -167,82 +189,120 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildCardsCarousel(String currency) {
+  Widget _buildPendingIncome(String currency) {
+    final pendingAsync = ref.watch(nextPendingIncomeProvider);
+    return pendingAsync.when(
+      data: (income) {
+        if (income == null) return const SizedBox.shrink();
+        return PendingIncomeCard(income: income, currency: currency);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildZoltMessages() {
+    final messagesAsync = ref.watch(engineMessagesProvider);
+
+    return messagesAsync.when(
+      data: (messages) {
+        if (messages.isEmpty) return const SizedBox.shrink();
+
+        // On prend le premier message
+        final msg = messages.first;
+        final isCritical = msg.level == 'Critical';
+        
+        final bgColor = isCritical 
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) 
+            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1);
+        final iconColor = isCritical 
+            ? Theme.of(context).colorScheme.primary 
+            : Theme.of(context).colorScheme.primary;
+        final icon = isCritical ? Icons.warning_amber_rounded : Icons.lightbulb_outline;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: iconColor, size: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      msg.title.isNotEmpty ? msg.title : (isCritical ? 'Alerte Zolt' : 'Conseil Zolt'),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: iconColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      msg.body,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildCardsCarousel(String currency, bool discreteMode) {
     return SizedBox(
       height: 220,
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
         children: [
-          _buildDailyBudgetCard(currency),
-          _buildTotalBalanceCard(currency),
-          _buildAccountsCard(currency),
+          _buildDailyBudgetCard(currency, discreteMode),
+          _buildTotalBalanceCard(currency, discreteMode),
+          _buildAccountsCard(currency, discreteMode),
         ],
       ),
     );
   }
 
-  Widget _buildDailyBudgetCard(String currency) {
-    final budgetAsync = ref.watch(budgetProviderProvider);
+  Widget _buildDailyBudgetCard(String currency, bool discreteMode) {
+    final budgetAsync = ref.watch(engineDailyBudgetProvider);
 
     return budgetAsync.when(
       data: (dailyBudget) {
-        final displayAmount = _discreteMode ? '••••' : MoneyFormatter.formatCompact(dailyBudget, currency);
-        final budgetColor = dailyBudget < 0 ? AppColors.errorColor : AppColors.primaryColor;
-
-        return _buildCard(
-          title: 'Budget Quotidien',
-          amount: displayAmount,
-          icon: Icons.calendar_today,
-          color: budgetColor,
-        );
+        final displayAmount = discreteMode ? '\u2022\u2022\u2022\u2022' : MoneyFormatter.formatCompact(dailyBudget, currency);
+        return Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: displayAmount, icon: Icons.calendar_today));
       },
-      loading: () => _buildCard(
-        title: 'Budget Quotidien',
-        amount: '...',
-        icon: Icons.calendar_today,
-        color: AppColors.primaryColor,
-      ),
-      error: (e, s) => _buildCard(
-        title: 'Budget Quotidien',
-        amount: 'Erreur',
-        icon: Icons.calendar_today,
-        color: AppColors.errorColor,
-      ),
+      loading: () => Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: '...', icon: Icons.calendar_today)),
+      error: (e, s) => Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: 'Erreur', icon: Icons.calendar_today)),
     );
   }
 
-  Widget _buildTotalBalanceCard(String currency) {
+  Widget _buildTotalBalanceCard(String currency, bool discreteMode) {
     final accountsAsync = ref.watch(accountsProviderProvider);
-
     return accountsAsync.when(
       data: (accounts) {
-        final total = accounts.fold<double>(0, (sum, account) => sum + account.currentBalance);
-        final displayAmount = _discreteMode ? '••••' : MoneyFormatter.formatCompact(total, currency);
-
-        return _buildCard(
-          title: 'Solde Total',
-          amount: displayAmount,
-          icon: Icons.account_balance_wallet,
-          color: AppColors.accentColor,
-        );
+        final total = accounts.fold<double>(0, (sum, a) => sum + a.currentBalance);
+        final displayAmount = discreteMode ? '\u2022\u2022\u2022\u2022' : MoneyFormatter.formatCompact(total, currency);
+        return Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: displayAmount, icon: Icons.account_balance_wallet_outlined));
       },
-      loading: () => _buildCard(
-        title: 'Solde Total',
-        amount: '...',
-        icon: Icons.account_balance_wallet,
-        color: AppColors.accentColor,
-      ),
-      error: (e, s) => _buildCard(
-        title: 'Solde Total',
-        amount: 'Erreur',
-        icon: Icons.account_balance_wallet,
-        color: AppColors.errorColor,
-      ),
+      loading: () => Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: '...', icon: Icons.account_balance_wallet_outlined)),
+      error: (e, s) => Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: 'Erreur', icon: Icons.account_balance_wallet_outlined)),
     );
   }
 
-  Widget _buildAccountsCard(String currency) {
+  Widget _buildAccountsCard(String currency, bool discreteMode) {
     final accountsAsync = ref.watch(accountsProviderProvider);
 
     return accountsAsync.when(
@@ -250,7 +310,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         return Container(
           width: 280,
           margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: Card(
+          child: DynamicCard(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -258,17 +318,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.account_balance, color: AppColors.primaryColor),
-                      const SizedBox(width: 8),
+                      Icon(Icons.account_balance_outlined),
+                      SizedBox(width: 8),
                       Text(
                         'Mes Comptes',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   if (accounts.isEmpty)
-                    const Expanded(
+                    Expanded(
                       child: Center(child: Text('Aucun compte')),
                     )
                   else
@@ -278,8 +338,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         itemCount: accounts.length > 3 ? 3 : accounts.length,
                         itemBuilder: (context, index) {
                           final account = accounts[index];
-                          final displayAmount = _discreteMode
-                              ? '••••'
+                          final displayAmount = discreteMode
+                              ? '\u2022\u2022\u2022\u2022'
                               : MoneyFormatter.formatCompact(account.currentBalance, currency);
 
                           return Padding(
@@ -296,7 +356,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             color: UIHelpers.getAccountColor(account.type),
                                             size: 20,
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: 8),
                                           Flexible(
                                             child: Text(
                                               account.name,
@@ -326,14 +386,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       loading: () => _buildCard(
         title: 'Mes Comptes',
         amount: '...',
-        icon: Icons.account_balance,
-        color: AppColors.primaryColor,
+        icon: Icons.account_balance_outlined,
       ),
       error: (e, s) => _buildCard(
         title: 'Mes Comptes',
         amount: 'Erreur',
-        icon: Icons.account_balance,
-        color: AppColors.errorColor,
+        icon: Icons.account_balance_outlined,
       ),
     );
   }
@@ -342,7 +400,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     required String title,
     required String amount,
     required IconData icon,
-    required Color color,
   }) {
     return Container(
       width: 200,
@@ -355,12 +412,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Row(
               children: [
-                Icon(icon, color: color),
-                const SizedBox(width: 8),
+                Icon(icon, color: Theme.of(context).colorScheme.onSurface),
+                SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -372,7 +431,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Text(
                 amount,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: color,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
             ),
@@ -382,7 +441,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildRecentTransactions(String currency) {
+  Widget _buildRecentTransactions(String currency, bool discreteMode) {
     final transactionsAsync = ref.watch(transactionsProviderProvider);
     final categoriesAsync = ref.watch(categoriesProviderProvider);
 
@@ -398,22 +457,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 padding: const EdgeInsets.all(48.0),
                 child: Column(
                   children: [
-                    const Icon(
-                      Icons.receipt_long_outlined,
-                      size: 64,
-                      color: AppColors.textTertiary,
-                    ),
-                    const SizedBox(height: 16),
+                    Icon(Icons.receipt_long_outlined, size: 64, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+                    SizedBox(height: 16),
+                    Text('Aucune transaction', style: Theme.of(context).textTheme.bodyLarge),
+                    SizedBox(height: 8),
                     Text(
-                      'Aucune transaction récente',
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      'Appuyez sur + pour ajouter votre premi\u00e8re transaction',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
+                    SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.add),
+                      label: Text('Ajouter une transaction'),
                       onPressed: () {
-                        // TODO: Ouvrir form ajout transaction
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => const ActionBottomSheet(),
+                        );
                       },
-                      child: const Text('Ajouter une transaction'),
                     ),
                   ],
                 ),
@@ -426,7 +490,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final transaction = recent[index];
-              final displayAmount = _discreteMode
+              final displayAmount = discreteMode
                   ? '••••'
                   : MoneyFormatter.formatCompact(transaction.amount, currency);
 
@@ -492,11 +556,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: CircularProgressIndicator(),
         )),
       ),
-      error: (e, s) => const SliverToBoxAdapter(
-        child: Center(child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Text('Erreur de chargement des transactions'),
-        )),
+      error: (e, s) => SliverToBoxAdapter(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                Icon(Icons.wifi_off_outlined, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
+                SizedBox(height: 12),
+                Text('Impossible de charger les transactions', textAlign: TextAlign.center),
+                SizedBox(height: 16),
+                TextButton.icon(
+                  icon: Icon(Icons.refresh, size: 18),
+                  label: Text('Réessayer'),
+                  onPressed: () {
+                    ref.invalidate(transactionsProviderProvider);
+                    ref.invalidate(accountsProviderProvider);
+                    ref.invalidate(zoltEngineProviderProvider);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -515,11 +597,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Color _getTransactionColor(TransactionType type) {
     switch (type) {
       case TransactionType.expense:
-        return AppColors.errorColor;
+        return Theme.of(context).colorScheme.primary;
       case TransactionType.income:
-        return AppColors.accentColor;
+        return Theme.of(context).colorScheme.primary;
       case TransactionType.transfer:
-        return AppColors.primaryColor;
+        return Theme.of(context).colorScheme.primary;
     }
   }
 }

@@ -67,13 +67,13 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
         children: [
           // Bouton retour
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               ref.read(onboardingControllerProvider.notifier).previousStep();
             },
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           // Question 1: Devise
           Text(
@@ -81,7 +81,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           DropdownButtonFormField<String>(
             initialValue: _selectedCurrency,
@@ -102,7 +102,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
             },
           ),
           
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           // Question 2: Prénom
           Text(
@@ -110,13 +110,13 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
             style: Theme.of(context).textTheme.displayMedium,
           ),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           TextField(
             controller: _nameController,
             decoration: const InputDecoration(
               labelText: 'Prénom',
-              prefixIcon: Icon(Icons.person),
+              prefixIcon: Icon(Icons.person_outline),
               hintText: 'Ex: Jean',
             ),
             textCapitalization: TextCapitalization.words,
@@ -130,7 +130,7 @@ class _CalibrationScreenState extends ConsumerState<CalibrationScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _canContinue ? _onContinue : null,
-              child: const Text('Continuer'),
+              child: Text('Continuer'),
             ),
           ),
         ],

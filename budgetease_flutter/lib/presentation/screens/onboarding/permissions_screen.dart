@@ -121,6 +121,14 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
           'has_transport': transport != null,
         },
       );
+      // Identifier l'utilisateur avec son prénom dans PostHog
+      await ref.read(analyticsServiceProvider).identifyWithName(
+        calibration.userName,
+        extraProperties: {
+          'currency': calibration.currency,
+          'onboarding_completed': true,
+        },
+      );
 
       // 6. Navigation vers l'écran principal
       if (mounted) {

@@ -591,6 +591,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           'username_updated',
           properties: {'new_length': newName.length},
         );
+        // Mettre à jour le nom dans PostHog
+        ref.read(analyticsServiceProvider).identifyWithName(newName);
         
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

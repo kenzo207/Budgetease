@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 /// Provider for the Analytics Service
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
@@ -63,6 +65,44 @@ class AnalyticsService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('⚠️ Analytics Identify Error: $e');
+      }
+    }
+  }
+
+  /// Identifier l'utilisateur avec son prénom choisi à l'onboarding.
+  ///
+  /// Génère (ou récupère) un anonymousId UUID stable stocké dans le Keystore.
+  /// PostHog recevra : userId = anonymousId, userProperties.name = userName.
+  Future<void> identifyWithName(
+    String userName, {
+    Map<String, dynamic>? extraProperties,
+  }) async {
+    try {
+      const storage = FlutterSecureStorage();
+      const key = 'budgetease_analytics_id';
+
+      String? anonymousId = await storage.read(key: key);
+      if (anonymousId == null) {
+        anonymousId = const Uuid().v4();
+        await storage.write(key: key, value: anonymousId);
+      }
+
+      final props = <String, Object>{
+        'name': userName,
+        ...?extraProperties?.map((k, v) => MapEntry(k, v as Object)),
+      };
+
+      if (kDebugMode) {
+        debugPrint('📊 Analytics Identify: $anonymousId | name=$userName');
+      }
+
+      await _posthog.identify(
+        userId: anonymousId,
+        userProperties: props,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('⚠️ Analytics IdentifyWithName Error: $e');
       }
     }
   }

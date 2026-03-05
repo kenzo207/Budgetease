@@ -18,7 +18,7 @@ class ThemeProvider extends _$ThemeProvider {
         return _preferenceToMode(settings.themeMode);
       }
     } catch (e) {
-      print('Error loading theme: $e');
+      debugPrint('[ThemeProvider] Error loading theme: $e');
     }
     return ThemeMode.system; // Default
   }
@@ -39,7 +39,7 @@ class ThemeProvider extends _$ThemeProvider {
             ));
       }
     } catch (e) {
-      print('Error saving theme: $e');
+      debugPrint('[ThemeProvider] Error saving theme: $e');
       ref.invalidateSelf();
     }
   }

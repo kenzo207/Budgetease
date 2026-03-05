@@ -13,8 +13,6 @@ typedef _ZoltVersionDart = Pointer<Utf8> Function();
 // Single-arg FFI (classify, session, analytics, close_cycle, validate, integrity, onboarding)
 typedef _ZoltSingleC    = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef _ZoltSingleDart = Pointer<Utf8> Function(Pointer<Utf8>);
-// Alias pour la lisibilité
-typedef _ZoltClassifyC    = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef _ZoltClassifyDart = Pointer<Utf8> Function(Pointer<Utf8>);
 
 /// Bridge FFI vers la bibliothèque Rust `libzolt_engine.so`.

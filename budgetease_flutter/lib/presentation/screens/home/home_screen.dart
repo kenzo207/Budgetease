@@ -42,7 +42,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final GlobalKey _totalBalanceKey = GlobalKey();
   final GlobalKey _triageKey = GlobalKey();
   final GlobalKey _zoltMessagesKey = GlobalKey();
-  TutorialCoachMark? _tutorialCoachMark;
 
   @override
   void initState() {
@@ -68,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _showTutorial() {
-    _tutorialCoachMark = AppTutorial.createTutorial(
+    AppTutorial.createTutorial(
       context: context,
       ref: ref,
       dailyBudgetKey: _dailyBudgetKey,
@@ -76,7 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       triageKey: _triageKey,
       zoltMessagesKey: _zoltMessagesKey,
       onFinish: () {},
-    )..show(context: context);
+    ).show(context: context);
   }
 
   Future<void> _refresh() async {
@@ -346,11 +345,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final trend = health.trend > 0
             ? '+${health.trend}'
             : '${health.trend}';
-        return UIHelpers.withSurfaceTheme(
-          context,
+        return Card(
+          margin: const EdgeInsets.only(right: 12),
           child: Container(
             width: 160,
-            margin: const EdgeInsets.only(right: 12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

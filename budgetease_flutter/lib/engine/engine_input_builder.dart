@@ -73,7 +73,7 @@ Map<String, dynamic> buildEngineInput({
     // ── Cycle financier ────────────────────────────────────
     'cycle': {
       'cycle_type':   _cycleType(settings.financialCycle),
-      'savings_goal': settings.savingsGoal ?? 0.0,
+      'savings_goal': settings.savingsGoal,
       'transport':    _transportJson(settings),
     },
   };

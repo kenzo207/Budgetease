@@ -11,7 +11,7 @@ import 'presentation/screens/auth/lock_screen.dart';
 import 'presentation/screens/onboarding/onboarding_screen.dart';
 import 'presentation/screens/onboarding/calibration_screen.dart';
 import 'presentation/screens/main_screen.dart';
-import 'data/database/app_database.dart';
+import 'presentation/providers/database_provider.dart';
 import 'domain/services/notification_service.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'services/analytics_service.dart';
@@ -51,16 +51,13 @@ void main() async {
     }
   }
 
-  // Initialiser la base de données (singleton)
-  AppDatabase();
-
   // Initialiser PostHog Analytics
   final config = PostHogConfig(
     'phc_kfOGYe0g12XISJvJK2mne0srlSweSH3vgQPdWqhpkwj',
   );
   config.host = 'https://eu.i.posthog.com';
   config.captureApplicationLifecycleEvents = true;
-  config.debug = true;
+  config.debug = kDebugMode;
   config.flushAt = 1;
   config.flushInterval = const Duration(seconds: 5);
   config.personProfiles = PostHogPersonProfiles.always;
@@ -110,9 +107,14 @@ class AppInitializer extends ConsumerStatefulWidget {
 }
 
 class _AppInitializerState extends ConsumerState<AppInitializer> {
+  late final Future<bool> _onboardingFuture;
+  late final Future<bool> _securityFuture;
+
   @override
   void initState() {
     super.initState();
+    _onboardingFuture = _isOnboardingCompleted();
+    _securityFuture   = _isSecurityConfigured();
     _initServices();
   }
 
@@ -131,11 +133,15 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
     ref.read(analyticsServiceProvider).capture('app_opened');
   }
 
+  Future<bool> _isSecurityConfigured() {
+    final securityService = ref.read(securityServiceProvider);
+    return securityService.isSecurityConfigured();
+  }
+
   /// Charge les données de calibrage depuis la base de données
-  /// pour initialiser le calibrationDataProvider au démarrage
   Future<void> _loadCalibrationFromDb() async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final settings = await database.select(database.settings).getSingleOrNull();
       if (settings != null) {
         ref.read(calibrationDataProvider.notifier).state = CalibrationData(
@@ -144,7 +150,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         );
       }
     } catch (e) {
-      debugPrint('DEBUG: Error loading calibration from DB: $e');
+      debugPrint('[AppInit] Error loading calibration: $e');
     }
   }
 
@@ -158,7 +164,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         if (isAuthenticated) {
           // Utilisateur authentifié, vérifier si l'onboarding est complété
           return FutureBuilder<bool>(
-            future: _isOnboardingCompleted(),
+            future: _onboardingFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const _LoadingScreen();
@@ -176,7 +182,7 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
         } else {
           // Utilisateur non authentifié, afficher l'écran de verrouillage
           return FutureBuilder<bool>(
-            future: securityService.isSecurityConfigured(),
+            future: _securityFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const _LoadingScreen();
@@ -204,17 +210,14 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
   }
 
   Future<bool> _isOnboardingCompleted() async {
-    print('DEBUG: Checking onboarding status...');
-    final database = AppDatabase();
+    final database = ref.read(databaseProvider);
     try {
       final settings = await (database.select(database.settings)..limit(1)).getSingleOrNull();
-      print('DEBUG: Settings found: ${settings != null}, Onboarding Completed: ${settings?.onboardingCompleted}');
       return settings?.onboardingCompleted ?? false;
     } catch (e) {
-      print('DEBUG: Error checking onboarding: $e');
+      debugPrint('[AppInit] Error checking onboarding: $e');
       return false;
-    } 
-    // removed finally -> await database.close() because it's a singleton now!
+    }
   }
 }
 

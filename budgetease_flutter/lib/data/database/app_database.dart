@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
@@ -76,9 +77,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) {
             try {
               await m.addColumn(settings, settings.borderColor);
-              print('✅ Migration v1→v2: borderColor ajouté avec succès');
+              debugPrint('✅ Migration v1→v2: borderColor ajouté avec succès');
             } catch (e) {
-              print('⚠️ Migration v1→v2: borderColor déjà existant ou erreur: $e');
+              debugPrint('⚠️ Migration v1→v2: borderColor déjà existant ou erreur: $e');
             }
           }
           
@@ -88,9 +89,9 @@ class AppDatabase extends _$AppDatabase {
               await m.createTable(incomePatterns);
               await m.createTable(insights);
               await m.createTable(behavioralProfiles);
-              print('✅ Migration v2→v3: Tables Phase 7 créées avec succès');
+              debugPrint('✅ Migration v2→v3: Tables Phase 7 créées avec succès');
             } catch (e) {
-              print('⚠️ Migration v2→v3: Erreur création tables: $e');
+              debugPrint('⚠️ Migration v2→v3: Erreur création tables: $e');
             }
           }
 
@@ -98,9 +99,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 4) {
             try {
               await m.addColumn(settings, settings.themeMode);
-              print('✅ Migration v3→v4: themeMode ajouté avec succès');
+              debugPrint('✅ Migration v3→v4: themeMode ajouté avec succès');
             } catch (e) {
-              print('⚠️ Migration v3→v4: Erreur ajout themeMode: $e');
+              debugPrint('⚠️ Migration v3→v4: Erreur ajout themeMode: $e');
             }
           }
 
@@ -110,9 +111,9 @@ class AppDatabase extends _$AppDatabase {
               // Drop et recréer la table pending_transactions (les pending sont temporaires)
               await m.deleteTable('pending_transactions');
               await m.createTable(pendingTransactions);
-              print('✅ Migration v4→v5: Table pending_transactions recréée avec champs enrichis');
+              debugPrint('✅ Migration v4→v5: Table pending_transactions recréée avec champs enrichis');
             } catch (e) {
-              print('⚠️ Migration v4→v5: Erreur migration pending_transactions: $e');
+              debugPrint('⚠️ Migration v4→v5: Erreur migration pending_transactions: $e');
             }
           }
           // Migration de v5 à v6 : Meilleures icônes pour les catégories
@@ -131,9 +132,9 @@ class AppDatabase extends _$AppDatabase {
                   [entry.value, entry.key],
                 );
               }
-              print('✅ Migration v5→v6: Icônes des catégories mises à jour');
+              debugPrint('✅ Migration v5→v6: Icônes des catégories mises à jour');
             } catch (e) {
-              print('⚠️ Migration v5→v6: Erreur mise à jour icônes: $e');
+              debugPrint('⚠️ Migration v5→v6: Erreur mise à jour icônes: $e');
             }
           }
 
@@ -141,9 +142,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 7) {
             try {
               await m.createTable(recurringIncomes);
-              print('✅ Migration v6→v7: Table recurring_incomes créée');
+              debugPrint('✅ Migration v6→v7: Table recurring_incomes créée');
             } catch (e) {
-              print('⚠️ Migration v6→v7: Erreur création recurring_incomes: $e');
+              debugPrint('⚠️ Migration v6→v7: Erreur création recurring_incomes: $e');
             }
           }
 
@@ -151,9 +152,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 8) {
             try {
               await m.addColumn(recurringCharges, recurringCharges.paidAmount);
-              print('✅ Migration v7→v8: paidAmount ajouté sur recurring_charges');
+              debugPrint('✅ Migration v7→v8: paidAmount ajouté sur recurring_charges');
             } catch (e) {
-              print('⚠️ Migration v7→v8: paidAmount déjà existant ou erreur: $e');
+              debugPrint('⚠️ Migration v7→v8: paidAmount déjà existant ou erreur: $e');
             }
           }
 
@@ -161,17 +162,17 @@ class AppDatabase extends _$AppDatabase {
           if (from < 9) {
             try {
               await m.createTable(cycleRecords);
-              print('✅ Migration v8→v9: Table cycle_records créée');
+              debugPrint('✅ Migration v8→v9: Table cycle_records créée');
             } catch (e) {
-              print('⚠️ Migration v8→v9: Erreur création cycle_records: $e');
+              debugPrint('⚠️ Migration v8→v9: Erreur création cycle_records: $e');
             }
           }
         },
         beforeOpen: (details) async {
           if (details.wasCreated) {
-            print('🆕 Nouvelle base de données créée (v$schemaVersion)');
+            debugPrint('🆕 Nouvelle base de données créée (v$schemaVersion)');
           } else if (details.hadUpgrade) {
-            print('⬆️ Base de données mise à jour: v${details.versionBefore} → v${details.versionNow}');
+            debugPrint('⬆️ Base de données mise à jour: v${details.versionBefore} → v${details.versionNow}');
           }
         },
       );
@@ -293,8 +294,8 @@ class AppDatabase extends _$AppDatabase {
         return existingKey;
       }
     } catch (e) {
-      print('⚠️ Erreur de lecture de la clé de chiffrement: $e');
-      print('🚨 Réinitialisation du stockage sécurisé et de la base de données...');
+      debugPrint('⚠️ Erreur de lecture de la clé de chiffrement: $e');
+      debugPrint('🚨 Réinitialisation du stockage sécurisé et de la base de données...');
       
       // En cas d'erreur (ex: clé Android Keystore invalidée), on réinitialise tout
       await storage.deleteAll();

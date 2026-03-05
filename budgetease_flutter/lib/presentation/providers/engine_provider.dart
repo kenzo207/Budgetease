@@ -248,12 +248,12 @@ Future<eng.ZoltEngineOutputV2> _dartFallback({
   required CycleManagerService cycleManager,
 }) async {
   final totalBalance  = accounts.fold<double>(0, (s, a) => s + a.currentBalance);
-  final savingsGoal   = settings.savingsGoal ?? 0.0;
+  final savingsGoal   = settings.savingsGoal;
   final daysRemaining = cycleManager.getDaysRemainingInCycle();
 
   final daysPerWeek = settings.transportDaysPerWeek ?? 5;
   final transportReserve = settings.transportMode == TransportMode.daily
-      ? (settings.dailyTransportCost ?? 0.0) * daysPerWeek * (daysRemaining / 7)
+      ? (settings.dailyTransportCost ?? 0.0) * daysPerWeek * (daysRemaining / 7.0)
       : 0.0;
 
   final now   = DateTime.now();

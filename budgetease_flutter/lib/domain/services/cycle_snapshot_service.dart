@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart';
 import '../../data/database/app_database.dart';
 import '../../data/database/tables/settings_table.dart';
@@ -77,7 +78,7 @@ class CycleSnapshotService {
           .map((e) => [e.key, e.value])
           .toList();
 
-      final savingsGoal = settings.savingsGoal ?? 0.0;
+      final savingsGoal = settings.savingsGoal;
 
       await dao.insertRecord(CycleRecordsCompanion.insert(
         cycleStart:        prevStart,
@@ -98,7 +99,7 @@ class CycleSnapshotService {
       await dao.pruneOldRecords(keepLast: 24);
     } catch (e) {
       // Non-fatal : un snapshot manquant ne bloque pas l'app
-      print('⚠️ CycleSnapshotService: snapshot création échouée: $e');
+      debugPrint('[CycleSnapshot] snapshot création échouée: $e');
     }
   }
 

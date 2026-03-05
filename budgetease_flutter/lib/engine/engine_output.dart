@@ -307,7 +307,7 @@ class CycleDetectionResult {
     if (rawStatus is String) {
       statusStr = rawStatus;
     } else if (rawStatus is Map) {
-      statusStr = (rawStatus as Map).keys.first;
+      statusStr = rawStatus.keys.first;
     }
     return CycleDetectionResult(
       status:            statusStr,

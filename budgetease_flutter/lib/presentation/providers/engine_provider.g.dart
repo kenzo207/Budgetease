@@ -150,6 +150,183 @@ final engineIntegrityProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef EngineIntegrityRef = AutoDisposeFutureProviderRef<eng.IntegrityReport>;
+String _$engineAnalyticsHash() => r'2ccb31bf84210783bbad6d10a88cce5c562d9982';
+
+/// Copied from Dart SDK
+class _SystemHash {
+  _SystemHash._();
+
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}
+
+/// Analytics d'un mois donné via zolt_analytics.
+/// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+/// Retourne null si le moteur n'est pas disponible.
+///
+/// Copied from [engineAnalytics].
+@ProviderFor(engineAnalytics)
+const engineAnalyticsProvider = EngineAnalyticsFamily();
+
+/// Analytics d'un mois donné via zolt_analytics.
+/// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+/// Retourne null si le moteur n'est pas disponible.
+///
+/// Copied from [engineAnalytics].
+class EngineAnalyticsFamily extends Family<AsyncValue<eng.AnalyticsResult?>> {
+  /// Analytics d'un mois donné via zolt_analytics.
+  /// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+  /// Retourne null si le moteur n'est pas disponible.
+  ///
+  /// Copied from [engineAnalytics].
+  const EngineAnalyticsFamily();
+
+  /// Analytics d'un mois donné via zolt_analytics.
+  /// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+  /// Retourne null si le moteur n'est pas disponible.
+  ///
+  /// Copied from [engineAnalytics].
+  EngineAnalyticsProvider call(
+    DateTime month,
+  ) {
+    return EngineAnalyticsProvider(
+      month,
+    );
+  }
+
+  @override
+  EngineAnalyticsProvider getProviderOverride(
+    covariant EngineAnalyticsProvider provider,
+  ) {
+    return call(
+      provider.month,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'engineAnalyticsProvider';
+}
+
+/// Analytics d'un mois donné via zolt_analytics.
+/// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+/// Retourne null si le moteur n'est pas disponible.
+///
+/// Copied from [engineAnalytics].
+class EngineAnalyticsProvider
+    extends AutoDisposeFutureProvider<eng.AnalyticsResult?> {
+  /// Analytics d'un mois donné via zolt_analytics.
+  /// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+  /// Retourne null si le moteur n'est pas disponible.
+  ///
+  /// Copied from [engineAnalytics].
+  EngineAnalyticsProvider(
+    DateTime month,
+  ) : this._internal(
+          (ref) => engineAnalytics(
+            ref as EngineAnalyticsRef,
+            month,
+          ),
+          from: engineAnalyticsProvider,
+          name: r'engineAnalyticsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$engineAnalyticsHash,
+          dependencies: EngineAnalyticsFamily._dependencies,
+          allTransitiveDependencies:
+              EngineAnalyticsFamily._allTransitiveDependencies,
+          month: month,
+        );
+
+  EngineAnalyticsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.month,
+  }) : super.internal();
+
+  final DateTime month;
+
+  @override
+  Override overrideWith(
+    FutureOr<eng.AnalyticsResult?> Function(EngineAnalyticsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: EngineAnalyticsProvider._internal(
+        (ref) => create(ref as EngineAnalyticsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        month: month,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<eng.AnalyticsResult?> createElement() {
+    return _EngineAnalyticsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EngineAnalyticsProvider && other.month == month;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, month.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin EngineAnalyticsRef on AutoDisposeFutureProviderRef<eng.AnalyticsResult?> {
+  /// The parameter `month` of this provider.
+  DateTime get month;
+}
+
+class _EngineAnalyticsProviderElement
+    extends AutoDisposeFutureProviderElement<eng.AnalyticsResult?>
+    with EngineAnalyticsRef {
+  _EngineAnalyticsProviderElement(super.provider);
+
+  @override
+  DateTime get month => (origin as EngineAnalyticsProvider).month;
+}
+
 String _$zoltEngineProviderHash() =>
     r'746a81832cccb152d7b1c928453590473a5ee8cd';
 

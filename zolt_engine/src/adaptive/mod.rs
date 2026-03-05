@@ -1,43 +1,17 @@
 // ============================================================
 //  COUCHE 2 — MOTEUR ADAPTATIF
-//  5 modules indépendants qui apprennent des comportements.
-//  Nécessite un historique de cycles passés pour être fiable.
-//  Pendant les 3 premiers cycles → mode observation uniquement.
+//  Note : CycleRecord est maintenant dans types.rs
 // ============================================================
 
-pub mod profile;    // Module A — Profil comportemental
-pub mod prediction; // Module B — Prédiction fin de cycle
-pub mod anomaly;    // Module C — Détection d'anomalies
-pub mod adjustment; // Module D — Ajustements adaptatifs
-pub mod memory;     // Module E — Mémoire épisodique
+pub mod profile;
+pub mod prediction;
+pub mod anomaly;
+pub mod adjustment;
+pub mod memory;
 
 use crate::types::*;
+pub use crate::types::CycleRecord;
 
-/// Historique d'un cycle terminé, stocké localement (SQLite).
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct CycleRecord {
-    pub cycle_start:         Date,
-    pub cycle_end:           Date,
-    pub opening_balance:     f64,
-    pub closing_balance:     f64,
-    pub total_income:        f64,
-    pub total_expenses:      f64,
-    pub savings_goal:        f64,
-    pub savings_achieved:    f64,
-    /// Dépenses par jour du cycle (index 0 = jour 1)
-    pub daily_expenses:      Vec<f64>,
-    /// Dépenses par catégorie : (catégorie, total)
-    pub category_totals:     Vec<(String, f64)>,
-    pub transactions:        Vec<Transaction>,
-}
-
-impl CycleRecord {
-    pub fn cycle_length(&self) -> u32 {
-        (self.cycle_start.days_until(&self.cycle_end) + 1).max(1) as u32
-    }
-}
-
-/// Façade : orchestre tous les modules adaptatifs.
 pub struct AdaptiveEngine;
 
 impl AdaptiveEngine {
@@ -46,11 +20,16 @@ impl AdaptiveEngine {
         history: &[CycleRecord],
         det:     &DeterministicResult,
     ) -> AdaptiveOutput {
-        let profile    = profile::ProfileModule::compute(history);
-        let prediction = prediction::PredictionModule::compute(input, det, history, &profile);
-        let anomalies  = anomaly::AnomalyModule::detect(input, history, &profile, det);
-        let suggestions = adjustment::AdjustmentModule::suggest(history, &profile, det);
-        let episodes   = memory::MemoryModule::relevant_episodes(input, history);
+        let valid_history: Vec<CycleRecord> = history.iter()
+            .filter(|r| r.validate().is_ok())
+            .cloned()
+            .collect();
+
+        let profile     = profile::ProfileModule::compute(&valid_history);
+        let prediction  = prediction::PredictionModule::compute(input, det, &valid_history, &profile);
+        let anomalies   = anomaly::AnomalyModule::detect(input, &valid_history, &profile, det);
+        let suggestions = adjustment::AdjustmentModule::suggest(&valid_history, &profile, det);
+        let episodes    = memory::MemoryModule::relevant_episodes(input, &valid_history);
 
         AdaptiveOutput { profile, prediction, anomalies, suggestions, episodes }
     }

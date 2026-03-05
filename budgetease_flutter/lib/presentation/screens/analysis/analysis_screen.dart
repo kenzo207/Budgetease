@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
-import '../../../data/database/tables/transactions_table.dart'; // For TransactionType enum
-import '../../providers/transactions_provider.dart';
+import '../../providers/engine_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../onboarding/calibration_screen.dart';
 import '../../../services/analytics_service.dart';
@@ -31,11 +30,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final currency = ref.watch(calibrationDataProvider).currency;
-    final transactionsAsync = ref.watch(transactionsProviderProvider);
     final categoriesAsync = ref.watch(categoriesProviderProvider);
+    final analyticsAsync  = ref.watch(engineAnalyticsProvider(_selectedMonth));
 
     return Scaffold(
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed to use theme
       body: SafeArea(
         child: Column(
           children: [
@@ -50,7 +48,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     style: Theme.of(context).textTheme.displayMedium,
                   ),
                   SizedBox(height: 16),
-                  
+
                   // Month Selector
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,43 +104,24 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
 
             // Content
             Expanded(
-              child: transactionsAsync.when(
-                data: (transactions) {
+              child: analyticsAsync.when(
+                data: (analytics) {
                   return categoriesAsync.when(
                     data: (categories) {
-                      // Filter transactions for selected month
-                      final startOfMonth = DateTime(_selectedMonth.year, _selectedMonth.month, 1);
-                      final endOfMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 0, 23, 59, 59);
-                      
-                      final monthTransactions = transactions.where((t) {
-                        return t.date.isAfter(startOfMonth.subtract(const Duration(seconds: 1))) &&
-                               t.date.isBefore(endOfMonth.add(const Duration(seconds: 1)));
-                      }).toList();
-
-                      // Calculate totals (include fees in expenses)
-                      final totalExpenses = monthTransactions
-                          .where((t) => t.type == TransactionType.expense)
-                          .fold<double>(0.0, (sum, t) => sum + t.amount + (t.feeAmount ?? 0));
-                      
-                      final totalIncome = monthTransactions
-                          .where((t) => t.type == TransactionType.income)
-                          .fold<double>(0.0, (sum, t) => sum + t.amount);
-                      
-                      final balance = totalIncome - totalExpenses;
-
-                      // Group expenses by category (include fees)
-                      final expensesByCategory = <int, double>{};
-                      for (var transaction in monthTransactions) {
-                        if (transaction.type == TransactionType.expense) {
-                          final total = transaction.amount + (transaction.feeAmount ?? 0);
-                          expensesByCategory[transaction.categoryId!] = 
-                              (expensesByCategory[transaction.categoryId] ?? 0) + total;
-                        }
+                      if (analytics == null) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.analytics_outlined, size: 48,
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+                              SizedBox(height: 12),
+                              Text('Moteur d\'analyse indisponible',
+                                  style: Theme.of(context).textTheme.titleMedium),
+                            ],
+                          ),
+                        );
                       }
-
-                      // Sort categories by amount
-                      final sortedCategories = expensesByCategory.entries.toList()
-                        ..sort((a, b) => b.value.compareTo(a.value));
 
                       return SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -156,7 +135,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                   child: _buildSummaryCard(
                                     context,
                                     'Revenus',
-                                    totalIncome,
+                                    analytics.totalIncome,
                                     currency,
                                     Theme.of(context).colorScheme.primary,
                                     Icons.arrow_upward,
@@ -167,7 +146,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                   child: _buildSummaryCard(
                                     context,
                                     'Dépenses',
-                                    totalExpenses,
+                                    analytics.totalExpenses,
                                     currency,
                                     Theme.of(context).colorScheme.primary,
                                     Icons.arrow_downward,
@@ -175,42 +154,38 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             SizedBox(height: 12),
-                            
+
                             _buildSummaryCard(
                               context,
                               'Solde',
-                              balance,
+                              analytics.net,
                               currency,
-                              balance >= 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
-                              balance >= 0 ? Icons.trending_up : Icons.trending_down,
+                              Theme.of(context).colorScheme.primary,
+                              analytics.net >= 0 ? Icons.trending_up : Icons.trending_down,
                             ),
 
                             SizedBox(height: 32),
 
                             // Expenses by Category
-                            if (sortedCategories.isNotEmpty) ...[
+                            if (analytics.byCategory.isNotEmpty) ...[
                               Text(
                                 'Dépenses par catégorie',
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               SizedBox(height: 16),
-                              
-                              ...sortedCategories.map((entry) {
+
+                              ...analytics.byCategory.map((stat) {
                                 final category = categories.firstWhere(
-                                  (c) => c.id == entry.key,
+                                  (c) => c.id.toString() == stat.category || c.name == stat.category,
                                   orElse: () => categories.first,
                                 );
-                                final percentage = totalExpenses > 0
-                                    ? (entry.value / totalExpenses * 100)
-                                    : 0.0;
-                                
                                 return _buildCategoryBar(
                                   context,
                                   category.name,
-                                  entry.value,
-                                  percentage,
+                                  stat.total,
+                                  stat.pctOfBudget * 100,
                                   currency,
                                   category.type,
                                   category.icon,
@@ -224,7 +199,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                     Icon(
                                       Icons.pie_chart_outline,
                                       size: 64,
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6).withValues(alpha: 0.5),
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                                     ),
                                     SizedBox(height: 16),
                                     Text(
@@ -237,7 +212,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                                 ),
                               ),
                             ],
-                            
+
                             SizedBox(height: 32),
                           ],
                         ),

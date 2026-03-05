@@ -1,11 +1,16 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/database/app_database.dart';
+import '../../data/database/daos/categories_dao.dart';
+import '../../data/database/tables/categories_table.dart';
 import '../../data/database/tables/pending_transactions_table.dart';
 import '../../data/database/tables/accounts_table.dart';
 import '../../data/database/tables/transactions_table.dart';
+import '../../engine/zolt_engine.dart';
+
 
 /// Résultat du parsing d'un SMS MoMo
 class ParsedMomoSms {
@@ -66,70 +71,56 @@ class SmsParserService {
 
   static const String _lastScanTimestampKey = 'sms_last_scan_timestamp';
 
+  /// Seuil de confiance au-dessus duquel une transaction est auto-approuvée.
+  static const double _autoApproveThreshold = 0.75;
+
   SmsParserService({required AppDatabase database}) : _database = database;
 
   // ═══════════════════════════════════════════════════════
-  // SCAN & PERSISTENCE
+  // SCAN & AUTO-TRAITEMENT
   // ═══════════════════════════════════════════════════════
 
-  /// Demander la permission et scanner les SMS (seuls les nouveaux)
-  Future<int> scanAndParseSms() async {
+  /// Demander la permission et scanner les SMS.
+  /// 
+  /// Les SMS avec une confiance ≥ [_autoApproveThreshold] sont automatiquement
+  /// validés et intégrés aux transactions sans intervention de l'utilisateur.
+  /// Les autres sont ajoutés à la file d'attente (écran de révision).
+  /// 
+  /// Retourne un [SmsProcessingResult] avec le bilan du traitement.
+  Future<SmsProcessingResult> scanAndParseSms() async {
     final status = await Permission.sms.request();
     if (!status.isGranted) {
       throw Exception('Permission SMS refusée');
     }
 
-    // Récupérer le timestamp du dernier scan
     final prefs = await SharedPreferences.getInstance();
     final lastScanMs = prefs.getInt(_lastScanTimestampKey) ?? 0;
     final lastScanDate = DateTime.fromMillisecondsSinceEpoch(lastScanMs);
 
     final messages = await _query.querySms(
       kinds: [SmsQueryKind.inbox],
-      count: 500, // Bug #4 fix: augmentation de la limite pour éviter de rater des transactions
+      count: 500,
     );
 
-    int newTransactions = 0;
+    int autoApproved = 0;
+    int pendingAdded = 0;
     DateTime latestSmsDate = lastScanDate;
 
     for (final message in messages) {
       if (message.body == null || message.sender == null) continue;
       final msgDate = message.date ?? DateTime.now();
 
-      // Ne traiter que les SMS plus récents que le dernier scan
       if (msgDate.isAfter(lastScanDate)) {
         final parsed = parseMessage(message.sender!, message.body!, msgDate);
         if (parsed != null) {
-          // Vérifier doublon par momoRef (ID MoMo unique)
           final exists = await _isDuplicate(parsed, message.body!);
-
           if (!exists) {
-            // Trouver le compte MoMo correspondant
-            final accountId = await _findMomoAccountId(parsed.operator);
-
-            await _database.into(_database.pendingTransactions).insert(
-              PendingTransactionsCompanion(
-                amount: Value(parsed.amount),
-                operator: Value(parsed.operator),
-                momoType: Value(parsed.type),
-                fee: Value(parsed.fee),
-                balanceAfter: Value(parsed.balanceAfter),
-                counterpart: Value(parsed.counterpart),
-                counterpartPhone: Value(parsed.counterpartPhone),
-                momoRef: Value(parsed.momoRef),
-                transactionDate: Value(parsed.transactionDate),
-                rawSms: Value(message.body!),
-                smsDate: Value(msgDate),
-                isProcessed: const Value(false),
-                countsInBudget: const Value(true),
-                suggestedAccountId: Value(accountId),
-                createdAt: Value(DateTime.now()),
-              ),
-            );
-            newTransactions++;
-            // NOTE: Le solde du compte n'est PAS mis à jour ici.
-            // Il sera mis à jour uniquement lors de l'approbation (approveTransaction).
-            // Cela évite les doubles mises à jour et les erreurs si l'utilisateur rejette.
+            final wasAutoApproved = await _processSingleSms(parsed, message.body!, msgDate);
+            if (wasAutoApproved) {
+              autoApproved++;
+            } else {
+              pendingAdded++;
+            }
           }
 
           if (msgDate.isAfter(latestSmsDate)) {
@@ -139,19 +130,180 @@ class SmsParserService {
       }
     }
 
-    // Sauvegarder le timestamp du scan
-    // Bug #5 fix: on utilise toujours l'heure du scan pour que le timestamp
-    // progresse même si aucun SMS MoMo n'a été trouvé, évitant les rescans inutiles.
+    // Bug #5 fix: timestamp toujours progressé même sans SMS MoMo détecté.
     final scanTime = latestSmsDate.isAfter(lastScanDate)
         ? latestSmsDate
         : DateTime.now();
-    await prefs.setInt(
-      _lastScanTimestampKey,
-      scanTime.millisecondsSinceEpoch,
-    );
+    await prefs.setInt(_lastScanTimestampKey, scanTime.millisecondsSinceEpoch);
 
-    return newTransactions;
+    return SmsProcessingResult(autoApproved: autoApproved, pendingAdded: pendingAdded);
   }
+
+  /// Traite UN SMS : choisit entre auto-approbation ou file d'attente.
+  /// 
+  /// Retourne `true` si la transaction a été auto-approuvée.
+  Future<bool> _processSingleSms(ParsedMomoSms parsed, String rawSms, DateTime smsDate) async {
+    // ── Classifier via le moteur Rust ───────────────────────────
+    double confidence = 0.0;
+    String? categorySlug;
+
+    if (ZoltEngine.isAvailable) {
+      try {
+        final classification = ZoltEngine.classify(
+          amount: parsed.amount,
+          description: null,
+          counterpart: parsed.counterpart,
+          smsText: rawSms,
+        );
+        confidence = (classification['confidence'] as num?)?.toDouble() ?? 0.0;
+        categorySlug = classification['category'] as String?;
+      } catch (e) {
+        debugPrint('zolt_classify failed in _processSingleSms: $e');
+      }
+    }
+
+    // ── Chemin HAUTE CONFIANCE → auto-approbation ───────────────
+    if (confidence >= _autoApproveThreshold) {
+      final accountId = await _findMomoAccountId(parsed.operator);
+
+      // Si on ne peut pas identifier le compte, on revient au pending
+      if (accountId == null) {
+        await _insertPending(parsed, rawSms, smsDate, accountId: null);
+        return false;
+      }
+
+      final categoryId = await _resolveCategoryId(parsed, categorySlug);
+      await _autoApproveTransaction(
+        parsed: parsed,
+        smsDate: smsDate,
+        accountId: accountId,
+        categoryId: categoryId,
+      );
+      return true;
+    }
+
+    // ── Chemin FAIBLE CONFIANCE → file de révision ──────────────
+    final accountId = await _findMomoAccountId(parsed.operator);
+    await _insertPending(parsed, rawSms, smsDate, accountId: accountId);
+    return false;
+  }
+
+  /// Commit direct d'une transaction sans validation utilisateur.
+  Future<void> _autoApproveTransaction({
+    required ParsedMomoSms parsed,
+    required DateTime smsDate,
+    required int accountId,
+    required int? categoryId,
+  }) async {
+    final isIncome = parsed.type == MomoTransactionType.transferIn ||
+        parsed.type == MomoTransactionType.deposit;
+
+    await _database.transaction(() async {
+      // 1. Créer la transaction
+      await _database.into(_database.transactions).insert(
+        TransactionsCompanion(
+          amount: Value(parsed.amount),
+          type: Value(isIncome ? TransactionType.income : TransactionType.expense),
+          date: Value(parsed.transactionDate ?? smsDate),
+          categoryId: Value(categoryId),
+          accountId: Value(accountId),
+          feeAmount: Value(parsed.fee > 0 ? parsed.fee : null),
+          description: Value(parsed.description),
+          source: Value(isIncome ? parsed.operator : null),
+          isException: const Value(false),
+          createdAt: Value(DateTime.now()),
+        ),
+      );
+
+      // 2. Mettre à jour le solde du compte
+      final account = await (_database.select(_database.accounts)
+              ..where((a) => a.id.equals(accountId)))
+          .getSingleOrNull();
+
+      if (account != null) {
+        final double newBalance;
+        if (parsed.balanceAfter != null) {
+          // Solde post-transaction fiable venant du SMS → priorité absolue
+          newBalance = parsed.balanceAfter!;
+        } else {
+          newBalance = isIncome
+              ? account.currentBalance + parsed.amount
+              : account.currentBalance - parsed.amount - parsed.fee;
+        }
+        await _updateAccountBalance(accountId, newBalance);
+      }
+    });
+  }
+
+  /// Insère un SMS dans la file d'attente pour révision manuelle.
+  Future<void> _insertPending(
+    ParsedMomoSms parsed,
+    String rawSms,
+    DateTime smsDate, {
+    required int? accountId,
+  }) async {
+    await _database.into(_database.pendingTransactions).insert(
+      PendingTransactionsCompanion(
+        amount: Value(parsed.amount),
+        operator: Value(parsed.operator),
+        momoType: Value(parsed.type),
+        fee: Value(parsed.fee),
+        balanceAfter: Value(parsed.balanceAfter),
+        counterpart: Value(parsed.counterpart),
+        counterpartPhone: Value(parsed.counterpartPhone),
+        momoRef: Value(parsed.momoRef),
+        transactionDate: Value(parsed.transactionDate),
+        rawSms: Value(rawSms),
+        smsDate: Value(smsDate),
+        isProcessed: const Value(false),
+        countsInBudget: const Value(true),
+        suggestedAccountId: Value(accountId),
+        createdAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// Résout l'ID de catégorie depuis le slug Rust (ex: "loyer", "nourriture").
+  Future<int?> _resolveCategoryId(ParsedMomoSms parsed, String? slug) async {
+    final isIncome = parsed.type == MomoTransactionType.transferIn ||
+        parsed.type == MomoTransactionType.deposit;
+    final targetType = isIncome ? CategoryType.income : CategoryType.expense;
+
+    final allCats =
+        await CategoriesDao(_database).getCategoriesByType(targetType);
+    if (allCats.isEmpty) return null;
+
+    // 1. Match par slug Rust dans le nom de catégorie
+    if (slug != null && slug.isNotEmpty) {
+      final slugWords = slug.split('_'); // "recharge_telecom" → ["recharge","telecom"]
+      for (final word in slugWords) {
+        final match = allCats
+            .where((c) => c.name.toLowerCase().contains(word.toLowerCase()))
+            .firstOrNull;
+        if (match != null) return match.id;
+      }
+    }
+
+    // 2. Match par mots-clés MoMo type
+    final keywords = switch (parsed.type) {
+      MomoTransactionType.transferIn => ['salaire', 'revenu', 'transfert'],
+      MomoTransactionType.transferOut => ['transfert', 'envoi'],
+      MomoTransactionType.withdrawal => ['retrait', 'espèces'],
+      MomoTransactionType.payment => ['paiement', 'achat', 'courses'],
+      MomoTransactionType.deposit => ['dépôt', 'salaire', 'revenu'],
+      MomoTransactionType.unknown => <String>[],
+    };
+    for (final keyword in keywords) {
+      final match = allCats
+          .where((c) => c.name.toLowerCase().contains(keyword))
+          .firstOrNull;
+      if (match != null) return match.id;
+    }
+
+    // 3. Catégorie par défaut du bon type
+    return allCats.where((c) => c.isDefault).firstOrNull?.id ?? allCats.first.id;
+  }
+
 
   /// Vérifier si une transaction est un doublon
   Future<bool> _isDuplicate(ParsedMomoSms parsed, String rawSms) async {
@@ -393,23 +545,39 @@ class SmsParserService {
     final amount = double.tryParse(cleanAmount) ?? 0.0;
     if (amount <= 0) return null;
 
-    // Bug #6 fix: détection du type avec des mots-clés plus spécifiques
-    // pour réduire les faux positifs sur des mots courts comme "de" ou "à".
-    final bodyLower = body.toLowerCase();
+    // ── Détection du type via le moteur Rust (zolt_classify) ─────
     MomoTransactionType type = MomoTransactionType.unknown;
-    if (bodyLower.contains('reçu') || bodyLower.contains('recu') ||
-        bodyLower.contains('vous avez re') || bodyLower.contains('crédité')) {
-      type = MomoTransactionType.transferIn;
-    } else if (bodyLower.contains('envoy') || bodyLower.contains('transfert') ||
-        bodyLower.contains('vous avez envoy') || bodyLower.contains('débité')) {
-      type = MomoTransactionType.transferOut;
-    } else if (bodyLower.contains('retrait')) {
-      type = MomoTransactionType.withdrawal;
-    } else if (bodyLower.contains('paiement') || bodyLower.contains('achat') ||
-        bodyLower.contains('marchand')) {
-      type = MomoTransactionType.payment;
-    } else if (bodyLower.contains('depôt') || bodyLower.contains('depot')) {
-      type = MomoTransactionType.deposit;
+    if (ZoltEngine.isAvailable) {
+      try {
+        final classified = ZoltEngine.classify(
+          amount: amount,
+          description: null,
+          counterpart: null,
+          smsText: body,
+        );
+        final txType = classified['tx_type'] as String? ?? '';
+        switch (txType) {
+          case 'Income':
+          case 'TransferIn':
+          case 'Deposit':
+            type = txType == 'Deposit'
+                ? MomoTransactionType.deposit
+                : MomoTransactionType.transferIn;
+          case 'Expense':
+          case 'TransferOut':
+            type = MomoTransactionType.transferOut;
+          case 'Withdrawal':
+            type = MomoTransactionType.withdrawal;
+          default:
+            type = MomoTransactionType.unknown;
+        }
+      } catch (e) {
+        debugPrint('zolt_classify failed, falling back to Dart keywords: $e');
+        type = _detectTypeFallback(body);
+      }
+    } else {
+      // ── Fallback Dart (mots-clés) — Bug #6 fix ───────────────
+      type = _detectTypeFallback(body);
     }
 
     // Extraire le solde
@@ -435,6 +603,26 @@ class SmsParserService {
   // ═══════════════════════════════════════════════════════
   // UTILITAIRES
   // ═══════════════════════════════════════════════════════
+
+  /// Fallback Dart : détection du type SMS par mots-clés (Bug #6 fix).
+  /// Utilisé uniquement si le moteur Rust n'est pas disponible.
+  MomoTransactionType _detectTypeFallback(String body) {
+    final b = body.toLowerCase();
+    if (b.contains('reçu') || b.contains('recu') ||
+        b.contains('vous avez re') || b.contains('crédité')) {
+      return MomoTransactionType.transferIn;
+    } else if (b.contains('envoy') || b.contains('transfert') ||
+        b.contains('vous avez envoy') || b.contains('débité')) {
+      return MomoTransactionType.transferOut;
+    } else if (b.contains('retrait')) {
+      return MomoTransactionType.withdrawal;
+    } else if (b.contains('paiement') || b.contains('achat') || b.contains('marchand')) {
+      return MomoTransactionType.payment;
+    } else if (b.contains('depôt') || b.contains('depot')) {
+      return MomoTransactionType.deposit;
+    }
+    return MomoTransactionType.unknown;
+  }
 
   /// Parser une date au format "2026-02-10 15:00:28"
   DateTime? _parseDate(String? dateStr) {
@@ -582,5 +770,25 @@ class SmsParserService {
               t.createdAt.isSmallerThanValue(thirtyDaysAgo)))
         .go();
   }
+}
+
+/// Résultat d'un scan SMS, contenant le décompte des traitements.
+class SmsProcessingResult {
+  /// Nombre de transactions auto-approuvées directement (confiance ≥ 0.75).
+  final int autoApproved;
+
+  /// Nombre de transactions ajoutées à la file en attente pour révision manuelle.
+  final int pendingAdded;
+
+  const SmsProcessingResult({
+    required this.autoApproved,
+    required this.pendingAdded,
+  });
+
+  /// Total des transactions détectées dans ce scan.
+  int get total => autoApproved + pendingAdded;
+
+  /// Vrai si au moins une transaction a été traitée.
+  bool get hasActivity => total > 0;
 }
 

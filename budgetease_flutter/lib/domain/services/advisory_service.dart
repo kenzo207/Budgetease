@@ -1,74 +1,92 @@
-import 'package:drift/drift.dart';
-import '../../data/database/app_database.dart';
-import '../../data/database/tables/transactions_table.dart';
-import 'behavioral_profiler_service.dart';
-import 'income_predictor_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../engine/engine_output.dart';
+import '../../presentation/providers/engine_provider.dart';
 
-/// Service pour fournir des conseils intelligents adaptatifs
+/// Service de conseils adaptatifs — lit uniquement les données du moteur Rust.
+///
+/// Toutes les valeurs (charges, vitesse, épargne, prédiction) proviennent du
+/// [SessionState] retourné par [zoltEngineProviderProvider].
+/// Aucun calcul n'est effectué côté Dart.
 class AdvisoryService {
-  final AppDatabase _database;
-  final BehavioralProfilerService _profiler;
-  final IncomePredictorService _incomePredictor;
+  final Ref _ref;
 
-  AdvisoryService({
-    required AppDatabase database,
-    required BehavioralProfilerService profiler,
-    required IncomePredictorService incomePredictor,
-  })  : _database = database,
-        _profiler = profiler,
-        _incomePredictor = incomePredictor;
+  AdvisoryService({required Ref ref}) : _ref = ref;
 
-  /// Obtenir tous les conseils actifs
+  /// Obtenir tous les conseils actifs depuis le SessionState Rust.
   Future<List<Advisory>> getAdvice() async {
-    // Profile loaded for future personalized advice
-    await _profiler.getOrCreateProfile();
+    final session = await _ref.read(zoltEngineProviderProvider.future);
     final advices = <Advisory>[];
 
-    // 1. Charges fixes approchantes (7 jours)
-    final upcomingCharges = await _getUpcomingCharges();
-    if (upcomingCharges.isNotEmpty) {
-      final totalAmount = upcomingCharges.fold<double>(
-        0.0,
-        (sum, charge) => sum + charge.amount
-      );
-      
+    // ── 1. Charges imminentes (ChargeTracker Rust) ───────────────
+    final urgentCharges = session.chargeTracking
+        .where((c) => !c.isFullyPaid && c.daysUntilDue <= 7)
+        .toList();
+
+    if (urgentCharges.isNotEmpty) {
+      final totalAmount = urgentCharges.fold<double>(0, (s, c) => s + c.remaining);
       advices.add(Advisory(
         type: 'shield_reminder',
         title: 'Échéances Approchantes',
-        message: 'Vous avez ${upcomingCharges.length} charge(s) à payer bientôt '
+        message: 'Vous avez ${urgentCharges.length} charge(s) à payer bientôt '
             '(${totalAmount.toStringAsFixed(0)} FCFA).',
         priority: 'high',
         actionLabel: 'Voir les charges',
       ));
     }
 
-    // 2. Vitesse de dépenses élevée
-    if (await _isSpendingFast()) {
+    // ── 2. Alertes des charges en retard ─────────────────────────
+    final overdueCharges = session.chargeTracking.where((c) => c.isOverdue).toList();
+    if (overdueCharges.isNotEmpty) {
       advices.add(Advisory(
-        type: 'velocity_alert',
-        title: 'Dépenses Rapides Aujourd\'hui',
-        message: 'Vos dépenses du jour sont 2x supérieures à votre moyenne quotidienne.',
-        priority: 'medium',
-        actionLabel: 'Voir détails',
+        type: 'overdue_charge',
+        title: 'Charges en Retard',
+        message: '${overdueCharges.length} charge(s) dépassée(s). Réglez-les dès que possible.',
+        priority: 'high',
+        actionLabel: 'Voir les charges',
       ));
     }
 
-    // 3. Opportunité d'épargne
-    final savings = await _calculatePotentialSavings();
-    if (savings > 1000) {
+    // ── 3. Messages d'alerte du moteur (niveau Warning/Critical) ──
+    for (final msg in session.messages) {
+      if (msg.level == 'Warning' || msg.level == 'Critical') {
+        advices.add(Advisory(
+          type: 'engine_alert',
+          title: msg.title,
+          message: msg.body,
+          priority: msg.level == 'Critical' ? 'high' : 'medium',
+          actionLabel: null,
+        ));
+      }
+    }
+
+    // ── 4. Prédiction fin de cycle ────────────────────────────────
+    final prediction = session.prediction;
+    if (prediction != null && prediction.isDeficit && prediction.isReliable) {
+      advices.add(Advisory(
+        type: 'end_of_cycle_risk',
+        title: 'Risque de Déficit',
+        message: 'Projection : déficit de ${prediction.projectedDeficit.toStringAsFixed(0)} FCFA '
+            'en fin de cycle.',
+        priority: 'medium',
+        actionLabel: 'Voir analyse',
+      ));
+    }
+
+    // ── 5. Opportunité d'épargne (freeMass élevée) ────────────────
+    final freeMass = session.engine.deterministic.freeMass;
+    if (freeMass > 1000) {
       advices.add(Advisory(
         type: 'savings_opportunity',
-        title: 'Opportunité d\'Épargne',
-        message: 'Vous pourriez épargner ${savings.toStringAsFixed(0)} FCFA ce mois. '
-            'Félicitations pour votre gestion !',
+        title: "Opportunité d'Épargne",
+        message: 'Vous avez ${freeMass.toStringAsFixed(0)} FCFA de marge libre ce cycle.',
         priority: 'low',
         actionLabel: 'Épargner',
       ));
     }
 
-    // 4. Prédiction de revenu
-    final pattern = await _incomePredictor.analyzeIncomePattern();
-    if (pattern.confidence < 0.5 && pattern.transactionCount > 0) {
+    // ── 6. Prédiction de revenu peu fiable ───────────────────────
+    final incomePred = session.engine.incomePrediction;
+    if (incomePred != null && incomePred.confidence < 0.30) {
       advices.add(Advisory(
         type: 'income_prediction',
         title: 'Revenus Irréguliers Détectés',
@@ -82,117 +100,10 @@ class AdvisoryService {
     return advices;
   }
 
-  /// Charges approchantes (7 jours)
-  Future<List<RecurringCharge>> _getUpcomingCharges() async {
-    final now = DateTime.now();
-    final sevenDaysLater = now.add(const Duration(days: 7));
-
-    return await (_database.select(_database.recurringCharges)
-          ..where((c) =>
-              c.isActive.equals(true) &
-              c.isPaid.equals(false) &
-              c.dueDate.isBiggerThanValue(now) &
-              c.dueDate.isSmallerOrEqualValue(sevenDaysLater)))
-        .get();
-  }
-
-  /// Vérifier vitesse de dépenses
-  Future<bool> _isSpendingFast() async {
-    final today = DateTime.now();
-    final startOfDay = DateTime(today.year, today.month, today.day);
-
-    // Dépenses du jour
-    final todayExpenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.date.isBiggerThanValue(startOfDay)))
-        .get();
-
-    final todayTotal = todayExpenses.fold<double>(0.0, (sum, t) => sum + t.amount);
-
-    // Moyenne quotidienne (30 derniers jours)
-    final last30Days = today.subtract(const Duration(days: 30));
-    final recentExpenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.date.isBiggerThanValue(last30Days)))
-        .get();
-
-    if (recentExpenses.isEmpty) return false;
-
-    // Calculer la moyenne quotidienne sur la période réelle de données
-    final earliestDate = recentExpenses
-        .map((t) => t.date)
-        .reduce((a, b) => a.isBefore(b) ? a : b);
-    final actualDays = today.difference(earliestDate).inDays;
-    final divisor = actualDays > 0 ? actualDays : 1;
-    final avgDaily = recentExpenses.fold<double>(0.0, (sum, t) => sum + t.amount) / divisor;
-
-    return todayTotal > (avgDaily * 2) && todayTotal > 1000;
-  }
-
-  /// Calculer épargne potentielle
-  Future<double> _calculatePotentialSavings() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-
-    // Revenus - Dépenses - Shield
-    final incomes = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.income.index) &
-              t.date.isBiggerThanValue(monthStart)))
-        .get();
-
-    final expenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.date.isBiggerThanValue(monthStart)))
-        .get();
-
-    // Shield total (charges fixes non payées)
-    final unpaidCharges = await (_database.select(_database.recurringCharges)
-          ..where((c) => c.isActive.equals(true) & c.isPaid.equals(false)))
-        .get();
-
-    final totalIncome = incomes.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final totalExpenses = expenses.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final shieldTotal = unpaidCharges.fold<double>(0.0, (sum, c) => sum + c.amount);
-
-    final potential = totalIncome - totalExpenses - shieldTotal;
-    return potential > 0 ? potential : 0;
-  }
-
-  /// Obtenir Daily Cap recommandé
+  /// Daily Cap recommandé = budget journalier calculé par le moteur Rust.
   Future<double> getRecommendedDailyCap() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
-    final daysRemaining = daysInMonth - now.day + 1;
-
-    // Revenus estimés
-    final estimatedIncome = await _incomePredictor.getEstimatedMonthlyIncome();
-
-    // Dépenses actuelles
-    final expenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.date.isBiggerThanValue(monthStart)))
-        .get();
-
-    final totalExpenses = expenses.fold<double>(0.0, (sum, t) => sum + t.amount);
-
-    // Shield
-    final unpaidCharges = await (_database.select(_database.recurringCharges)
-          ..where((c) => c.isActive.equals(true) & c.isPaid.equals(false)))
-        .get();
-
-    final shieldTotal = unpaidCharges.fold<double>(0.0, (sum, c) => sum + c.amount);
-
-    // Calcul Daily Cap
-    final available = estimatedIncome - totalExpenses - shieldTotal;
-    final dailyCap = available / daysRemaining;
-
-    return dailyCap > 0 ? dailyCap : 0;
+    final session = await _ref.read(zoltEngineProviderProvider.future);
+    return session.dailyBudget;
   }
 }
 
@@ -216,11 +127,11 @@ class Advisory {
   int get priorityColor {
     switch (priority) {
       case 'high':
-        return 0xFFFF5252; // Rouge
+        return 0xFFFF5252;
       case 'medium':
-        return 0xFFFFAB00; // Orange
+        return 0xFFFFAB00;
       default:
-        return 0xFF1E88E5; // Bleu
+        return 0xFF1E88E5;
     }
   }
 
@@ -229,8 +140,13 @@ class Advisory {
     switch (type) {
       case 'shield_reminder':
         return '🛡️';
+      case 'overdue_charge':
+        return '🚨';
       case 'velocity_alert':
+      case 'engine_alert':
         return '⚠️';
+      case 'end_of_cycle_risk':
+        return '📉';
       case 'savings_opportunity':
         return '💰';
       case 'income_prediction':

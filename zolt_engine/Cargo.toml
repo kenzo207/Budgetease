@@ -1,25 +1,20 @@
 [package]
-name = "zolt_engine"
-version = "1.0.0"
-edition = "2021"
+name        = "zolt_engine"
+version     = "1.1.0"
+edition     = "2021"
 description = "Zolt — Moteur IA financier on-device pour Flutter/FFI"
 
 [lib]
-name = "zolt_engine"
-crate-type = ["cdylib", "rlib"]
-# cdylib  → .so/.dylib pour FFI Flutter
-# rlib    → pour les tests unitaires internes
+name        = "zolt_engine"
+crate-type  = ["cdylib", "rlib"]
 
 [dependencies]
-serde       = { version = "1", features = ["derive"] }
-serde_json  = "1"
-
-[dev-dependencies]
-# Pas de dépendances externes pour les tests — tout est std
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [profile.release]
 opt-level     = 3
 lto           = true
 codegen-units = 1
-panic         = "abort"   # réduit la taille du binaire pour mobile
+panic         = "abort"
 strip         = true

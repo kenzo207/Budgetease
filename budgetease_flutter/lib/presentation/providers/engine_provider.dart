@@ -150,6 +150,47 @@ Future<eng.IntegrityReport> engineIntegrity(EngineIntegrityRef ref) async {
   return session.integrity;
 }
 
+/// Analytics d'un mois donné via zolt_analytics.
+/// [month] = DateTime(year, month, 1) — seuls year et month comptent.
+/// Retourne null si le moteur n'est pas disponible.
+@riverpod
+Future<eng.AnalyticsResult?> engineAnalytics(
+  EngineAnalyticsRef ref,
+  DateTime month,
+) async {
+  final db = ref.watch(databaseProvider);
+  if (!ZoltEngine.isAvailable) return null;
+
+  final txDao      = TransactionsDao(db);
+  final monthStart = DateTime(month.year, month.month, 1);
+  final monthEnd   = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+  final transactions = await txDao.getTransactionsByPeriod(monthStart, monthEnd);
+
+  final snapshotService = CycleSnapshotService(db);
+  final history = await snapshotService.buildHistory(limit: 6);
+
+  try {
+    final raw = ZoltEngine.analytics(analyticsInput: {
+      'transactions': transactions.map((t) => {
+        'id':          t.id.toString(),
+        'date': {'year': t.date.year, 'month': t.date.month, 'day': t.date.day},
+        'amount':        t.amount,
+        'tx_type':       t.type == TransactionType.expense ? 'Expense' : t.type == TransactionType.income ? 'Income' : 'TransferOut',
+        'category':      t.categoryId?.toString(),
+        'account_id':    t.accountId.toString(),
+        'description':   t.description,
+        'sms_confidence': null,
+      }).toList(),
+      'cycle_start': {'year': monthStart.year, 'month': monthStart.month, 'day': monthStart.day},
+      'cycle_end':   {'year': monthEnd.year,   'month': monthEnd.month,   'day': monthEnd.day},
+      'history': history,
+    });
+    return eng.AnalyticsResult.fromJson(raw);
+  } catch (_) {
+    return null;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────

@@ -1,69 +1,72 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/app_database.dart';
-import '../../data/database/tables/transactions_table.dart';
+import '../../engine/engine_output.dart';
+import '../../presentation/providers/engine_provider.dart';
 
-/// Service pour détecter et gérer les insights (Ghost Money, etc.)
+/// Service d'insights — détecte les patterns anormaux depuis le moteur Rust.
+///
+/// Le calcul "Ghost Money" est délégué à [AnalyticsResult.byCategory]
+/// retourné par [engineAnalyticsProvider] (zolt_analytics).
+/// Aucun calcul n'est effectué côté Dart.
 class InsightsService {
   final AppDatabase _database;
+  final Ref _ref;
 
-  // Seuils de détection
-  static const double microExpenseThreshold = 500.0;
-  static const int minTransactionCount = 5;
-  static const double minImpactPercentage = 5.0;
+  /// Seuil : une catégorie représente du "ghost money" si elle dépasse
+  /// [ghostMoneyPctThreshold] % du total des dépenses et a au moins
+  /// [minTxCount] transactions (micro-dépenses répétées).
+  static const double ghostMoneyPctThreshold = 5.0;
+  static const int    minTxCount             = 5;
+  static const double maxAmountPerTx         = 500.0; // FCFA
 
-  InsightsService({required AppDatabase database}) : _database = database;
+  InsightsService({required AppDatabase database, required Ref ref})
+      : _database = database,
+        _ref = ref;
 
-  /// Détecter le Ghost Money (micro-dépenses répétées)
+  /// Détecter le Ghost Money depuis les stats Rust du mois courant.
   Future<GhostMoneyInsight?> detectGhostMoney() async {
     final now = DateTime.now();
-    final weekAgo = now.subtract(const Duration(days: 7));
+    final month = DateTime(now.year, now.month);
 
-    // Micro-dépenses de la semaine (avec jointure catégorie)
-    // Nous devons utiliser une requête join pour obtenir le nom de la catégorie
-    final query = _database.select(_database.transactions).join([
-      innerJoin(_database.categories, _database.categories.id.equalsExp(_database.transactions.categoryId))
-    ]);
-    
-    query.where(
-      _database.transactions.type.equals(TransactionType.expense.index) &
-      _database.transactions.amount.isSmallerOrEqualValue(microExpenseThreshold) &
-      _database.transactions.date.isBiggerThanValue(weekAgo)
-    );
+    AnalyticsResult? analytics;
+    try {
+      analytics = await _ref.read(engineAnalyticsProvider(month).future);
+    } catch (_) {
+      return null;
+    }
+    if (analytics == null) return null;
 
-    final results = await query.get();
+    // Identifier les catégories "ghost money" :
+    // petits montants moyens par transaction + forte répétition + part significative
+    final ghosts = analytics.byCategory.where((cat) =>
+        cat.txCount >= minTxCount &&
+        cat.avgPerTx <= maxAmountPerTx &&
+        cat.pctOfBudget * 100 >= ghostMoneyPctThreshold,
+    ).toList();
 
-    if (results.length < minTransactionCount) return null;
+    if (ghosts.isEmpty) return null;
 
-    final total = results.fold<double>(0.0, (sum, row) => sum + row.readTable(_database.transactions).amount);
-    final categories = results
-        .map((row) => row.readTable(_database.categories).name)
-        .toSet()
-        .toList();
-
-    // Calculer impact vs budget disponible
-    final availableBudget = await _getAvailableBudget();
-    if (availableBudget <= 0) return null;
-
-    final impact = (total / availableBudget) * 100;
-
-    if (impact < minImpactPercentage) return null;
+    final totalGhost = ghosts.fold<double>(0, (s, c) => s + c.total);
+    final categories = ghosts.map((c) => c.category).toList();
+    final impact = analytics.totalExpenses > 0
+        ? (totalGhost / analytics.totalExpenses * 100)
+        : 0.0;
 
     return GhostMoneyInsight(
-      totalAmount: total,
-      transactionCount: results.length,
-      categories: categories,
-      percentageOfAvailable: impact,
-      detectedAt: now,
+      totalAmount:            totalGhost,
+      transactionCount:       ghosts.fold<int>(0, (s, c) => s + c.txCount),
+      categories:             categories,
+      percentageOfAvailable:  impact,
+      detectedAt:             now,
     );
   }
 
-  /// Créer ou récupérer insight Ghost Money
+  /// Créer ou récupérer l'insight Ghost Money (cache DB 7 jours).
   Future<Insight?> getOrCreateGhostMoneyInsight() async {
-    // Nettoyer anciens insights
     await _cleanExpiredInsights();
 
-    // Vérifier si insight récent existe
     final existing = await (_database.select(_database.insights)
           ..where((i) =>
               i.type.equals('ghost_money') &
@@ -73,21 +76,19 @@ class InsightsService {
 
     if (existing != null) return existing;
 
-    // Détecter nouveau pattern
     final ghostMoney = await detectGhostMoney();
     if (ghostMoney == null) return null;
 
-    // Créer insight
     final insightId = await _database.into(_database.insights).insert(
       InsightsCompanion.insert(
-        type: 'ghost_money',
-        totalAmount: ghostMoney.totalAmount,
-        transactionCount: ghostMoney.transactionCount,
-        categoryNames: jsonEncode(ghostMoney.categories),
-        percentageOfAvailable: ghostMoney.percentageOfAvailable,
-        detectedAt: ghostMoney.detectedAt,
-        expiresAt: ghostMoney.detectedAt.add(const Duration(days: 7)),
-        createdAt: DateTime.now(),
+        type:                   'ghost_money',
+        totalAmount:            ghostMoney.totalAmount,
+        transactionCount:       ghostMoney.transactionCount,
+        categoryNames:          jsonEncode(ghostMoney.categories),
+        percentageOfAvailable:  ghostMoney.percentageOfAvailable,
+        detectedAt:             ghostMoney.detectedAt,
+        expiresAt:              ghostMoney.detectedAt.add(const Duration(days: 7)),
+        createdAt:              DateTime.now(),
       ),
     );
 
@@ -96,10 +97,9 @@ class InsightsService {
         .getSingleOrNull();
   }
 
-  /// Obtenir tous les insights actifs
+  /// Obtenir tous les insights actifs.
   Future<List<Insight>> getActiveInsights() async {
     await _cleanExpiredInsights();
-    
     return await (_database.select(_database.insights)
           ..where((i) =>
               i.isDismissed.equals(false) &
@@ -107,43 +107,17 @@ class InsightsService {
         .get();
   }
 
-  /// Supprimer (dismiss) un insight
+  /// Supprimer (dismiss) un insight.
   Future<void> dismissInsight(int insightId) async {
     await (_database.update(_database.insights)
           ..where((i) => i.id.equals(insightId)))
         .write(const InsightsCompanion(isDismissed: Value(true)));
   }
 
-  /// Nettoyer insights expirés
   Future<void> _cleanExpiredInsights() async {
     await (_database.delete(_database.insights)
           ..where((i) => i.expiresAt.isSmallerThanValue(DateTime.now())))
         .go();
-  }
-
-  /// Calculer budget disponible
-  Future<double> _getAvailableBudget() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-
-    // Revenus du mois
-    final incomes = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.income.index) &
-              t.date.isBiggerThanValue(monthStart)))
-        .get();
-
-    // Dépenses du mois
-    final expenses = await (_database.select(_database.transactions)
-          ..where((t) =>
-              t.type.equals(TransactionType.expense.index) &
-              t.date.isBiggerThanValue(monthStart)))
-        .get();
-
-    final totalIncome = incomes.fold<double>(0.0, (sum, t) => sum + t.amount);
-    final totalExpenses = expenses.fold<double>(0.0, (sum, t) => sum + t.amount);
-
-    return totalIncome - totalExpenses;
   }
 }
 
@@ -163,18 +137,13 @@ class GhostMoneyInsight {
     required this.detectedAt,
   });
 
-  /// Message formaté (utiliser la devise de l'utilisateur)
   String getMessage(String currency) {
     return '$transactionCount micro-dépenses = ${totalAmount.toStringAsFixed(0)} $currency '
-        '(${percentageOfAvailable.toStringAsFixed(1)}% de ton budget)';
+        '(${percentageOfAvailable.toStringAsFixed(1)}% de tes dépenses)';
   }
 
-  /// Message par défaut
-  String get message {
-    return getMessage('FCFA');
-  }
+  String get message => getMessage('FCFA');
 
-  /// Catégories formatées
   String get categoriesText {
     if (categories.isEmpty) return 'Aucune catégorie';
     if (categories.length == 1) return categories.first;

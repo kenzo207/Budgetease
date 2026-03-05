@@ -27,19 +27,22 @@ class PendingTransactions extends _$PendingTransactions {
     ref.invalidateSelf();
   }
 
-  /// Scanner les SMS et mettre à jour la liste
-  /// Envoie une notification si de nouvelles transactions sont trouvées
-  Future<int> scan({bool notify = false}) async {
+  /// Scanner les SMS et mettre à jour la liste.
+  /// 
+  /// Retourne le [SmsProcessingResult] avec le bilan du traitement automatique.
+  Future<SmsProcessingResult> scan({bool notify = false}) async {
     final service = ref.read(smsParserServiceProvider);
-    final count = await service.scanAndParseSms();
+    final result = await service.scanAndParseSms();
 
-    if (count > 0 && notify) {
+    if (result.hasActivity && notify) {
       final notifService = NotificationService();
-      await notifService.showNewSmsTransactions(count);
+      if (result.pendingAdded > 0) {
+        await notifService.showNewSmsTransactions(result.pendingAdded);
+      }
     }
 
     ref.invalidateSelf();
-    return count;
+    return result;
   }
 
   /// Approuver une transaction avec catégorie, compte et choix budget

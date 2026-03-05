@@ -10,27 +10,34 @@ use crate::types::*;
 pub struct DeterministicEngine;
 
 impl DeterministicEngine {
-    /// Point d'entrée principal. Calcule tout le budget en une passe.
-    pub fn compute(input: &EngineInput) -> DeterministicResult {
-        let total_balance   = Self::total_balance(&input.accounts);
-        let savings_goal    = input.cycle.savings_goal;
-        let transport_res   = Self::transport_reserve(&input.cycle.transport, &input.today, &input.cycle);
-        let charges_res     = Self::charges_reserve(&input.charges, &input.today);
-        let days_remaining  = Self::days_remaining(&input.today, &input.cycle);
+    /// Point d'entrée principal. Valide les données puis calcule tout le budget.
+    /// Retourne une erreur si les données sont incohérentes.
+    pub fn compute(input: &EngineInput) -> ZoltResult<DeterministicResult> {
+        // Validation avant tout calcul
+        input.validate()?;
+
+        let total_balance  = Self::total_balance(&input.accounts);
+        let savings_goal   = input.cycle.savings_goal;
+        let transport_res  = Self::transport_reserve(&input.cycle.transport, &input.today, &input.cycle);
+        let charges_res    = Self::charges_reserve(&input.charges);
+        let days_remaining = Self::days_remaining(&input.today, &input.cycle);
+
+        // ── Vérification des valeurs intermédiaires ──
+        if !total_balance.is_finite() {
+            return Err(ZoltError::ComputationError(
+                "solde total non-fini (NaN ou inf)".into()
+            ));
+        }
 
         // ── Masse engagée = tout ce qui est déjà destiné ──
         let committed_mass = savings_goal + transport_res + charges_res;
 
-        // ── Masse libre = ce qui est réellement disponible ──
+        // ── Masse libre = ce qui est réellement disponible (jamais négatif) ──
         let free_mass = (total_balance - committed_mass).max(0.0);
 
-        // ── Budget journalier ──
-        let daily_budget = if days_remaining == 0 {
-            // Dernier jour du cycle : tout ce qui reste est dispo aujourd'hui
-            free_mass
-        } else {
-            free_mass / days_remaining as f64
-        };
+        // ── Budget journalier (inclut aujourd'hui dans les jours restants) ──
+        // days_remaining ≥ 1 garanti par la logique interne
+        let daily_budget = free_mass / days_remaining as f64;
 
         // ── Dépenses du jour courant uniquement ──
         let spent_today = input.transactions.iter()
@@ -38,9 +45,10 @@ impl DeterministicEngine {
             .map(|t| t.amount)
             .sum::<f64>();
 
+        // remaining_today peut être négatif (dépassement du budget)
         let remaining_today = daily_budget - spent_today;
 
-        DeterministicResult {
+        Ok(DeterministicResult {
             total_balance,
             committed_mass,
             free_mass,
@@ -50,7 +58,7 @@ impl DeterministicEngine {
             remaining_today,
             transport_reserve: transport_res,
             charges_reserve:   charges_res,
-        }
+        })
     }
 
     // ── Solde total consolidé de tous les comptes actifs ──
@@ -64,11 +72,9 @@ impl DeterministicEngine {
     // ── Réserve transport totale pour le reste du cycle ──
     fn transport_reserve(transport: &TransportType, today: &Date, cycle: &FinancialCycle) -> f64 {
         match transport {
-            TransportType::None => 0.0,
-            // Abonnement → géré comme charge fixe, pas ici
-            TransportType::Subscription => 0.0,
+            TransportType::None | TransportType::Subscription => 0.0,
             TransportType::Daily { cost_per_day, work_days } => {
-                let cycle_end     = Self::cycle_end_date(today, cycle);
+                let cycle_end = Self::cycle_end_date(today, cycle);
                 let remaining_days = Self::count_work_days(today, &cycle_end, work_days);
                 cost_per_day * remaining_days as f64
             }
@@ -76,81 +82,58 @@ impl DeterministicEngine {
     }
 
     /// Compte les jours ouvrables réels entre today (inclus) et end (inclus).
+    /// Optimisé : évite les itérations inutiles si work_days est trié.
     fn count_work_days(start: &Date, end: &Date, work_days: &[u8]) -> u32 {
-        let mut count  = 0u32;
-        let mut cursor = *start;
-        // Itère jour par jour — au maximum 31 jours, coût négligeable
-        while cursor <= *end {
-            if work_days.contains(&cursor.weekday()) {
-                count += 1;
-            }
-            cursor = Self::next_day(&cursor);
+        if work_days.is_empty() || start > end {
+            return 0;
         }
-        count
+        let total_days = (start.days_until(end) + 1).max(0) as u32;
+        let start_epoch = start.to_days_since_epoch();
+
+        (0..total_days).filter(|&i| {
+            let epoch = start_epoch + i;
+            // Weekday: (epoch + 3) % 7 + 1, 1=lun..7=dim
+            let wd = ((epoch + 3) % 7 + 1) as u8;
+            work_days.contains(&wd)
+        }).count() as u32
     }
 
     // ── Réserve totale des charges non payées ──
-    fn charges_reserve(charges: &[RecurringCharge], today: &Date) -> f64 {
+    fn charges_reserve(charges: &[RecurringCharge]) -> f64 {
         charges.iter()
             .filter(|c| c.is_active && c.status != ChargeStatus::Paid)
             .map(|c| c.remaining_amount())
             .sum()
-        // Note : on prend le montant TOTAL restant de chaque charge,
-        // pas la réserve journalière — conformément à la logique de masse engagée.
-        // La réserve journalière (daily_reserve) est utilisée uniquement
-        // dans les alertes de pression (module B), pas dans le calcul central.
     }
 
-    // ── Nombre de jours restants dans le cycle (inclut aujourd'hui) ──
+    // ── Nombre de jours restants dans le cycle (inclut aujourd'hui, min 1) ──
     pub fn days_remaining(today: &Date, cycle: &FinancialCycle) -> u32 {
         let end = Self::cycle_end_date(today, cycle);
         let diff = today.days_until(&end);
-        (diff + 1).max(1) as u32  // +1 = aujourd'hui inclus, min 1
+        (diff + 1).max(1) as u32
     }
 
     /// Date de fin du cycle courant selon le type de cycle.
     pub fn cycle_end_date(today: &Date, cycle: &FinancialCycle) -> Date {
         match &cycle.cycle_type {
             CycleType::Monthly => {
-                // Dernier jour du mois en cours
-                let last_day = Self::last_day_of_month(today.year, today.month);
+                let last_day = Date::last_day_of_month_static(today.year, today.month);
                 Date::new(today.year, today.month, last_day)
             }
             CycleType::Weekly => {
-                // Dimanche de la semaine en cours
-                let days_to_sunday = 7 - today.weekday(); // weekday: 1=lun, 7=dim
-                let mut end = *today;
-                for _ in 0..days_to_sunday {
-                    end = Self::next_day(&end);
-                }
-                end
+                // Dimanche de la semaine courante
+                let wd = today.weekday(); // 1=lun, 7=dim
+                let days_to_sunday = (7 - wd) as u32;
+                Date::from_days_since_epoch(today.to_days_since_epoch() + days_to_sunday)
             }
             CycleType::Daily => *today,
             CycleType::Irregular { cycle_end, .. } => *cycle_end,
         }
     }
 
-    fn last_day_of_month(year: u16, month: u8) -> u8 {
-        match month {
-            1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
-            4 | 6 | 9 | 11              => 30,
-            2 => {
-                let y = year as u32;
-                if y % 400 == 0 || (y % 4 == 0 && y % 100 != 0) { 29 } else { 28 }
-            }
-            _ => 30, // ne devrait pas arriver
-        }
-    }
-
+    /// Avance d'un jour (utilisé en externe par d'autres modules).
     pub fn next_day(date: &Date) -> Date {
-        let last = Self::last_day_of_month(date.year, date.month);
-        if date.day < last {
-            Date::new(date.year, date.month, date.day + 1)
-        } else if date.month < 12 {
-            Date::new(date.year, date.month + 1, 1)
-        } else {
-            Date::new(date.year + 1, 1, 1)
-        }
+        Date::from_days_since_epoch(date.to_days_since_epoch() + 1)
     }
 }
 
@@ -186,36 +169,26 @@ mod tests {
         // 300 000 FCFA, épargne 30 000, pas de charges
         // Jours restants : 10 mars → 31 mars = 22 jours
         let input  = make_input(300_000.0, 30_000.0, vec![]);
-        let result = DeterministicEngine::compute(&input);
+        let result = DeterministicEngine::compute(&input).unwrap();
 
-        assert_eq!(result.total_balance,    300_000.0);
-        assert_eq!(result.committed_mass,    30_000.0);
-        assert_eq!(result.free_mass,        270_000.0);
-        assert_eq!(result.days_remaining,        22);
-        // 270 000 / 22 = 12 272.72...
+        assert_eq!(result.total_balance,  300_000.0);
+        assert_eq!(result.committed_mass,  30_000.0);
+        assert_eq!(result.free_mass,      270_000.0);
+        assert_eq!(result.days_remaining,       22);
         let expected = 270_000.0 / 22.0;
         assert!((result.daily_budget - expected).abs() < 0.01);
     }
 
     #[test]
     fn test_budget_with_loyer() {
-        // 300 000 FCFA, épargne 30 000, loyer 150 000 FCFA dû le 31
         let loyer = RecurringCharge {
-            id:          "c1".into(),
-            name:        "Loyer".into(),
-            amount:      150_000.0,
-            due_day:     31,
-            status:      ChargeStatus::Pending,
-            amount_paid: 0.0,
-            is_active:   true,
+            id: "c1".into(), name: "Loyer".into(),
+            amount: 150_000.0, due_day: 31,
+            status: ChargeStatus::Pending, amount_paid: 0.0, is_active: true,
         };
         let input  = make_input(300_000.0, 30_000.0, vec![loyer]);
-        let result = DeterministicEngine::compute(&input);
+        let result = DeterministicEngine::compute(&input).unwrap();
 
-        // Masse engagée = 30 000 + 150 000 = 180 000
-        // Masse libre   = 300 000 - 180 000 = 120 000
-        // Jours         = 22
-        // B_j           = 120 000 / 22 = 5 454.54...
         assert!((result.committed_mass - 180_000.0).abs() < 0.01);
         assert!((result.free_mass      - 120_000.0).abs() < 0.01);
         let expected = 120_000.0 / 22.0;
@@ -224,18 +197,17 @@ mod tests {
 
     #[test]
     fn test_negative_free_mass_clamped() {
-        // Solde insuffisant pour couvrir les engagements
         let loyer = RecurringCharge {
             id: "c1".into(), name: "Loyer".into(),
             amount: 500_000.0, due_day: 31,
             status: ChargeStatus::Pending, amount_paid: 0.0, is_active: true,
         };
         let input  = make_input(100_000.0, 30_000.0, vec![loyer]);
-        let result = DeterministicEngine::compute(&input);
+        let result = DeterministicEngine::compute(&input).unwrap();
 
-        // Masse libre < 0 → clampée à 0, budget = 0
         assert_eq!(result.free_mass,    0.0);
         assert_eq!(result.daily_budget, 0.0);
+        assert!(result.is_insolvent());
     }
 
     #[test]
@@ -243,20 +215,34 @@ mod tests {
         let charge = RecurringCharge {
             id: "c1".into(), name: "Electricité".into(),
             amount: 20_000.0, due_day: 15,
-            status: ChargeStatus::Paid,  // déjà payée
+            status: ChargeStatus::Paid,
             amount_paid: 20_000.0, is_active: true,
         };
         let input  = make_input(200_000.0, 0.0, vec![charge]);
-        let result = DeterministicEngine::compute(&input);
+        let result = DeterministicEngine::compute(&input).unwrap();
 
-        // Charge payée → masse engagée = 0
         assert_eq!(result.charges_reserve, 0.0);
         assert_eq!(result.free_mass,   200_000.0);
     }
 
     #[test]
+    fn test_partially_paid_charge() {
+        let charge = RecurringCharge {
+            id: "c1".into(), name: "Loyer".into(),
+            amount: 150_000.0, due_day: 31,
+            status: ChargeStatus::PartiallyPaid,
+            amount_paid: 50_000.0, is_active: true,
+        };
+        let input  = make_input(200_000.0, 0.0, vec![charge]);
+        let result = DeterministicEngine::compute(&input).unwrap();
+
+        // Seulement 100 000 restants à réserver
+        assert!((result.charges_reserve - 100_000.0).abs() < 0.01);
+        assert!((result.free_mass       - 100_000.0).abs() < 0.01);
+    }
+
+    #[test]
     fn test_last_day_of_cycle() {
-        // Dernier jour : days_remaining = 1, daily_budget = free_mass
         let input = EngineInput {
             today: Date::new(2026, 3, 31),
             accounts: vec![Account {
@@ -264,24 +250,26 @@ mod tests {
                 account_type: AccountType::Cash,
                 balance: 50_000.0, is_active: true,
             }],
-            charges:      vec![],
-            transactions: vec![],
+            charges: vec![], transactions: vec![],
             cycle: FinancialCycle {
                 cycle_type:   CycleType::Monthly,
                 savings_goal: 10_000.0,
                 transport:    TransportType::None,
             },
         };
-        let result = DeterministicEngine::compute(&input);
-        assert_eq!(result.days_remaining,  1);
-        assert_eq!(result.daily_budget,  40_000.0);
+        let result = DeterministicEngine::compute(&input).unwrap();
+        assert_eq!(result.days_remaining, 1);
+        assert_eq!(result.daily_budget, 40_000.0);
     }
 
     #[test]
     fn test_transport_daily_work_days() {
-        // Transport 500 FCFA/j, lun-ven, aujourd'hui = mercredi 11 mars 2026
-        // Jours ouvrables restants jusqu'au 31 mars : mer 11 → ven 13 (3)
-        // + sem 16-20 (5) + sem 23-27 (5) + sem 30-31 (2) = 15 jours
+        // Mercredi 11 mars 2026, jours ouvrables restants jusqu'au 31 mars
+        // mer 11 → ven 13 = 3 jours
+        // + lun 16 → ven 20 = 5 jours
+        // + lun 23 → ven 27 = 5 jours
+        // + lun 30 → mar 31 = 2 jours
+        // Total = 15 jours × 500 = 7 500 FCFA
         let input = EngineInput {
             today: Date::new(2026, 3, 11),
             accounts: vec![Account {
@@ -289,19 +277,164 @@ mod tests {
                 account_type: AccountType::MobileMoney,
                 balance: 200_000.0, is_active: true,
             }],
-            charges: vec![],
-            transactions: vec![],
+            charges: vec![], transactions: vec![],
             cycle: FinancialCycle {
                 cycle_type:   CycleType::Monthly,
                 savings_goal: 0.0,
-                transport:    TransportType::Daily {
+                transport: TransportType::Daily {
                     cost_per_day: 500.0,
-                    work_days: vec![1, 2, 3, 4, 5], // lun-ven
+                    work_days: vec![1, 2, 3, 4, 5],
                 },
             },
         };
-        let result = DeterministicEngine::compute(&input);
-        // Transport = 15 × 500 = 7 500
+        let result = DeterministicEngine::compute(&input).unwrap();
         assert_eq!(result.transport_reserve, 7_500.0);
+    }
+
+    #[test]
+    fn test_weekly_cycle_end_date() {
+        // Lundi 9 mars 2026 → fin de semaine = dimanche 15 mars
+        let cycle = FinancialCycle {
+            cycle_type: CycleType::Weekly,
+            savings_goal: 0.0,
+            transport: TransportType::None,
+        };
+        let today = Date::new(2026, 3, 9);
+        let end   = DeterministicEngine::cycle_end_date(&today, &cycle);
+        assert_eq!(end, Date::new(2026, 3, 15));
+        assert_eq!(DeterministicEngine::days_remaining(&today, &cycle), 7);
+    }
+
+    #[test]
+    fn test_irregular_cycle() {
+        let input = EngineInput {
+            today: Date::new(2026, 3, 15),
+            accounts: vec![Account {
+                id: "a1".into(), name: "Cash".into(),
+                account_type: AccountType::Cash,
+                balance: 100_000.0, is_active: true,
+            }],
+            charges: vec![], transactions: vec![],
+            cycle: FinancialCycle {
+                cycle_type: CycleType::Irregular {
+                    cycle_start: Date::new(2026, 3, 5),
+                    cycle_end:   Date::new(2026, 3, 25),
+                },
+                savings_goal: 0.0,
+                transport: TransportType::None,
+            },
+        };
+        let result = DeterministicEngine::compute(&input).unwrap();
+        // Du 15 au 25 inclus = 11 jours
+        assert_eq!(result.days_remaining, 11);
+    }
+
+    #[test]
+    fn test_spent_today_reduces_remaining() {
+        let mut input = make_input(200_000.0, 0.0, vec![]);
+        input.today = Date::new(2026, 3, 10);
+        input.transactions = vec![Transaction {
+            id: "t1".into(),
+            date: Date::new(2026, 3, 10),
+            amount: 5_000.0,
+            tx_type: TransactionType::Expense,
+            category: None,
+            account_id: "acc1".into(),
+            description: None,
+            sms_confidence: None,
+        }];
+        let result = DeterministicEngine::compute(&input).unwrap();
+        assert!((result.spent_today - 5_000.0).abs() < 0.01);
+        assert!((result.remaining_today - (result.daily_budget - 5_000.0)).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_income_transaction_not_counted_as_expense() {
+        let mut input = make_input(200_000.0, 0.0, vec![]);
+        input.transactions = vec![Transaction {
+            id: "t1".into(),
+            date: Date::new(2026, 3, 10),
+            amount: 50_000.0,
+            tx_type: TransactionType::Income, // revenu, pas dépense
+            category: None,
+            account_id: "acc1".into(),
+            description: None,
+            sms_confidence: None,
+        }];
+        let result = DeterministicEngine::compute(&input).unwrap();
+        assert_eq!(result.spent_today, 0.0);
+    }
+
+    #[test]
+    fn test_multiple_active_accounts() {
+        let input = EngineInput {
+            today: Date::new(2026, 3, 10),
+            accounts: vec![
+                Account { id: "a1".into(), name: "MoMo".into(),
+                    account_type: AccountType::MobileMoney,
+                    balance: 100_000.0, is_active: true },
+                Account { id: "a2".into(), name: "Cash".into(),
+                    account_type: AccountType::Cash,
+                    balance: 50_000.0, is_active: true },
+                Account { id: "a3".into(), name: "Inactif".into(),
+                    account_type: AccountType::Bank,
+                    balance: 999_000.0, is_active: false }, // ne compte pas
+            ],
+            charges: vec![], transactions: vec![],
+            cycle: FinancialCycle {
+                cycle_type: CycleType::Monthly,
+                savings_goal: 0.0, transport: TransportType::None,
+            },
+        };
+        let result = DeterministicEngine::compute(&input).unwrap();
+        assert_eq!(result.total_balance, 150_000.0);
+    }
+
+    #[test]
+    fn test_validation_error_returned() {
+        let bad_input = EngineInput {
+            today: Date::new(2026, 3, 10),
+            accounts: vec![], // aucun compte
+            charges: vec![], transactions: vec![],
+            cycle: FinancialCycle {
+                cycle_type: CycleType::Monthly,
+                savings_goal: 0.0, transport: TransportType::None,
+            },
+        };
+        assert!(DeterministicEngine::compute(&bad_input).is_err());
+    }
+
+    #[test]
+    fn test_overdue_charge_fully_reserved() {
+        let charge = RecurringCharge {
+            id: "c1".into(), name: "Eau".into(),
+            amount: 30_000.0, due_day: 5, // déjà passé (on est le 10)
+            status: ChargeStatus::Overdue,
+            amount_paid: 0.0, is_active: true,
+        };
+        let input = make_input(200_000.0, 0.0, vec![charge]);
+        let result = DeterministicEngine::compute(&input).unwrap();
+        // Overdue ≠ Paid → entièrement réservé
+        assert!((result.charges_reserve - 30_000.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_daily_cycle() {
+        let input = EngineInput {
+            today: Date::new(2026, 3, 10),
+            accounts: vec![Account {
+                id: "a1".into(), name: "Cash".into(),
+                account_type: AccountType::Cash,
+                balance: 10_000.0, is_active: true,
+            }],
+            charges: vec![], transactions: vec![],
+            cycle: FinancialCycle {
+                cycle_type: CycleType::Daily,
+                savings_goal: 0.0, transport: TransportType::None,
+            },
+        };
+        let result = DeterministicEngine::compute(&input).unwrap();
+        assert_eq!(result.days_remaining, 1);
+        assert_eq!(result.daily_budget, 10_000.0);
     }
 }

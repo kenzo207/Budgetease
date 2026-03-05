@@ -1,236 +1,97 @@
-import 'dart:convert';
-import 'package:drift/drift.dart';
-import '../../data/database/app_database.dart';
-import '../../data/database/tables/transactions_table.dart';
-import 'budget_calculator_service.dart';
-import 'cycle_manager_service.dart';
-import 'transport_manager_service.dart';
-import '../../data/database/daos/accounts_dao.dart';
-import '../../data/database/daos/transactions_dao.dart';
-import '../../data/database/daos/recurring_charges_dao.dart';
-import '../../data/database/tables/settings_table.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../engine/engine_output.dart';
+import '../../presentation/providers/engine_provider.dart';
 
-/// Service pour analyser le comportement de dépense de l'utilisateur
+/// Service de profil comportemental — lit uniquement les données du moteur Rust.
+///
+/// Le profil [BehavioralProfile] est calculé par le moteur Rust dans
+/// [ZoltEngineOutputV2.profile] (zolt_session / zolt_run).
+/// Aucun calcul n'est effectué côté Dart.
 class BehavioralProfilerService {
-  final AppDatabase _database;
+  final Ref _ref;
 
-  BehavioralProfilerService({required AppDatabase database}) : _database = database;
+  BehavioralProfilerService({required Ref ref}) : _ref = ref;
 
-  /// Construire le profil comportemental (30 derniers jours)
+  /// Retourne le profil comportemental calculé par le moteur Rust.
   Future<BehavioralReport> buildProfile() async {
-    final last30Days = DateTime.now().subtract(const Duration(days: 30));
-
-    final recentTransactions = await (_database.select(_database.transactions)
-          ..where((t) => t.date.isBiggerThanValue(last30Days)))
-        .get();
-
-    // Fréquence de dépenses (transactions par jour)
-    final frequency = recentTransactions.length / 30.0;
-
-    // Pattern horaire
-    final hourlyPattern = <int, int>{};
-    for (var t in recentTransactions) {
-      final hour = t.date.hour;
-      hourlyPattern[hour] = (hourlyPattern[hour] ?? 0) + 1;
-    }
-
-    // ── Comptage réel des dépassements du budget journalier ──────────
-    final settings = await _database.select(_database.settings).getSingleOrNull();
-    int overrunCount = 0;
-    double averageOverrun = 0.0;
-
-    if (settings != null) {
-      final cycleManager = CycleManagerService(cycle: settings.financialCycle);
-      final transportManager = TransportManagerService(
-        mode: settings.transportMode,
-        dailyCost: settings.dailyTransportCost,
-        daysPerWeek: settings.transportDaysPerWeek,
-        cycleManager: cycleManager,
-      );
-      final calculator = BudgetCalculatorService(
-        accountsDao: AccountsDao(_database),
-        transactionsDao: TransactionsDao(_database),
-        chargesDao: RecurringChargesDao(_database),
-        cycleManager: cycleManager,
-        transportManager: transportManager,
-        savingsGoal: settings.savingsGoal ?? 0.0,
-      );
-      final dailyCap = await calculator.calculateDailyBudget();
-
-      // Grouper les dépenses par jour sur les 30 derniers jours
-      final expensesByDay = <String, double>{};
-      for (final t in recentTransactions.where((t) => t.type == TransactionType.expense)) {
-        final key = '${t.date.year}-${t.date.month}-${t.date.day}';
-        expensesByDay[key] = (expensesByDay[key] ?? 0.0) + t.amount;
-      }
-
-      double totalOverrun = 0.0;
-      for (final dayTotal in expensesByDay.values) {
-        if (dayTotal > dailyCap && dailyCap > 0) {
-          overrunCount++;
-          totalOverrun += dayTotal - dailyCap;
-        }
-      }
-      if (overrunCount > 0) averageOverrun = totalOverrun / overrunCount;
-    }
-
-    // Déterminer niveau de conseil
-    final advisoryLevel = _determineAdvisoryLevel(frequency, overrunCount);
-
-    return BehavioralReport(
-      spendingFrequency: frequency,
-      hourlyPattern: hourlyPattern,
-      overrunCount: overrunCount,
-      averageOverrun: averageOverrun,
-      advisoryLevel: advisoryLevel,
-      lastUpdated: DateTime.now(),
-    );
+    final session = await _ref.read(zoltEngineProviderProvider.future);
+    return BehavioralReport.fromRust(session.engine.profile, session.health);
   }
 
-  /// Récupérer ou créer profil
-  Future<BehavioralReport> getOrCreateProfile() async {
-    final existing = await _database.select(_database.behavioralProfiles).getSingleOrNull();
+  /// Alias : toujours retourner le profil Rust actuel.
+  Future<BehavioralReport> getOrCreateProfile() => buildProfile();
 
-    if (existing == null) {
-      // Créer nouveau profil
-      final profile = await buildProfile();
-      await _saveProfile(profile);
-      return profile;
-    }
-
-    // Mettre à jour si > 24h
-    if (DateTime.now().difference(existing.lastUpdated).inHours > 24) {
-      final updated = await buildProfile();
-      await _updateProfile(existing.id, updated);
-      return updated;
-    }
-
-    return BehavioralReport.fromDb(existing);
-  }
-
-  /// Sauvegarder profil
-  Future<void> _saveProfile(BehavioralReport profile) async {
-    await _database.into(_database.behavioralProfiles).insert(
-      BehavioralProfilesCompanion.insert(
-        spendingFrequency: profile.spendingFrequency,
-        hourlyPattern: jsonEncode(profile.hourlyPattern),
-        overrunCount: profile.overrunCount,
-        averageOverrun: profile.averageOverrun,
-        advisoryLevel: profile.advisoryLevel,
-        lastUpdated: profile.lastUpdated,
-        createdAt: DateTime.now(),
-      ),
-    );
-  }
-
-  /// Mettre à jour profil
-  Future<void> _updateProfile(int id, BehavioralReport profile) async {
-    await (_database.update(_database.behavioralProfiles)
-          ..where((p) => p.id.equals(id)))
-        .write(
-      BehavioralProfilesCompanion(
-        spendingFrequency: Value(profile.spendingFrequency),
-        hourlyPattern: Value(jsonEncode(profile.hourlyPattern)),
-        overrunCount: Value(profile.overrunCount),
-        averageOverrun: Value(profile.averageOverrun),
-        advisoryLevel: Value(profile.advisoryLevel),
-        lastUpdated: Value(profile.lastUpdated),
-      ),
-    );
-  }
-
-  /// Déterminer niveau de conseil
-  String _determineAdvisoryLevel(double frequency, int overruns) {
-    if (frequency < 1.0 && overruns < 3) return 'minimal';
-    if (frequency > 5.0 || overruns > 10) return 'frequent';
-    return 'standard';
-  }
-
-  /// Vérifier si dépensier du soir (18h-22h)
+  /// Dépensier du soir si le rythme Rust est "Terminal" ou "Frontal".
   Future<bool> isEveningSpender() async {
-    final profile = await getOrCreateProfile();
-    
-    final eveningTx = (profile.hourlyPattern[18] ?? 0) +
-        (profile.hourlyPattern[19] ?? 0) +
-        (profile.hourlyPattern[20] ?? 0) +
-        (profile.hourlyPattern[21] ?? 0);
-    
-    final totalTx = profile.hourlyPattern.values.fold(0, (a, b) => a + b);
-    
-    return totalTx > 0 && (eveningTx / totalTx) > 0.4;
+    final session = await _ref.read(zoltEngineProviderProvider.future);
+    return session.engine.profile.rhythm == 'Terminal';
   }
 
-  /// Obtenir heure de dépense préférée
-  Future<int?> getPreferredSpendingHour() async {
-    final profile = await getOrCreateProfile();
-    
-    if (profile.hourlyPattern.isEmpty) return null;
-
-    int maxHour = 0;
-    int maxCount = 0;
-
-    profile.hourlyPattern.forEach((hour, count) {
-      if (count > maxCount) {
-        maxCount = count;
-        maxHour = hour;
-      }
-    });
-
-    return maxHour;
-  }
+  /// Heure de dépense préférée : null (non disponible depuis le moteur Rust).
+  Future<int?> getPreferredSpendingHour() async => null;
 }
 
-/// Modèle Behavioral Profile
+/// Rapport comportemental construit depuis les données Rust.
 class BehavioralReport {
-  final double spendingFrequency;
-  final Map<int, int> hourlyPattern;
-  final int overrunCount;
-  final double averageOverrun;
+  final double spendingFrequency;   // volatilityScore 0..1
+  final String rhythmLabel;         // Linear | Frontal | Terminal | Erratic
+  final int cyclesObserved;
+  final double savingsAchievement;  // ratio 0..1
+  final double hiddenChargesTotal;
   final String advisoryLevel;
   final DateTime lastUpdated;
 
+  // Champs conservés pour la rétrocompatibilité avec les widgets existants
+  final Map<int, int> hourlyPattern;
+  final int overrunCount;
+  final double averageOverrun;
+
   BehavioralReport({
     required this.spendingFrequency,
-    required this.hourlyPattern,
-    required this.overrunCount,
-    required this.averageOverrun,
+    required this.rhythmLabel,
+    required this.cyclesObserved,
+    required this.savingsAchievement,
+    required this.hiddenChargesTotal,
     required this.advisoryLevel,
     required this.lastUpdated,
+    this.hourlyPattern = const {},
+    this.overrunCount  = 0,
+    this.averageOverrun = 0.0,
   });
 
-  factory BehavioralReport.fromDb(BehavioralProfile dbProfile) {
+  factory BehavioralReport.fromRust(BehavioralProfile profile, HealthScore health) {
+    // Mapper le score de santé sur le niveau de conseil
+    final level = health.score >= 70
+        ? 'minimal'
+        : health.score < 40
+            ? 'frequent'
+            : 'standard';
+
     return BehavioralReport(
-      spendingFrequency: dbProfile.spendingFrequency,
-      hourlyPattern: Map<int, int>.from(
-        jsonDecode(dbProfile.hourlyPattern.toString()) as Map
-      ),
-      overrunCount: dbProfile.overrunCount,
-      averageOverrun: dbProfile.averageOverrun,
-      advisoryLevel: dbProfile.advisoryLevel,
-      lastUpdated: dbProfile.lastUpdated,
+      spendingFrequency:   profile.volatilityScore,
+      rhythmLabel:         profile.rhythmLabel,
+      cyclesObserved:      profile.cyclesObserved,
+      savingsAchievement:  profile.savingsAchievement,
+      hiddenChargesTotal:  profile.hiddenChargesTotal,
+      advisoryLevel:       level,
+      lastUpdated:         DateTime.now(),
     );
   }
 
-  /// Niveau de conseil en texte lisible
   String get advisoryLevelText {
     switch (advisoryLevel) {
-      case 'minimal':
-        return 'Minimal';
-      case 'frequent':
-        return 'Fréquent';
-      default:
-        return 'Standard';
+      case 'minimal':  return 'Minimal';
+      case 'frequent': return 'Fréquent';
+      default:         return 'Standard';
     }
   }
 
-  /// Description du comportement
   String get behaviorDescription {
-    if (spendingFrequency < 1.0) {
-      return 'Vous dépensez peu fréquemment';
-    } else if (spendingFrequency < 3.0) {
-      return 'Vous avez une fréquence de dépense modérée';
-    } else {
-      return 'Vous dépensez très fréquemment';
+    switch (rhythmLabel) {
+      case 'Dépensier en début de mois': return 'Vous dépensez surtout en début de mois';
+      case 'Dépensier en fin de mois':   return 'Vous dépensez surtout en fin de mois';
+      case 'Irrégulier':                 return 'Vos dépenses sont irrégulières';
+      default:                           return 'Vous avez une fréquence de dépense régulière';
     }
   }
 }

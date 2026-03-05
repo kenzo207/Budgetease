@@ -1,3 +1,92 @@
+// ─────────────────────────────────────────────────────────────
+// ANALYTICS RESULT (zolt_analytics)
+// ─────────────────────────────────────────────────────────────
+
+/// Statistique d'une catégorie de dépenses retournée par zolt_analytics.
+class CategoryStat {
+  final String category;
+  final double total;
+  final double pctOfBudget;   // % du total dépenses
+  final int txCount;
+  final double avgPerTx;
+  final double? vsHistoryPct; // delta vs moyenne cycles précédents
+
+  const CategoryStat({
+    required this.category,
+    required this.total,
+    required this.pctOfBudget,
+    required this.txCount,
+    required this.avgPerTx,
+    this.vsHistoryPct,
+  });
+
+  factory CategoryStat.fromJson(Map<String, dynamic> j) {
+    return CategoryStat(
+      category:     j['category']       as String? ?? '',
+      total:        (j['total']         as num?)?.toDouble() ?? 0,
+      pctOfBudget:  (j['pct_of_budget'] as num?)?.toDouble() ?? 0,
+      txCount:      (j['tx_count']      as num?)?.toInt()    ?? 0,
+      avgPerTx:     (j['avg_per_tx']    as num?)?.toDouble() ?? 0,
+      vsHistoryPct: (j['vs_history_pct'] as num?)?.toDouble(),
+    );
+  }
+}
+
+/// Résultat complet de zolt_analytics.
+class AnalyticsResult {
+  final double totalExpenses;
+  final double totalIncome;
+  final double net;               // totalIncome - totalExpenses
+  final List<CategoryStat> byCategory;
+  final double dailyAverage;
+  final Map<String, int>? peakDay; // {year, month, day}
+  final double peakDayAmount;
+  final double savingsRate;       // (income - expenses) / income, clamped -1..1
+  final double? prevExpenses;     // comparaison période précédente
+  final double? prevIncome;
+  final double? deltaPct;
+
+  const AnalyticsResult({
+    required this.totalExpenses,
+    required this.totalIncome,
+    required this.net,
+    required this.byCategory,
+    required this.dailyAverage,
+    this.peakDay,
+    required this.peakDayAmount,
+    required this.savingsRate,
+    this.prevExpenses,
+    this.prevIncome,
+    this.deltaPct,
+  });
+
+  factory AnalyticsResult.fromJson(Map<String, dynamic> j) {
+    Map<String, int>? peak;
+    if (j['peak_day'] != null) {
+      final d = j['peak_day'] as Map<String, dynamic>;
+      peak = {'year': (d['year'] as num).toInt(), 'month': (d['month'] as num).toInt(), 'day': (d['day'] as num).toInt()};
+    }
+    final comp = j['comparison'] as Map<String, dynamic>?;
+    return AnalyticsResult(
+      totalExpenses: (j['total_expenses'] as num?)?.toDouble() ?? 0,
+      totalIncome:   (j['total_income']   as num?)?.toDouble() ?? 0,
+      net:           (j['net']            as num?)?.toDouble() ?? 0,
+      byCategory:    (j['by_category'] as List? ?? [])
+          .map((c) => CategoryStat.fromJson(c as Map<String, dynamic>))
+          .toList(),
+      dailyAverage:  (j['daily_average']    as num?)?.toDouble() ?? 0,
+      peakDay:       peak,
+      peakDayAmount: (j['peak_day_amount']  as num?)?.toDouble() ?? 0,
+      savingsRate:   (j['savings_rate']     as num?)?.toDouble() ?? 0,
+      prevExpenses:  (comp?['previous_expenses'] as num?)?.toDouble(),
+      prevIncome:    (comp?['previous_income']   as num?)?.toDouble(),
+      deltaPct:      (comp?['delta_pct']         as num?)?.toDouble(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+
 /// Sortie complète du moteur Zolt (désérialisée depuis JSON Rust).
 class ZoltEngineOutput {
   final DeterministicResult deterministic;

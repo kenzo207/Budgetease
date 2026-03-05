@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/database/app_database.dart';
+import '../../data/database/app_database.dart'; // Insight type
 import '../../domain/services/income_predictor_service.dart';
 import '../../domain/services/insights_service.dart';
 import '../../domain/services/behavioral_profiler_service.dart';
@@ -14,44 +14,28 @@ export 'database_provider.dart' show databaseProvider;
 // ========== Service Providers ==========
 
 final incomePredictorServiceProvider = Provider<IncomePredictorService>((ref) {
-  final database = ref.watch(databaseProvider);
-  return IncomePredictorService(database: database);
+  return IncomePredictorService(ref: ref);
 });
 
 final insightsServiceProvider = Provider<InsightsService>((ref) {
   final database = ref.watch(databaseProvider);
-  return InsightsService(database: database);
+  return InsightsService(database: database, ref: ref);
 });
 
 final behavioralProfilerServiceProvider = Provider<BehavioralProfilerService>((ref) {
-  final database = ref.watch(databaseProvider);
-  return BehavioralProfilerService(database: database);
+  return BehavioralProfilerService(ref: ref);
 });
 
 final advisoryServiceProvider = Provider<AdvisoryService>((ref) {
-  final database = ref.watch(databaseProvider);
-  final profiler = ref.watch(behavioralProfilerServiceProvider);
-  final incomePredictor = ref.watch(incomePredictorServiceProvider);
-  
-  return AdvisoryService(
-    database: database,
-    profiler: profiler,
-    incomePredictor: incomePredictor,
-  );
+  return AdvisoryService(ref: ref);
 });
 
 // ========== Income Predictor Providers ==========
 
-/// Pattern d'analyse des revenus
-final incomePatternProvider = FutureProvider<IncomeAnalysis>((ref) async {
+/// Prédiction du prochain revenu (Rust)
+final incomePredictionProvider = FutureProvider<IncomePrediction?>((ref) async {
   final service = ref.watch(incomePredictorServiceProvider);
-  return await service.analyzeIncomePattern();
-});
-
-/// Prédiction mensuelle
-final monthlyIncomePredictionProvider = FutureProvider<double>((ref) async {
-  final service = ref.watch(incomePredictorServiceProvider);
-  return await service.predictMonthlyIncome();
+  return await service.predictNextIncome();
 });
 
 /// Revenu estimé (réel ou prédit)
@@ -60,16 +44,18 @@ final estimatedMonthlyIncomeProvider = FutureProvider<double>((ref) async {
   return await service.getEstimatedMonthlyIncome();
 });
 
-/// Prochaine date de revenu
+/// Prochaine date de revenu prédite
 final nextIncomeDateProvider = FutureProvider<DateTime?>((ref) async {
   final service = ref.watch(incomePredictorServiceProvider);
-  return await service.predictNextIncomeDate();
+  final pred = await service.predictNextIncome();
+  return pred?.predictedDate;
 });
 
 /// Jours jusqu'au prochain revenu
 final daysUntilNextIncomeProvider = FutureProvider<int?>((ref) async {
   final service = ref.watch(incomePredictorServiceProvider);
-  return await service.getDaysUntilNextIncome();
+  final pred = await service.predictNextIncome();
+  return pred?.daysUntilNext;
 });
 
 // ========== Insights Providers ==========
@@ -114,7 +100,7 @@ final activeAdvisoriesProvider = FutureProvider<List<Advisory>>((ref) async {
   return await service.getAdvice();
 });
 
-/// Daily Cap recommandé
+/// Daily Cap recommandé (= dailyBudget Rust)
 final recommendedDailyCapProvider = FutureProvider<double>((ref) async {
   final service = ref.watch(advisoryServiceProvider);
   return await service.getRecommendedDailyCap();

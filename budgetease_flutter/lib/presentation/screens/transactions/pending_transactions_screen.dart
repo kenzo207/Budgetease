@@ -145,14 +145,24 @@ class PendingTransactionsScreen extends ConsumerWidget {
         'sms_scan_triggered',
         properties: {'source': 'manual'},
       );
-      final count = await ref.read(pendingTransactionsProvider.notifier).scan();
+      final result = await ref.read(pendingTransactionsProvider.notifier).scan();
       if (context.mounted) {
+        final String msg;
+        if (!result.hasActivity) {
+          msg = 'Aucune nouvelle transaction';
+        } else if (result.pendingAdded == 0) {
+          msg = '${result.autoApproved} transaction${result.autoApproved > 1 ? 's' : ''} traitée${result.autoApproved > 1 ? 's' : ''} automatiquement ✓';
+        } else if (result.autoApproved == 0) {
+          msg = '${result.pendingAdded} transaction${result.pendingAdded > 1 ? 's' : ''} à valider';
+        } else {
+          msg = '${result.autoApproved} auto-traitée${result.autoApproved > 1 ? 's' : ''}, ${result.pendingAdded} à valider';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(count > 0
-                ? '$count nouvelle${count > 1 ? 's' : ''} transaction${count > 1 ? 's' : ''} détectée${count > 1 ? 's' : ''}'
-                : 'Aucune nouvelle transaction'),
-            backgroundColor: count > 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+            content: Text(msg),
+            backgroundColor: result.hasActivity
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.surface,
           ),
         );
       }

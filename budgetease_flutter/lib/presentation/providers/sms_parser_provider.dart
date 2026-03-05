@@ -36,9 +36,7 @@ class PendingTransactions extends _$PendingTransactions {
 
     if (result.hasActivity && notify) {
       final notifService = NotificationService();
-      if (result.pendingAdded > 0) {
-        await notifService.showNewSmsTransactions(result.pendingAdded);
-      }
+      await notifService.showNewSmsTransactions(result.autoApproved);
     }
 
     ref.invalidateSelf();

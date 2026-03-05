@@ -147,16 +147,9 @@ class PendingTransactionsScreen extends ConsumerWidget {
       );
       final result = await ref.read(pendingTransactionsProvider.notifier).scan();
       if (context.mounted) {
-        final String msg;
-        if (!result.hasActivity) {
-          msg = 'Aucune nouvelle transaction';
-        } else if (result.pendingAdded == 0) {
-          msg = '${result.autoApproved} transaction${result.autoApproved > 1 ? 's' : ''} traitée${result.autoApproved > 1 ? 's' : ''} automatiquement ✓';
-        } else if (result.autoApproved == 0) {
-          msg = '${result.pendingAdded} transaction${result.pendingAdded > 1 ? 's' : ''} à valider';
-        } else {
-          msg = '${result.autoApproved} auto-traitée${result.autoApproved > 1 ? 's' : ''}, ${result.pendingAdded} à valider';
-        }
+        final String msg = result.hasActivity
+            ? '${result.autoApproved} transaction${result.autoApproved > 1 ? 's' : ''} intégrée${result.autoApproved > 1 ? 's' : ''} automatiquement ✓'
+            : 'Aucune nouvelle transaction';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(msg),

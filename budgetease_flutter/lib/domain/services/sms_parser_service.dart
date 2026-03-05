@@ -71,9 +71,6 @@ class SmsParserService {
 
   static const String _lastScanTimestampKey = 'sms_last_scan_timestamp';
 
-  /// Seuil de confiance au-dessus duquel une transaction est auto-approuvée.
-  static const double _autoApproveThreshold = 0.75;
-
   SmsParserService({required AppDatabase database}) : _database = database;
 
   // ═══════════════════════════════════════════════════════
@@ -81,12 +78,15 @@ class SmsParserService {
   // ═══════════════════════════════════════════════════════
 
   /// Demander la permission et scanner les SMS.
-  /// 
-  /// Les SMS avec une confiance ≥ [_autoApproveThreshold] sont automatiquement
-  /// validés et intégrés aux transactions sans intervention de l'utilisateur.
-  /// Les autres sont ajoutés à la file d'attente (écran de révision).
-  /// 
-  /// Retourne un [SmsProcessingResult] avec le bilan du traitement.
+  ///
+  /// TOUTES les transactions détectées sont automatiquement validées et
+  /// intégrées — aucune confirmation utilisateur requise.
+  ///
+  /// Règle solde : le solde du compte est mis à jour UNE SEULE FOIS à la fin
+  /// du scan, avec le `balanceAfter` extrait du SMS le plus RÉCENT qui en
+  /// contient un.  Les autres SMS servent uniquement à l'historique / analyse.
+  ///
+  /// Retourne un [SmsProcessingResult] avec le nombre de transactions traitées.
   Future<SmsProcessingResult> scanAndParseSms() async {
     final status = await Permission.sms.request();
     if (!status.isGranted) {
@@ -102,137 +102,121 @@ class SmsParserService {
       count: 500,
     );
 
+    // Trier par date croissante pour que le dernier SMS soit bien le plus récent.
+    final sorted = messages
+        .where((m) => m.body != null && m.sender != null)
+        .toList()
+      ..sort((a, b) =>
+          (a.date ?? DateTime(0)).compareTo(b.date ?? DateTime(0)));
+
     int autoApproved = 0;
-    int pendingAdded = 0;
     DateTime latestSmsDate = lastScanDate;
 
-    for (final message in messages) {
-      if (message.body == null || message.sender == null) continue;
+    // accountId → (balanceAfter, smsDate) du SMS le plus récent avec un solde.
+    final Map<int, ({double balance, DateTime date})> latestBalances = {};
+
+    for (final message in sorted) {
       final msgDate = message.date ?? DateTime.now();
+      if (!msgDate.isAfter(lastScanDate)) continue;
 
-      if (msgDate.isAfter(lastScanDate)) {
-        final parsed = parseMessage(message.sender!, message.body!, msgDate);
-        if (parsed != null) {
-          final exists = await _isDuplicate(parsed, message.body!);
-          if (!exists) {
-            final wasAutoApproved = await _processSingleSms(parsed, message.body!, msgDate);
-            if (wasAutoApproved) {
-              autoApproved++;
-            } else {
-              pendingAdded++;
-            }
-          }
+      final parsed = parseMessage(message.sender!, message.body!, msgDate);
+      if (parsed == null) continue;
 
-          if (msgDate.isAfter(latestSmsDate)) {
-            latestSmsDate = msgDate;
-          }
+      final exists = await _isDuplicate(parsed, message.body!);
+      if (exists) continue;
+
+      final accountId = await _findMomoAccountId(parsed.operator);
+      if (accountId == null) continue;  // Compte inconnu → ignorer
+
+      String? categorySlug;
+      if (ZoltEngine.isAvailable) {
+        try {
+          final cls = ZoltEngine.classify(
+            amount: parsed.amount,
+            description: null,
+            counterpart: parsed.counterpart,
+            smsText: message.body!,
+          );
+          categorySlug = cls['category'] as String?;
+        } catch (e) {
+          debugPrint('[SmsParser] zolt_classify error: $e');
         }
       }
+
+      final categoryId = await _resolveCategoryId(parsed, categorySlug);
+
+      // Créer la transaction SANS toucher au solde.
+      await _autoApproveTransaction(
+        parsed: parsed,
+        smsDate: msgDate,
+        accountId: accountId,
+        categoryId: categoryId,
+        skipBalanceUpdate: true,
+      );
+      autoApproved++;
+
+      // Mémoriser le solde du SMS le plus récent (tri croissant → on écrase).
+      if (parsed.balanceAfter != null) {
+        latestBalances[accountId] = (balance: parsed.balanceAfter!, date: msgDate);
+      }
+
+      if (msgDate.isAfter(latestSmsDate)) latestSmsDate = msgDate;
     }
 
-    // Bug #5 fix: timestamp toujours progressé même sans SMS MoMo détecté.
+    // ── Mise à jour UNIQUE du solde par compte ──────────────────
+    for (final entry in latestBalances.entries) {
+      await _updateAccountBalance(entry.key, entry.value.balance);
+    }
+
     final scanTime = latestSmsDate.isAfter(lastScanDate)
         ? latestSmsDate
         : DateTime.now();
     await prefs.setInt(_lastScanTimestampKey, scanTime.millisecondsSinceEpoch);
 
-    return SmsProcessingResult(autoApproved: autoApproved, pendingAdded: pendingAdded);
-  }
-
-  /// Traite UN SMS : choisit entre auto-approbation ou file d'attente.
-  /// 
-  /// Retourne `true` si la transaction a été auto-approuvée.
-  Future<bool> _processSingleSms(ParsedMomoSms parsed, String rawSms, DateTime smsDate) async {
-    // ── Classifier via le moteur Rust ───────────────────────────
-    double confidence = 0.0;
-    String? categorySlug;
-
-    if (ZoltEngine.isAvailable) {
-      try {
-        final classification = ZoltEngine.classify(
-          amount: parsed.amount,
-          description: null,
-          counterpart: parsed.counterpart,
-          smsText: rawSms,
-        );
-        confidence = (classification['confidence'] as num?)?.toDouble() ?? 0.0;
-        categorySlug = classification['category'] as String?;
-      } catch (e) {
-        debugPrint('zolt_classify failed in _processSingleSms: $e');
-      }
-    }
-
-    // ── Chemin HAUTE CONFIANCE → auto-approbation ───────────────
-    if (confidence >= _autoApproveThreshold) {
-      final accountId = await _findMomoAccountId(parsed.operator);
-
-      // Si on ne peut pas identifier le compte, on revient au pending
-      if (accountId == null) {
-        await _insertPending(parsed, rawSms, smsDate, accountId: null);
-        return false;
-      }
-
-      final categoryId = await _resolveCategoryId(parsed, categorySlug);
-      await _autoApproveTransaction(
-        parsed: parsed,
-        smsDate: smsDate,
-        accountId: accountId,
-        categoryId: categoryId,
-      );
-      return true;
-    }
-
-    // ── Chemin FAIBLE CONFIANCE → file de révision ──────────────
-    final accountId = await _findMomoAccountId(parsed.operator);
-    await _insertPending(parsed, rawSms, smsDate, accountId: accountId);
-    return false;
+    return SmsProcessingResult(autoApproved: autoApproved, pendingAdded: 0);
   }
 
   /// Commit direct d'une transaction sans validation utilisateur.
+  ///
+  /// [skipBalanceUpdate] : si `true`, ne met PAS à jour le solde du compte.
+  /// Le solde est géré globalement par [scanAndParseSms] (règle du dernier SMS).
   Future<void> _autoApproveTransaction({
     required ParsedMomoSms parsed,
     required DateTime smsDate,
     required int accountId,
     required int? categoryId,
+    bool skipBalanceUpdate = false,
   }) async {
     final isIncome = parsed.type == MomoTransactionType.transferIn ||
         parsed.type == MomoTransactionType.deposit;
 
-    await _database.transaction(() async {
-      // 1. Créer la transaction
-      await _database.into(_database.transactions).insert(
-        TransactionsCompanion(
-          amount: Value(parsed.amount),
-          type: Value(isIncome ? TransactionType.income : TransactionType.expense),
-          date: Value(parsed.transactionDate ?? smsDate),
-          categoryId: Value(categoryId),
-          accountId: Value(accountId),
-          feeAmount: Value(parsed.fee > 0 ? parsed.fee : null),
-          description: Value(parsed.description),
-          source: Value(isIncome ? parsed.operator : null),
-          isException: const Value(false),
-          createdAt: Value(DateTime.now()),
-        ),
-      );
+    await _database.into(_database.transactions).insert(
+      TransactionsCompanion(
+        amount: Value(parsed.amount),
+        type: Value(isIncome ? TransactionType.income : TransactionType.expense),
+        date: Value(parsed.transactionDate ?? smsDate),
+        categoryId: Value(categoryId),
+        accountId: Value(accountId),
+        feeAmount: Value(parsed.fee > 0 ? parsed.fee : null),
+        description: Value(parsed.description),
+        source: Value(isIncome ? parsed.operator : null),
+        isException: const Value(false),
+        createdAt: Value(DateTime.now()),
+      ),
+    );
 
-      // 2. Mettre à jour le solde du compte
+    if (!skipBalanceUpdate) {
       final account = await (_database.select(_database.accounts)
               ..where((a) => a.id.equals(accountId)))
           .getSingleOrNull();
-
       if (account != null) {
-        final double newBalance;
-        if (parsed.balanceAfter != null) {
-          // Solde post-transaction fiable venant du SMS → priorité absolue
-          newBalance = parsed.balanceAfter!;
-        } else {
-          newBalance = isIncome
-              ? account.currentBalance + parsed.amount
-              : account.currentBalance - parsed.amount - parsed.fee;
-        }
+        final double newBalance = parsed.balanceAfter ??
+            (isIncome
+                ? account.currentBalance + parsed.amount
+                : account.currentBalance - parsed.amount - parsed.fee);
         await _updateAccountBalance(accountId, newBalance);
       }
-    });
+    }
   }
 
   /// Insère un SMS dans la file d'attente pour révision manuelle.
@@ -774,21 +758,21 @@ class SmsParserService {
 
 /// Résultat d'un scan SMS, contenant le décompte des traitements.
 class SmsProcessingResult {
-  /// Nombre de transactions auto-approuvées directement (confiance ≥ 0.75).
+  /// Nombre de transactions auto-approuvées directement.
   final int autoApproved;
 
-  /// Nombre de transactions ajoutées à la file en attente pour révision manuelle.
+  /// Toujours 0 — plus de file d'attente manuelle.
   final int pendingAdded;
 
   const SmsProcessingResult({
     required this.autoApproved,
-    required this.pendingAdded,
+    this.pendingAdded = 0,
   });
 
   /// Total des transactions détectées dans ce scan.
-  int get total => autoApproved + pendingAdded;
+  int get total => autoApproved;
 
   /// Vrai si au moins une transaction a été traitée.
-  bool get hasActivity => total > 0;
+  bool get hasActivity => autoApproved > 0;
 }
 

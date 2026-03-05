@@ -11,17 +11,19 @@ import '../../engine/engine_input_builder.dart';
 import '../../engine/engine_output.dart' as eng;
 import '../../domain/services/cycle_manager_service.dart';
 import '../../domain/services/cycle_snapshot_service.dart';
+import '../../domain/services/notification_service.dart';
 
 part 'engine_provider.g.dart';
 
 /// Provider principal du moteur Zolt.
-/// 
-/// Retourne [ZoltEngineOutput] (depuis le moteur Rust si disponible,
-/// sinon calcul Dart en fallback exact).
+///
+/// Utilise [ZoltEngine.session] (v1.3) si disponible → retourne [SessionState].
+/// Sinon replie sur [ZoltEngine.run] (V2) → wrappé en [SessionState] minimal.
+/// En dernier recours, calcul Dart pur.
 @riverpod
 class ZoltEngineProvider extends _$ZoltEngineProvider {
   @override
-  Future<eng.ZoltEngineOutput> build() async {
+  Future<eng.SessionState> build() async {
     final db = ref.watch(databaseProvider);
 
     final settings     = await db.select(db.settings).getSingle();
@@ -43,59 +45,161 @@ class ZoltEngineProvider extends _$ZoltEngineProvider {
 
     // ─── Essaie le moteur Rust ───────────────────────────────────
     if (ZoltEngine.isAvailable) {
+      final input = buildEngineInput(
+        accounts:     accounts,
+        charges:      charges,
+        transactions: transactions,
+        settings:     settings,
+      );
+      final history = await snapshotService.buildHistory(limit: 12);
+
+      // ── Tentative zolt_session (v1.3 — pipeline complet) ──────
       try {
-        final input = buildEngineInput(
-          accounts:     accounts,
-          charges:      charges,
-          transactions: transactions,
-          settings:     settings,
+        final raw = ZoltEngine.session(
+          engineInput: input,
+          history:     history,
         );
-        // Historique réel des cycles passés (12 derniers max)
-        final history = await snapshotService.buildHistory(limit: 12);
-        final raw = ZoltEngine.run(input: input, history: history);
-        return eng.ZoltEngineOutput.fromJson(raw);
+        final session = eng.SessionState.fromJson(raw);
+
+        // Déclencher les notifications décidées par le moteur (non-bloquant)
+        _dispatchNotifications(session.engine.notifications);
+
+        return session;
       } catch (_) {
-        // Fallback si le moteur Rust échoue
+        // zolt_session non disponible → essai zolt_run
+      }
+
+      // ── Tentative zolt_run (v1.2 — pas de SessionState complet) ─
+      try {
+        final raw    = ZoltEngine.run(input: input, history: history);
+        final output = eng.ZoltEngineOutputV2.fromJson(raw);
+
+        // Déclencher les notifications retournées par V2
+        _dispatchNotifications(output.notifications);
+
+        return _wrapV2AsSession(output, cycleManager);
+      } catch (_) {
+        // Fallback Dart
       }
     }
 
     // ─── Fallback : calcul Dart ──────────────────────────────────
-    return _dartFallback(
+    final dartOutput = await _dartFallback(
       accounts:     accounts,
       charges:      charges,
       transactions: transactions,
       settings:     settings,
       cycleManager: cycleManager,
     );
+    return _wrapV2AsSession(dartOutput, cycleManager);
   }
 
   void refresh() => ref.invalidateSelf();
 }
 
-/// Budget journalier (accès rapide)
+// ─────────────────────────────────────────────────────────────
+// Providers dérivés (accès rapides)
+// ─────────────────────────────────────────────────────────────
+
+/// Budget journalier
 @riverpod
 Future<double> engineDailyBudget(EngineDailyBudgetRef ref) async {
-  final output = await ref.watch(zoltEngineProviderProvider.future);
-  return output.deterministic.dailyBudget;
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.dailyBudget;
 }
 
 /// Messages conversationnels du moteur
 @riverpod
 Future<List<eng.ConversationalMessage>> engineMessages(EngineMessagesRef ref) async {
-  final output = await ref.watch(zoltEngineProviderProvider.future);
-  return output.messages;
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.messages;
 }
 
 /// Prédiction de fin de cycle
 @riverpod
 Future<eng.EndOfCyclePrediction?> enginePrediction(EnginePredictionRef ref) async {
-  final output = await ref.watch(zoltEngineProviderProvider.future);
-  return output.prediction;
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.prediction;
 }
 
-// ─── Fallback Dart ───────────────────────────────────────────────
+/// Score de santé financière
+@riverpod
+Future<eng.HealthScore> engineHealthScore(EngineHealthScoreRef ref) async {
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.health;
+}
 
-Future<eng.ZoltEngineOutput> _dartFallback({
+/// État du cycle courant
+@riverpod
+Future<eng.CycleDetectionResult> engineCycleStatus(EngineCycleStatusRef ref) async {
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.cycle;
+}
+
+/// Suivi des charges récurrentes
+@riverpod
+Future<List<eng.ChargeTrackingResult>> engineChargeTracking(EngineChargeTrackingRef ref) async {
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.chargeTracking;
+}
+
+/// Rapport d'intégrité des données
+@riverpod
+Future<eng.IntegrityReport> engineIntegrity(EngineIntegrityRef ref) async {
+  final session = await ref.watch(zoltEngineProviderProvider.future);
+  return session.integrity;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────
+
+/// Dispatch les notifications décidées par le moteur Rust.
+void _dispatchNotifications(List<eng.NotificationTrigger> triggers) {
+  if (triggers.isEmpty) return;
+  final notifService = NotificationService();
+  for (final t in triggers) {
+    notifService.dispatchEngineNotification(t).catchError((_) {});
+  }
+}
+
+/// Wraps un [ZoltEngineOutputV2] en [SessionState] avec valeurs par défaut
+/// (utilisé quand zolt_session n'est pas disponible).
+eng.SessionState _wrapV2AsSession(
+  eng.ZoltEngineOutputV2 output,
+  CycleManagerService cycleManager,
+) {
+  final daysRemaining = cycleManager.getDaysRemainingInCycle();
+  final totalDays     = cycleManager.getTotalDaysInCycle();
+  final currentDay    = (totalDays - daysRemaining).clamp(1, totalDays);
+  final pct           = totalDays > 0 ? currentDay / totalDays : 0.0;
+
+  return eng.SessionState(
+    engine: output,
+    health: const eng.HealthScore(
+      score: 0, grade: 'Fair', budget: 0, savings: 0,
+      stability: 0, prediction: 0, trend: 0, message: '',
+    ),
+    cycle: eng.CycleDetectionResult(
+      status:     'Active',
+      currentDay: currentDay,
+      totalDays:  totalDays,
+      pctElapsed: pct,
+    ),
+    chargeTracking:  const [],
+    triage:          const [],
+    integrity: const eng.IntegrityReport(
+      isValid: true, errors: [], warnings: [], autoFixed: [], dataConfidence: 100,
+    ),
+    computedAtEpoch: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Fallback Dart
+// ─────────────────────────────────────────────────────────────
+
+Future<eng.ZoltEngineOutputV2> _dartFallback({
   required List<Account> accounts,
   required List<RecurringCharge> charges,
   required List<Transaction> transactions,
@@ -106,17 +210,14 @@ Future<eng.ZoltEngineOutput> _dartFallback({
   final savingsGoal   = settings.savingsGoal ?? 0.0;
   final daysRemaining = cycleManager.getDaysRemainingInCycle();
 
-  // Réserve transport (identique à TransportManagerService)
   final daysPerWeek = settings.transportDaysPerWeek ?? 5;
   final transportReserve = settings.transportMode == TransportMode.daily
       ? (settings.dailyTransportCost ?? 0.0) * daysPerWeek * (daysRemaining / 7)
       : 0.0;
 
-  // Réserve charges DYNAMIQUE : amount / max(1, daysUntilDue)
-  // (même algorithme que BudgetCalculatorService.getDailyReserveTotal * daysRemaining)
-  final now = DateTime.now();
+  final now   = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
-  
+
   double dailyChargeReserve = 0.0;
   double chargesReserve = 0.0;
   for (final c in charges.where((c) => !c.isPaid && c.isActive)) {
@@ -130,7 +231,6 @@ Future<eng.ZoltEngineOutput> _dartFallback({
       .clamp(0.0, double.infinity);
 
   final tomorrow = today.add(const Duration(days: 1));
-
   final spentToday = transactions
       .where((t) =>
           t.type == TransactionType.expense &&
@@ -138,12 +238,11 @@ Future<eng.ZoltEngineOutput> _dartFallback({
           t.date.isBefore(tomorrow))
       .fold<double>(0, (s, t) => s + t.amount);
 
-  // Budget de base = freeMass / daysRemaining, moins réserve journalière charges
   final baseDailyBudget = daysRemaining > 0 ? freeMass / daysRemaining : 0.0;
   final dailyBudget     = baseDailyBudget - dailyChargeReserve;
   final remainingToday  = dailyBudget - spentToday;
 
-  return eng.ZoltEngineOutput(
+  return eng.ZoltEngineOutputV2(
     deterministic: eng.DeterministicResult(
       totalBalance:     totalBalance,
       committedMass:    savingsGoal + transportReserve + chargesReserve,
@@ -155,17 +254,15 @@ Future<eng.ZoltEngineOutput> _dartFallback({
       transportReserve: transportReserve,
       chargesReserve:   chargesReserve,
     ),
-    // Note: profile/prediction restent vides en fallback (pas d'historique)
     profile: const eng.BehavioralProfile(
-      rhythm:               'Linear',
-      volatilityScore:      0,
-      savingsAchievement:   1,
-      cyclesObserved:       0,
-      hiddenChargesTotal:   0,
+      rhythm: 'Linear', volatilityScore: 0,
+      savingsAchievement: 1, cyclesObserved: 0, hiddenChargesTotal: 0,
     ),
-    prediction:  null,
-    messages:    [],
-    suggestions: [],
-    anomalies:   [],
+    prediction:       null,
+    messages:         const [],
+    suggestions:      const [],
+    anomalies:        const [],
+    incomePrediction: null,
+    notifications:    const [],
   );
 }

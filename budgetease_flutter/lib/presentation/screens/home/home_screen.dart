@@ -7,6 +7,7 @@ import '../../../data/database/tables/transactions_table.dart';
 import '../../../data/database/tables/categories_table.dart';
 import '../../../data/database/app_database.dart';
 import '../../providers/engine_provider.dart';
+import '../../../engine/engine_output.dart' as eng;
 import '../../providers/accounts_provider.dart';
 import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
@@ -325,11 +326,103 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         scrollDirection: Axis.horizontal,
         children: [
           _buildDailyBudgetCard(currency, discreteMode),
+          _buildHealthScoreCard(),
           _buildTotalBalanceCard(currency, discreteMode),
           _buildAccountsCard(currency, discreteMode),
         ],
       ),
     );
+  }
+
+  Widget _buildHealthScoreCard() {
+    final healthAsync = ref.watch(engineHealthScoreProvider);
+    return healthAsync.when(
+      data: (health) {
+        if (health.score == 0 && health.grade == 'Fair') {
+          // Valeur par défaut (fallback Dart) — on ne l'affiche pas
+          return const SizedBox.shrink();
+        }
+        final color = _healthColor(health.grade);
+        final trend = health.trend > 0
+            ? '+${health.trend}'
+            : '${health.trend}';
+        return UIHelpers.withSurfaceTheme(
+          context,
+          child: Container(
+            width: 160,
+            margin: const EdgeInsets.only(right: 12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      health.gradeEmoji,
+                      style: const TextStyle(fontSize: 22),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${health.score}',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      '/100',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: color.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  health.grade,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (health.trend != 0)
+                  Text(
+                    '$trend pts vs cycle préc.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: health.trend > 0
+                          ? const Color(0xFF69F0AE)
+                          : const Color(0xFFFF5252),
+                      fontSize: 11,
+                    ),
+                  ),
+                const SizedBox(height: 6),
+                Text(
+                  'Santé Financière',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const SizedBox(width: 160),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Color _healthColor(String grade) {
+    switch (grade) {
+      case 'Excellent': return const Color(0xFF69F0AE);
+      case 'Good':      return const Color(0xFF40C4FF);
+      case 'Fair':      return const Color(0xFFFFAB40);
+      case 'Poor':      return const Color(0xFFFF5252);
+      case 'Critical':  return const Color(0xFFD50000);
+      default:          return const Color(0xFFFFAB40);
+    }
   }
 
   Widget _buildDailyBudgetCard(String currency, bool discreteMode) {

@@ -47,7 +47,7 @@ final pendingTransactionsCountProvider =
 // ignore: unused_element
 typedef PendingTransactionsCountRef = AutoDisposeFutureProviderRef<int>;
 String _$pendingTransactionsHash() =>
-    r'a07e650c2c4eb88b410ca08a55ec740f9cec79a9';
+    r'ba5d79ba5f90a3627d319370867e01d8883c9d9b';
 
 /// Provider des transactions en attente
 ///

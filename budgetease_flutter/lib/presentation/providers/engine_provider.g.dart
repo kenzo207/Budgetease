@@ -6,9 +6,9 @@ part of 'engine_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$engineDailyBudgetHash() => r'f0ef88949f66b8bf454ea00bcd6b08a3bf5b2510';
+String _$engineDailyBudgetHash() => r'f8a5bc6764b587d3cd544de2f858f4c35ec7570f';
 
-/// Budget journalier (accès rapide)
+/// Budget journalier
 ///
 /// Copied from [engineDailyBudget].
 @ProviderFor(engineDailyBudget)
@@ -25,7 +25,7 @@ final engineDailyBudgetProvider = AutoDisposeFutureProvider<double>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef EngineDailyBudgetRef = AutoDisposeFutureProviderRef<double>;
-String _$engineMessagesHash() => r'8efdc7d61f18dd1f2e70fc9e717e46bb1ac7aa7a';
+String _$engineMessagesHash() => r'a2b9e8e9b749dba6e4705fab3e23d50d9ff0bfb0';
 
 /// Messages conversationnels du moteur
 ///
@@ -46,7 +46,7 @@ final engineMessagesProvider =
 // ignore: unused_element
 typedef EngineMessagesRef
     = AutoDisposeFutureProviderRef<List<eng.ConversationalMessage>>;
-String _$enginePredictionHash() => r'9c53e6a61e3b35bbca10bd6a9309cc2a1591a50a';
+String _$enginePredictionHash() => r'8127f23fd26181dc798bdadc7bdb08c9f5bcd0ed';
 
 /// Prédiction de fin de cycle
 ///
@@ -67,18 +67,102 @@ final enginePredictionProvider =
 // ignore: unused_element
 typedef EnginePredictionRef
     = AutoDisposeFutureProviderRef<eng.EndOfCyclePrediction?>;
+String _$engineHealthScoreHash() => r'4324433d71e3559bdbf763a27314072f33496015';
+
+/// Score de santé financière
+///
+/// Copied from [engineHealthScore].
+@ProviderFor(engineHealthScore)
+final engineHealthScoreProvider =
+    AutoDisposeFutureProvider<eng.HealthScore>.internal(
+  engineHealthScore,
+  name: r'engineHealthScoreProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$engineHealthScoreHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EngineHealthScoreRef = AutoDisposeFutureProviderRef<eng.HealthScore>;
+String _$engineCycleStatusHash() => r'824fc9e2e270a5f72a5e1f972a83d296443d6b66';
+
+/// État du cycle courant
+///
+/// Copied from [engineCycleStatus].
+@ProviderFor(engineCycleStatus)
+final engineCycleStatusProvider =
+    AutoDisposeFutureProvider<eng.CycleDetectionResult>.internal(
+  engineCycleStatus,
+  name: r'engineCycleStatusProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$engineCycleStatusHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EngineCycleStatusRef
+    = AutoDisposeFutureProviderRef<eng.CycleDetectionResult>;
+String _$engineChargeTrackingHash() =>
+    r'08ecf165d011c039eec77e5704251758fb7d0627';
+
+/// Suivi des charges récurrentes
+///
+/// Copied from [engineChargeTracking].
+@ProviderFor(engineChargeTracking)
+final engineChargeTrackingProvider =
+    AutoDisposeFutureProvider<List<eng.ChargeTrackingResult>>.internal(
+  engineChargeTracking,
+  name: r'engineChargeTrackingProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$engineChargeTrackingHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EngineChargeTrackingRef
+    = AutoDisposeFutureProviderRef<List<eng.ChargeTrackingResult>>;
+String _$engineIntegrityHash() => r'8631e4a624de40f2865839696954e54d678485be';
+
+/// Rapport d'intégrité des données
+///
+/// Copied from [engineIntegrity].
+@ProviderFor(engineIntegrity)
+final engineIntegrityProvider =
+    AutoDisposeFutureProvider<eng.IntegrityReport>.internal(
+  engineIntegrity,
+  name: r'engineIntegrityProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$engineIntegrityHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EngineIntegrityRef = AutoDisposeFutureProviderRef<eng.IntegrityReport>;
 String _$zoltEngineProviderHash() =>
-    r'239b4d31874ba988dbbaaefba8216568f36c9e26';
+    r'746a81832cccb152d7b1c928453590473a5ee8cd';
 
 /// Provider principal du moteur Zolt.
 ///
-/// Retourne [ZoltEngineOutput] (depuis le moteur Rust si disponible,
-/// sinon calcul Dart en fallback exact).
+/// Utilise [ZoltEngine.session] (v1.3) si disponible → retourne [SessionState].
+/// Sinon replie sur [ZoltEngine.run] (V2) → wrappé en [SessionState] minimal.
+/// En dernier recours, calcul Dart pur.
 ///
 /// Copied from [ZoltEngineProvider].
 @ProviderFor(ZoltEngineProvider)
 final zoltEngineProviderProvider = AutoDisposeAsyncNotifierProvider<
-    ZoltEngineProvider, eng.ZoltEngineOutput>.internal(
+    ZoltEngineProvider, eng.SessionState>.internal(
   ZoltEngineProvider.new,
   name: r'zoltEngineProviderProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -88,6 +172,6 @@ final zoltEngineProviderProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$ZoltEngineProvider = AutoDisposeAsyncNotifier<eng.ZoltEngineOutput>;
+typedef _$ZoltEngineProvider = AutoDisposeAsyncNotifier<eng.SessionState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

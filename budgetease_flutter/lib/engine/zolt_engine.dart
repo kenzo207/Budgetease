@@ -10,14 +10,18 @@ typedef _ZoltFreeC    = Void Function(Pointer<Utf8>);
 typedef _ZoltFreeDart = void Function(Pointer<Utf8>);
 typedef _ZoltVersionC    = Pointer<Utf8> Function();
 typedef _ZoltVersionDart = Pointer<Utf8> Function();
+// Single-arg FFI (classify, session, analytics, close_cycle, validate, integrity, onboarding)
+typedef _ZoltSingleC    = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef _ZoltSingleDart = Pointer<Utf8> Function(Pointer<Utf8>);
+// Alias pour la lisibilité
+typedef _ZoltClassifyC    = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef _ZoltClassifyDart = Pointer<Utf8> Function(Pointer<Utf8>);
 
 /// Bridge FFI vers la bibliothèque Rust `libzolt_engine.so`.
-/// 
-/// Usage :
-/// ```dart
-/// final result = ZoltEngine.run(input: {...}, history: [...]);
-/// final budget = result['deterministic']['daily_budget'];
-/// ```
+///
+/// v1.2/v1.3 — 11 fonctions FFI exposées :
+///   run, free, version, classify, predict_income,
+///   session, analytics, close_cycle, validate, integrity, onboarding
 class ZoltEngine {
   static DynamicLibrary? _lib;
   static _ZoltRunDart? _run;
@@ -103,6 +107,145 @@ class ZoltEngine {
       if (resultPtr != null) _free!(resultPtr);
     }
   }
+
+  // ─── Lazy loaders pour toutes les FFI single-arg ─────────────
+  static _ZoltSingleDart? _loadFn(String name) {
+    if (_lib == null) return null;
+    try {
+      return _lib!.lookupFunction<_ZoltSingleC, _ZoltSingleDart>(name);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static late final _ZoltClassifyDart?   _classify       = _loadFn('zolt_classify');
+  static late final _ZoltSingleDart?     _predictIncomeFn = _loadFn('zolt_predict_income');
+  static late final _ZoltSingleDart?     _sessionFn      = _loadFn('zolt_session');
+  static late final _ZoltSingleDart?     _analyticsFn    = _loadFn('zolt_analytics');
+  static late final _ZoltSingleDart?     _closeCycleFn   = _loadFn('zolt_close_cycle');
+  static late final _ZoltSingleDart?     _validateFn     = _loadFn('zolt_validate');
+  static late final _ZoltSingleDart?     _integrityFn    = _loadFn('zolt_integrity');
+  static late final _ZoltSingleDart?     _onboardingFn   = _loadFn('zolt_onboarding');
+
+  // ─── Helper interne : 1 arg → JSON ───────────────────────────
+  static Map<String, dynamic> _call1(
+    _ZoltSingleDart? fn,
+    String fnName,
+    Map<String, dynamic> payload,
+  ) {
+    if (fn == null) throw ZoltEngineException('$fnName non disponible');
+    final inputPtr = jsonEncode(payload).toNativeUtf8();
+    Pointer<Utf8>? resultPtr;
+    try {
+      resultPtr = fn(inputPtr);
+      if (resultPtr.address == 0) throw ZoltEngineException('$fnName a retourné null');
+      final json = resultPtr.toDartString();
+      final result = jsonDecode(json) as Map<String, dynamic>;
+      if (result.containsKey('error')) throw ZoltEngineException(result['error'] as String);
+      return result;
+    } finally {
+      malloc.free(inputPtr);
+      if (resultPtr != null) _free!(resultPtr);
+    }
+  }
+
+  // ─── zolt_classify ───────────────────────────────────────────
+  /// Classifie une transaction (SMS ou saisie manuelle) via l'IA Rust.
+  /// Retourne une map avec `tx_type`, `category`, `confidence`, `reason`.
+  static Map<String, dynamic> classify({
+    required double amount,
+    String? description,
+    String? counterpart,
+    String? smsText,
+  }) => _call1(_classify, 'zolt_classify', {
+    'amount': amount,
+    'description': description,
+    'counterpart': counterpart,
+    'sms_text': smsText,
+  });
+
+  // ─── zolt_predict_income ─────────────────────────────────────
+  /// Prédit le prochain revenu basé sur l'historique des cycles.
+  /// Retourne null si l'historique est insuffisant.
+  static Map<String, dynamic>? predictIncome({
+    required List<Map<String, dynamic>> history,
+  }) {
+    if (_predictIncomeFn == null) throw const ZoltEngineException('zolt_predict_income non disponible');
+    final now = DateTime.now();
+    final inputPtr = jsonEncode({
+      'history': history,
+      'today': {'year': now.year, 'month': now.month, 'day': now.day},
+    }).toNativeUtf8();
+    Pointer<Utf8>? resultPtr;
+    try {
+      resultPtr = _predictIncomeFn!(inputPtr);
+      if (resultPtr.address == 0) return null;
+      final json = resultPtr.toDartString();
+      if (json == 'null') return null;
+      final result = jsonDecode(json);
+      if (result == null) return null;
+      final map = result as Map<String, dynamic>;
+      if (map.containsKey('error')) throw ZoltEngineException(map['error'] as String);
+      return map;
+    } finally {
+      malloc.free(inputPtr);
+      if (resultPtr != null) _free!(resultPtr);
+    }
+  }
+
+  // ─── zolt_session ────────────────────────────────────────────
+  /// Pipeline tout-en-un : engine + health + cycle + charges + triage + integrity.
+  ///
+  /// [engineInput]  → EngineInput sérialisé
+  /// [history]      → List<CycleRecord> des cycles passés
+  /// [pendingSms]   → List<PendingTransactionInput> (SMS en attente)
+  ///
+  /// Retourne [SessionState] complet.
+  static Map<String, dynamic> session({
+    required Map<String, dynamic> engineInput,
+    List<Map<String, dynamic>> history = const [],
+    List<Map<String, dynamic>> pendingSms = const [],
+  }) => _call1(_sessionFn, 'zolt_session', {
+    'engine_input': engineInput,
+    'history':      history,
+    'pending_sms':  pendingSms,
+  });
+
+  // ─── zolt_analytics ──────────────────────────────────────────
+  /// Stats avancées du cycle avec comparaison historique.
+  /// Retourne [AnalyticsResult] : by_category, peak_day, savings_rate, etc.
+  static Map<String, dynamic> analytics({
+    required Map<String, dynamic> analyticsInput,
+  }) => _call1(_analyticsFn, 'zolt_analytics', analyticsInput);
+
+  // ─── zolt_close_cycle ────────────────────────────────────────
+  /// Clôture le cycle courant et retourne un résumé [CycleCloseResult].
+  static Map<String, dynamic> closeCycle({
+    required Map<String, dynamic> input,
+  }) => _call1(_closeCycleFn, 'zolt_close_cycle', input);
+
+  // ─── zolt_validate ───────────────────────────────────────────
+  /// Valide un [EngineInput] côté Rust. Retourne `{"valid":true}` ou `{"valid":false,"error":"..."}`.
+  static Map<String, dynamic> validate({
+    required Map<String, dynamic> engineInput,
+  }) => _call1(_validateFn, 'zolt_validate', engineInput);
+
+  // ─── zolt_integrity ──────────────────────────────────────────
+  /// Vérifie l'intégrité des données. Retourne [IntegrityReport].
+  static Map<String, dynamic> integrity({
+    required Map<String, dynamic> engineInput,
+    List<Map<String, dynamic>> history = const [],
+  }) => _call1(_integrityFn, 'zolt_integrity', {
+    'engine_input': engineInput,
+    'history':      history,
+  });
+
+  // ─── zolt_onboarding ─────────────────────────────────────────
+  /// Valide et construit un [EngineInput] depuis les données d'onboarding.
+  /// Retourne [OnboardingResult] avec `is_ready` et `validation_errors`.
+  static Map<String, dynamic> onboarding({
+    required Map<String, dynamic> onboardingInput,
+  }) => _call1(_onboardingFn, 'zolt_onboarding', onboardingInput);
 }
 
 /// Exception spécifique au moteur Zolt.

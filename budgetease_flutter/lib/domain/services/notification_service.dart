@@ -3,6 +3,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'dart:io';
+import '../../engine/engine_output.dart' as eng;
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -270,6 +271,77 @@ class NotificationService {
       ),
       payload: 'pending_transactions',
     );
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DISPATCH ENGINE NOTIFICATIONS (v1.3)
+  // ═══════════════════════════════════════════════════════
+
+  /// Exécute une [NotificationTrigger] décidée par le moteur Rust.
+  ///
+  /// Le moteur décide QUOI et QUAND. Flutter exécute juste.
+  /// La déduplication est garantie par le `dedup_key` (hashCode stable).
+  Future<void> dispatchEngineNotification(eng.NotificationTrigger trigger) async {
+    final notifId = trigger.dedupKey.hashCode.abs() % 100000;
+    final channelId = _channelId(trigger.channel);
+    final channelName = _channelName(trigger.channel);
+    final importance = trigger.isHigh ? Importance.high : Importance.defaultImportance;
+    final priority   = trigger.isHigh ? Priority.high   : Priority.defaultPriority;
+
+    final details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        channelId,
+        channelName,
+        importance: importance,
+        priority:   priority,
+        enableVibration: trigger.isHigh,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: trigger.isHigh,
+        presentSound: trigger.isHigh,
+      ),
+    );
+
+    if (trigger.delaySecs > 0) {
+      final scheduledDate = tz.TZDateTime.now(tz.local)
+          .add(Duration(seconds: trigger.delaySecs));
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        notifId,
+        trigger.title,
+        trigger.body,
+        scheduledDate,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    } else {
+      await flutterLocalNotificationsPlugin.show(
+        notifId,
+        trigger.title,
+        trigger.body,
+        details,
+      );
+    }
+  }
+
+  String _channelId(String channel) {
+    switch (channel) {
+      case 'BudgetAlerts':     return 'budget_alerts';
+      case 'RecurringCharges': return 'recurring_charges';
+      case 'SmsParsing':       return 'sms_transactions';
+      default:                 return 'reminders';
+    }
+  }
+
+  String _channelName(String channel) {
+    switch (channel) {
+      case 'BudgetAlerts':     return 'Alertes Budget';
+      case 'RecurringCharges': return 'Charges Récurrentes';
+      case 'SmsParsing':       return 'Transactions SMS';
+      default:                 return 'Rappels';
+    }
   }
 
   // ═══════════════════════════════════════════════════════

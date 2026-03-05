@@ -15,6 +15,7 @@ import 'data/database/app_database.dart';
 import 'domain/services/notification_service.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'services/analytics_service.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,26 @@ void main() async {
 
   // Initialiser le moteur Rust Zolt (silencieux si indisponible)
   ZoltEngine.initialize();
+
+  // Check d'intégrité au démarrage (non-bloquant, résultat loggué)
+  if (ZoltEngine.isAvailable) {
+    try {
+      final report = ZoltEngine.integrity(engineInput: const {
+        'today': {'year': 0, 'month': 1, 'day': 1},
+        'accounts': [],
+        'charges': [],
+        'transactions': [],
+        'cycle': {'cycle_type': 'Monthly', 'savings_goal': 0.0, 'transport': 'None'},
+      });
+      if (report['is_valid'] == false) {
+        debugPrint('[Zolt] Integrity check: données invalides — ${report['errors']}');
+      } else {
+        debugPrint('[Zolt] Integrity check OK — confidence: ${report['data_confidence']}%');
+      }
+    } catch (_) {
+      // zolt_integrity optionnel, échec silencieux
+    }
+  }
 
   // Initialiser la base de données (singleton)
   AppDatabase();

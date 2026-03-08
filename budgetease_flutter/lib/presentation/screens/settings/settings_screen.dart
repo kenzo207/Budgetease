@@ -18,6 +18,7 @@ import '../simulator/simulator_screen.dart';
 import '../charges/charges_screen.dart';
 import '../incomes/incomes_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 /// Écran des paramètres
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -94,11 +95,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const ZoltCreditScoreWidget(),
               SizedBox(height: 12),
 
-              // Profile Section
+              // Groupe 1: Compte & Profil
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  'Profil',
+                  'Compte & Profil',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
@@ -108,7 +109,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               
               _buildSettingCard(
                 context,
-                icon: Icons.person_outline,
+                icon: LucideIcons.user,
                 title: 'Nom d\'utilisateur',
                 subtitle: calibrationData.userName,
                 onTap: () => _showEditNameDialog(context, ref, calibrationData.userName),
@@ -116,34 +117,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               
               _buildSettingCard(
                 context,
-                icon: Icons.attach_money,
+                icon: LucideIcons.banknote,
                 title: 'Devise',
                 subtitle: calibrationData.currency,
                 onTap: () => _showEditCurrencyDialog(context, ref, calibrationData.currency),
               ),
-              
-              _buildSettingCard(
-                context,
-                icon: Icons.border_color,
-                title: 'Couleur des bordures',
-                subtitle: 'Personnaliser l\'apparence',
-                onTap: () => _showBorderColorPicker(context, ref),
-              ),
 
               _buildSettingCard(
                 context,
-                icon: Icons.brightness_6_outlined,
-                title: 'Thème',
-                subtitle: _getThemeName(ref.watch(themeProviderProvider).valueOrNull),
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture('settings_theme_picker_opened');
-                  _showThemePicker(context, ref);
-                },
-              ),
-
-              _buildSettingCard(
-                context,
-                icon: Icons.auto_graph_outlined,
+                icon: LucideIcons.calculator,
                 title: 'Simulateur Financier',
                 subtitle: 'Simuler l\'impact d\'une grosse dépense',
                 iconColor: Colors.purple,
@@ -156,32 +138,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   );
                 },
               ),
-
+              
               SizedBox(height: 24),
 
-              // App Section
+              // Groupe 2: Expérience & Préférences
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  'Application',
+                  'Expérience & Préférences',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                 ),
               ),
               SizedBox(height: 12),
+
+              _buildSettingCard(
+                context,
+                icon: LucideIcons.palette,
+                title: 'Couleur des bordures',
+                subtitle: 'Personnaliser l\'apparence',
+                onTap: () => _showBorderColorPicker(context, ref),
+              ),
+
+              _buildSettingCard(
+                context,
+                icon: LucideIcons.moon,
+                title: 'Thème',
+                subtitle: _getThemeName(ref.watch(themeProviderProvider).valueOrNull),
+                onTap: () {
+                  ref.read(analyticsServiceProvider).capture('settings_theme_picker_opened');
+                  _showThemePicker(context, ref);
+                },
+              ),
               
               _buildSettingCard(
                 context,
-                icon: Icons.notifications_outlined,
+                icon: LucideIcons.bell,
                 title: 'Notifications',
-                subtitle: 'Gérer les notifications',
+                subtitle: 'Gérer les alertes',
                 onTap: () => _showNotificationsDialog(context),
               ),
               
               _buildSettingCard(
                 context,
-                icon: Icons.receipt_long_outlined,
+                icon: LucideIcons.calendar,
                 title: 'Mes charges fixes',
                 subtitle: 'Loyer, factures, abonnements · Réserve journalière',
                 onTap: () => Navigator.push(
@@ -192,7 +193,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               _buildSettingCard(
                 context,
-                icon: Icons.inventory_2_outlined,
+                icon: LucideIcons.wallet,
                 title: 'Mes rentrées régulières',
                 subtitle: 'Argent de poche, salaire, paie de chantier',
                 iconColor: Theme.of(context).colorScheme.primary,
@@ -204,7 +205,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               _buildSettingCard(
                 context,
-                icon: Icons.category_outlined,
+                icon: LucideIcons.tags,
                 title: 'Catégories',
                 subtitle: 'Gérer les catégories de transactions',
                 onTap: () {
@@ -220,17 +221,48 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   );
                 },
               ),
+
+              _buildSettingCard(
+                context,
+                icon: LucideIcons.lightbulb,
+                title: 'Revoir le tutoriel',
+                subtitle: 'Relancer le guide visuel de l\'écran d\'accueil',
+                iconColor: Theme.of(context).colorScheme.primary,
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('has_seen_tutorial', false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Tutoriel réinitialisé ! Retournez à l\'accueil pour le voir.')),
+                    );
+                    Navigator.of(context).pop(); 
+                  }
+                },
+              ),
+
+              SizedBox(height: 24),
+
+              // Groupe 3: Données, Sécurité & À propos
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Données & Sécurité',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                ),
+              ),
+              SizedBox(height: 12),
               
               _buildSettingCard(
                 context,
-                icon: Icons.sms_outlined,
+                icon: LucideIcons.messageSquare,
                 title: 'Analyse SMS',
                 subtitle: 'Détection automatique des transactions',
                 trailing: Switch(
                   value: _smsEnabled,
                   onChanged: (value) async {
                     await _toggleSms(value);
-                    // Analytics
                     ref.read(analyticsServiceProvider).capture(
                       'sms_scanning_toggled',
                       properties: {'enabled': value},
@@ -254,7 +286,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               if (_smsEnabled)
                 _buildSettingCard(
                   context,
-                  icon: Icons.mark_email_unread_outlined,
+                  icon: LucideIcons.inbox,
                   title: 'Transactions détectées',
                   subtitle: 'Valider les transactions SMS',
                   onTap: () {
@@ -267,23 +299,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                 ),
 
-              SizedBox(height: 24),
-
-              // Données Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Données',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                ),
-              ),
-              SizedBox(height: 12),
-              
               _buildSettingCard(
                 context,
-                icon: Icons.backup_outlined,
+                icon: LucideIcons.downloadCloud,
                 title: 'Sauvegarde',
                 subtitle: 'Export de données — prochainement',
                 iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
@@ -291,71 +309,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               
               _buildSettingCard(
                 context,
-                icon: Icons.restore_outlined,
+                icon: LucideIcons.uploadCloud,
                 title: 'Restaurer',
                 subtitle: 'Import de données — prochainement',
                 iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
               ),
 
-              SizedBox(height: 24),
-
-              // ⚠️ Zone dangereuse — isolée visuellement
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Zone dangereuse',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: _buildSettingCard(
-                        context,
-                        icon: Icons.delete_forever_outlined,
-                        title: 'Réinitialiser l\'application',
-                        subtitle: 'Supprime toutes les données — action irréversible',
-                        iconColor: Theme.of(context).colorScheme.primary,
-                        onTap: () => _showResetDialog(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 24),
-
-              // About Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'À propos',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                ),
-              ),
-              SizedBox(height: 12),
-              
               _buildSettingCard(
                 context,
-                icon: Icons.info_outline,
-                title: 'Version',
-                subtitle: 'Zolt v4.0.0',
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: Icons.description_outlined,
+                icon: LucideIcons.fileText,
                 title: 'Licences',
                 subtitle: 'Licences open source',
                 onTap: () {
@@ -367,48 +329,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   );
                 },
               ),
-              
+
+              SizedBox(height: 12),
+
+              // ⚠️ Zone dangereuse
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: _buildSettingCard(
+                    context,
+                    icon: LucideIcons.alertTriangle,
+                    title: 'Réinitialiser l\'application',
+                    subtitle: 'Supprime toutes les données — irréversible',
+                    iconColor: Theme.of(context).colorScheme.error,
+                    onTap: () => _showResetDialog(context),
+                  ),
+                ),
+              ),
+
               SizedBox(height: 24),
               Center(
                 child: Text(
-                  'Signé par Kenzo O\'Bryan',
+                  'Zolt v4.0.0 · Signé par Kenzo O\'Bryan',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontStyle: FontStyle.italic,
                       ),
                 ),
-              ),
-
-              SizedBox(height: 32),
-
-              // Divers Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Aide & Tutoriel',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                ),
-              ),
-              SizedBox(height: 12),
-
-              _buildSettingCard(
-                context,
-                icon: Icons.lightbulb_outline,
-                title: 'Revoir le tutoriel',
-                subtitle: 'Relancer le guide visuel de l\'écran d\'accueil',
-                iconColor: Theme.of(context).colorScheme.primary,
-                onTap: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('has_seen_tutorial', false);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tutoriel réinitialisé ! Retournez à l\'accueil pour le voir.')),
-                    );
-                    Navigator.of(context).pop(); // Retourne de force à l'accueil
-                  }
-                },
               ),
 
               SizedBox(height: 32),
@@ -456,7 +409,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             : null,
         trailing: trailing ??
             (onTap != null
-                ? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
+                ? Icon(LucideIcons.chevronRight, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
                 : null),
         onTap: onTap,
       ),

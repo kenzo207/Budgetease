@@ -1,3 +1,4 @@
+import "package:lucide_icons/lucide_icons.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
@@ -77,9 +78,9 @@ class _ActionBottomSheetState extends ConsumerState<ActionBottomSheet>
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             tabs: const [
-              Tab(text: 'Dépense', icon: Icon(Icons.remove_circle_outline)),
-              Tab(text: 'Revenu', icon: Icon(Icons.add_circle_outline)),
-              Tab(text: 'Virement', icon: Icon(Icons.swap_horiz)),
+              Tab(text: 'Dépense', icon: Icon(LucideIcons.minusCircle)),
+              Tab(text: 'Revenu', icon: Icon(LucideIcons.plusCircle)),
+              Tab(text: 'Virement', icon: Icon(LucideIcons.arrowRightLeft)),
             ],
           ),
 
@@ -201,7 +202,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: Icon(Icons.attach_money),
+              prefixIcon: Icon(LucideIcons.banknote),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -292,7 +293,7 @@ class _ExpenseTabState extends ConsumerState<ExpenseTab> {
 
           // Date
           ListTile(
-            leading: Icon(Icons.calendar_today),
+            leading: Icon(LucideIcons.calendar),
             title: Text('Date'),
             subtitle: Text(
               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
@@ -450,7 +451,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: Icon(Icons.attach_money),
+              prefixIcon: Icon(LucideIcons.banknote),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -462,7 +463,7 @@ class _IncomeTabState extends ConsumerState<IncomeTab> {
             controller: _sourceController,
             decoration: const InputDecoration(
               labelText: 'Source (optionnel)',
-              prefixIcon: Icon(Icons.business),
+              prefixIcon: Icon(LucideIcons.briefcase),
             ),
           ),
 
@@ -730,7 +731,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             decoration: InputDecoration(
               labelText: 'Montant',
               suffixText: currency,
-              prefixIcon: Icon(Icons.attach_money),
+              prefixIcon: Icon(LucideIcons.banknote),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -828,7 +829,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
             decoration: InputDecoration(
               labelText: 'Frais (optionnel)',
               suffixText: currency,
-              prefixIcon: Icon(Icons.money_off),
+              prefixIcon: Icon(LucideIcons.banknote),
             ),
           ),
 
@@ -836,7 +837,7 @@ class _TransferTabState extends ConsumerState<TransferTab> {
 
           // Date
           ListTile(
-            leading: Icon(Icons.calendar_today),
+            leading: Icon(LucideIcons.calendar),
             title: Text('Date'),
             subtitle: Text(
               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',

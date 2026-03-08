@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_constants.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/transactions/transactions_screen.dart';
@@ -89,7 +90,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: const [
-            Icon(Icons.add, color: Color(0xFFF0E8DC), size: 18), // text_inverse
+            Icon(LucideIcons.plus, color: Color(0xFFF0E8DC), size: 18), // text_inverse
             SizedBox(width: 6),
             Text(
               'Ajouter',
@@ -133,11 +134,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildNavItem(0, Icons.home_outlined, Icons.home, 'Accueil', currentIndex),
-                _buildNavItem(1, Icons.receipt_long_outlined, Icons.receipt_long, 'Histor.', currentIndex),
+                _buildNavItem(0, LucideIcons.home, LucideIcons.home, 'Accueil', currentIndex),
+                _buildNavItem(1, LucideIcons.receipt, LucideIcons.receipt, 'Histor.', currentIndex),
                 _buildAddPill(),
-                _buildNavItem(2, Icons.analytics_outlined, Icons.analytics, 'Analyse', currentIndex),
-                _buildNavItem(3, Icons.settings_outlined, Icons.settings, 'Params', currentIndex, key: TutorialKeys.settingsTabKey),
+                _buildNavItem(2, LucideIcons.pieChart, LucideIcons.pieChart, 'Analyse', currentIndex),
+                _buildNavItem(3, LucideIcons.settings, LucideIcons.settings, 'Params', currentIndex, key: TutorialKeys.settingsTabKey),
               ],
             ),
           ),

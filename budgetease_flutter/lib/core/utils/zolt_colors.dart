@@ -2,57 +2,63 @@ import 'package:flutter/material.dart';
 
 class ZoltTokens {
   // ── Fonds Clair ──
-  static const lightBg        = Color(0xFFFAFAF7);
-  static const lightBgDeep    = Color(0xFFF3F1EC);
-  static const lightSurface1  = Color(0xFFFFFFFF);
-  static const lightSurface2  = Color(0xFFF5F3EE);
-  static const lightSurface3  = Color(0xFFEDEAE3);
-  static const lightInverse   = Color(0xFF0D0D0B);
-  static const lightGlass     = Color(0xB8FFFFFF);
+  static const lightBg        = Color(0xFFF5EFE6);
+  static const lightBgDeep    = Color(0xFFEDE4D8);
+  static const lightSurface1  = Color(0xFFFBF7F2);
+  static const lightSurface2  = Color(0xFFEDE4D8);
+  static const lightSurface3  = Color(0xFFE2D5C4);
+  static const lightSurface4  = Color(0xFFD4C3AD);
+  static const lightInverse   = Color(0xFF2C1810);
+  static const lightGlass     = Color(0xCCF5EFE6);
 
   // ── Fonds Sombre ──
-  static const darkBg         = Color(0xFF080807);
-  static const darkBgDeep     = Color(0xFF050504);
-  static const darkSurface1   = Color(0xFF131311);
-  static const darkSurface2   = Color(0xFF1A1A18);
-  static const darkSurface3   = Color(0xFF222220);
-  static const darkSurface4   = Color(0xFF2A2A27);
-  static const darkInverse    = Color(0xFFFAFAF7);
-  static const darkGlass      = Color(0xC7141412);
+  static const darkBg         = Color(0xFF1C1410);
+  static const darkBgDeep     = Color(0xFF140E0A);
+  static const darkSurface1   = Color(0xFF251A13);
+  static const darkSurface2   = Color(0xFF2F2118);
+  static const darkSurface3   = Color(0xFF3A2A1E);
+  static const darkSurface4   = Color(0xFF4A3628);
+  static const darkInverse    = Color(0xFFF5EFE6);
+  static const darkGlass      = Color(0xD11C1410);
 
   // ── Texte Clair ──
-  static const lightTextPrimary   = Color(0xFF0D0D0B);
-  static const lightTextSecondary = Color(0x940D0D0B);  // 58%
-  static const lightTextTertiary  = Color(0x590D0D0B);  // 35%
-  static const lightTextDisabled  = Color(0x330D0D0B);  // 20%
+  static const lightTextPrimary   = Color(0xFF2C1810);
+  static const lightTextSecondary = Color(0x9E2C1810);  // 62%
+  static const lightTextTertiary  = Color(0x612C1810);  // 38%
+  static const lightTextDisabled  = Color(0x382C1810);  // 22%
 
   // ── Texte Sombre ──
-  static const darkTextPrimary    = Color(0xFFF5F3EE);
-  static const darkTextSecondary  = Color(0x94F5F3EE);
-  static const darkTextTertiary   = Color(0x59F5F3EE);
-  static const darkTextDisabled   = Color(0x33F5F3EE);
+  static const darkTextPrimary    = Color(0xFFF0E8DC);
+  static const darkTextSecondary  = Color(0x9EF0E8DC);  // 62%
+  static const darkTextTertiary   = Color(0x61F0E8DC);  // 38%
+  static const darkTextDisabled   = Color(0x38F0E8DC);  // 22%
+
+  // ── Brand & Earth ──
+  static const brand          = Color(0xFF7C3A1E);
+  static const brandLight     = Color(0xFFA85C35);
+  static const earth          = Color(0xFF9C6B3C);
 
   // ── Sémantiques ──
-  static const positive       = Color(0xFF16A34A);
-  static const positiveMuted  = Color(0x1A16A34A);
-  static const positiveGlow   = Color(0x4016A34A);
+  static const positive       = Color(0xFF2D7A4F);
+  static const positiveMuted  = Color(0x1E2D7A4F);
+  static const positiveGlow   = Color(0x472D7A4F);
 
-  static const warning        = Color(0xFFD97706);
-  static const warningMuted   = Color(0x1AD97706);
-  static const warningGlow    = Color(0x38D97706);
+  static const warning        = Color(0xFFB8650A);
+  static const warningMuted   = Color(0x1EB8650A);
+  static const warningGlow    = Color(0x3DB8650A);
 
-  static const critical       = Color(0xFFDC2626);
-  static const criticalMuted  = Color(0x1ADC2626);
-  static const criticalGlow   = Color(0x38DC2626);
+  static const critical       = Color(0xFFB53B2A);
+  static const criticalMuted  = Color(0x1EB53B2A);
+  static const criticalGlow   = Color(0x3DB53B2A);
 
-  static const info           = Color(0xFF4B6E9E);
-  static const infoMuted      = Color(0x1A4B6E9E);
+  static const info           = Color(0xFF4A6E8A);
+  static const infoMuted      = Color(0x1E4A6E8A);
 
   // ── Premium ──
-  static const gold           = Color(0xFFC9973A);
-  static const goldLight      = Color(0xFFE8B96A);
-  static const goldMuted      = Color(0x24C9973A);
-  static const goldGlow       = Color(0x4DC9973A);
+  static const gold           = Color(0xFFB8892A);
+  static const goldLight      = Color(0xFFD4AE5C);
+  static const goldMuted      = Color(0x24B8892A);
+  static const goldGlow       = Color(0x4DB8892A);
 }
 
 extension ZoltContext on BuildContext {

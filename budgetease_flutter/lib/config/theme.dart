@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/utils/zolt_colors.dart';
 
-/// Configuration du thème de l'application Zolt v3
+/// Configuration du thème de l'application Zolt v4
 class AppTheme {
   // --- Dark Theme ---
   static ThemeData get darkTheme {
@@ -25,7 +25,7 @@ class AppTheme {
         elevation: 0, 
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(18)),
-          side: BorderSide(color: Color(0x1AF5F3EE), width: 1), // border_default dark
+          side: BorderSide(color: Color(0x1FF0E8DC), width: 1), // border_default dark
         ),
       ),
       
@@ -52,7 +52,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: ZoltTokens.darkTextPrimary,
-          side: const BorderSide(color: Color(0x2EF5F3EE), width: 1.5), // border_strong dark
+          side: const BorderSide(color: Color(0x38F0E8DC), width: 1.5), // border_strong dark
           padding: const EdgeInsets.symmetric(horizontal: 24),
           minimumSize: const Size(0, 54),
           shape: RoundedRectangleBorder(
@@ -90,11 +90,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0x14F5F3EE)), // border_subtle
+          borderSide: const BorderSide(color: Color(0x14F0E8DC)), // border_subtle
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0x14F5F3EE)), // border_subtle
+          borderSide: const BorderSide(color: Color(0x14F0E8DC)), // border_subtle
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -159,7 +159,7 @@ class AppTheme {
         elevation: 0, 
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(18)),
-          side: BorderSide(color: Color(0x1E0D0D0B), width: 1), // border_default light
+          side: BorderSide(color: Color(0x1F2C1810), width: 1), // border_default light
         ),
       ),
       
@@ -186,7 +186,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: ZoltTokens.lightTextPrimary,
-          side: const BorderSide(color: Color(0x380D0D0B), width: 1.5), // border_strong light
+          side: const BorderSide(color: Color(0x382C1810), width: 1.5), // border_strong light
           padding: const EdgeInsets.symmetric(horizontal: 24),
           minimumSize: const Size(0, 54),
           shape: RoundedRectangleBorder(
@@ -224,11 +224,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0x140D0D0B)), // border_subtle light
+          borderSide: const BorderSide(color: Color(0x142C1810)), // border_subtle light
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0x140D0D0B)), 
+          borderSide: const BorderSide(color: Color(0x142C1810)), 
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

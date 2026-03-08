@@ -1,6 +1,7 @@
 {
     "version": 2,
     "name": "zolt-landing",
+    "cleanUrls": true,
     "builds": [
         {
             "src": "landing/**",

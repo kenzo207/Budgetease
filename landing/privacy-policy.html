@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de confidentialité – Zolt</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/zolt_logo.png">
+    <style>
+        .policy-container {
+            max-width: 760px;
+            margin: 60px auto;
+            padding: 0 24px 80px;
+            color: #e0e0e0;
+            line-height: 1.8;
+        }
+        .policy-container h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .policy-container .date {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 40px;
+        }
+        .policy-container h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .policy-container p, .policy-container li {
+            font-size: 0.95rem;
+            color: #aaa;
+        }
+        .policy-container ul {
+            padding-left: 20px;
+        }
+        .policy-container a {
+            color: #7c6eff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="assets/zolt_logo.png" alt="Zolt Logo">
+                <span>ZOLT</span>
+            </div>
+            <a href="index.html" class="btn btn-secondary">Retour</a>
+        </div>
+    </header>
+
+    <div class="policy-container">
+        <h1>Politique de confidentialité</h1>
+        <p class="date">Dernière mise à jour : 9 mars 2026</p>
+
+        <p>
+            Zolt est une application de gestion de finances personnelles développée par Kenzo O'Bryan.
+            Cette politique explique quelles données sont collectées, comment elles sont utilisées et comment elles sont protégées.
+        </p>
+
+        <h2>1. Données collectées</h2>
+        <p>Zolt fonctionne entièrement en local sur votre appareil (<strong>Local-First</strong>). Nous ne collectons aucune donnée personnelle sur des serveurs externes.</p>
+        <p>Les données stockées localement sur votre appareil incluent :</p>
+        <ul>
+            <li>Vos transactions financières (montants, dates, catégories)</li>
+            <li>Vos charges récurrentes et revenus</li>
+            <li>Vos préférences et paramètres de l'application</li>
+        </ul>
+
+        <h2>2. Lecture des SMS</h2>
+        <p>
+            Zolt peut, avec votre permission explicite, lire les SMS reçus sur votre appareil.
+            Cette fonctionnalité est utilisée <strong>uniquement</strong> pour détecter automatiquement
+            les transactions financières provenant de services mobiles money (ex : MTN MoMo, Moov Money)
+            et les pré-remplir dans l'application.
+        </p>
+        <ul>
+            <li>La lecture des SMS est <strong>optionnelle</strong> et peut être désactivée à tout moment dans les Paramètres.</li>
+            <li>Le contenu des SMS n'est jamais transmis à un serveur externe.</li>
+            <li>Seuls les SMS contenant des patterns de transactions financières sont analysés.</li>
+            <li>Aucun SMS n'est stocké de manière permanente — seules les données financières extraites le sont.</li>
+        </ul>
+
+        <h2>3. Partage des données</h2>
+        <p>
+            Zolt ne partage aucune donnée avec des tiers. Aucune donnée n'est vendue, louée ou transmise à des partenaires publicitaires ou analytiques.
+        </p>
+
+        <h2>4. Sécurité</h2>
+        <p>
+            La base de données locale de Zolt est chiffrée (SQLCipher). Vos données ne sont accessibles que sur votre appareil.
+            En cas de désinstallation de l'application, toutes les données locales sont supprimées.
+        </p>
+
+        <h2>5. Permissions utilisées</h2>
+        <ul>
+            <li><strong>READ_SMS</strong> — Lecture des SMS pour détecter les transactions mobile money (optionnel)</li>
+            <li><strong>RECEIVE_SMS</strong> — Réception en temps réel des SMS de transactions (optionnel)</li>
+            <li><strong>USE_BIOMETRIC / USE_FINGERPRINT</strong> — Authentification biométrique pour sécuriser l'accès à l'app</li>
+            <li><strong>RECEIVE_BOOT_COMPLETED</strong> — Reprogrammer les rappels de charges après un redémarrage</li>
+            <li><strong>POST_NOTIFICATIONS</strong> — Envoyer des rappels de charges à venir</li>
+        </ul>
+
+        <h2>6. Données des enfants</h2>
+        <p>
+            Zolt n'est pas destiné aux enfants de moins de 13 ans. Nous ne collectons sciemment aucune donnée provenant d'enfants.
+        </p>
+
+        <h2>7. Modifications de cette politique</h2>
+        <p>
+            Nous nous réservons le droit de mettre à jour cette politique. En cas de changement significatif, la date de mise à jour sera modifiée en haut de cette page.
+        </p>
+
+        <h2>8. Contact</h2>
+        <p>
+            Pour toute question concernant cette politique de confidentialité, contactez-nous à :<br>
+            <a href="mailto:contact@zolt.app">contact@zolt.app</a>
+        </p>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Zolt. All rights reserved.</p>
+            <p class="signature">Signé par <span class="highlight">Kenzo O'Bryan</span></p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

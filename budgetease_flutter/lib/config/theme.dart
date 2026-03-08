@@ -1,73 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../core/constants/app_constants.dart';
+import '../core/utils/zolt_colors.dart';
 
-/// Configuration du thème de l'application
+/// Configuration du thème de l'application Zolt v3
 class AppTheme {
-  // --- Dark Theme (Black & White) ---
+  // --- Dark Theme ---
   static ThemeData get darkTheme {
     return ThemeData.dark().copyWith(
-      primaryColor: Colors.white, // Monochrome primary
-      scaffoldBackgroundColor: Colors.black, // Pure Black
+      primaryColor: ZoltTokens.darkInverse,
+      scaffoldBackgroundColor: ZoltTokens.darkBg,
       colorScheme: const ColorScheme.dark(
-        primary: Colors.white,
-        onPrimary: Colors.black,
-        secondary: Colors.white70,
-        surface: Color(0xFF121212),
-        error: AppColors.errorColor, // Keep semantic red
+        primary: ZoltTokens.darkInverse,
+        onPrimary: ZoltTokens.darkBgDeep,
+        secondary: ZoltTokens.darkTextSecondary,
+        surface: ZoltTokens.darkSurface1,
+        error: ZoltTokens.critical,
       ),
       
       // Typographie
-      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: GoogleFonts.inter(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-        displayMedium: GoogleFonts.inter(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-        titleLarge: GoogleFonts.inter(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
-        titleMedium: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
-        ),
-        bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
-          color: Colors.white70,
-        ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
-          color: Colors.white60,
-        ),
-      ),
+      textTheme: _buildTextTheme(Brightness.dark),
       
-      // Cards
+      // Cards Profil B (Standard)
       cardTheme: const CardThemeData(
-        color: Color(0xFF1E1E1E), // Slightly lighter than background
-        elevation: 0,
+        color: ZoltTokens.darkSurface1,
+        elevation: 0, 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Colors.white12, width: 1), // Thin border
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+          side: BorderSide(color: Color(0x1AF5F3EE), width: 1), // border_default dark
         ),
       ),
       
-      // Boutons
+      // Boutons primaires
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: ZoltTokens.darkTextPrimary,
+          foregroundColor: ZoltTokens.darkBg,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          minimumSize: const Size(0, 54),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      
+      // Boutons secondaires / outline
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: ZoltTokens.darkTextPrimary,
+          side: const BorderSide(color: Color(0x2EF5F3EE), width: 1.5), // border_strong dark
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          minimumSize: const Size(0, 54),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      // Text Buttons (Ghost)
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: ZoltTokens.darkTextSecondary,
+          minimumSize: const Size(0, 44),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -75,106 +82,133 @@ class AppTheme {
       // Input
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF1E1E1E),
-        hintStyle: const TextStyle(color: Colors.white30),
+        fillColor: ZoltTokens.darkSurface2,
+        hintStyle: const TextStyle(
+          color: ZoltTokens.darkTextTertiary,
+          fontFamily: 'CabinetGrotesk',
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x14F5F3EE)), // border_subtle
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x14F5F3EE)), // border_subtle
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.white, width: 1),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: ZoltTokens.darkTextPrimary, width: 1.5),
         ),
       ),
       
       // Bottom Navigation
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white38,
+        backgroundColor: Colors.transparent, // Sera géré par le widget avec glassmorphism
+        selectedItemColor: ZoltTokens.darkTextPrimary,
+        unselectedItemColor: ZoltTokens.darkTextTertiary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       
       // AppBar
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.black,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: ZoltTokens.darkBg,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: GoogleFonts.inter(
+        iconTheme: IconThemeData(color: ZoltTokens.darkTextPrimary),
+        titleTextStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: ZoltTokens.darkTextPrimary,
         ),
       ),
     );
   }
 
-  // --- Light Theme (Black & White) ---
+  // --- Light Theme ---
   static ThemeData get lightTheme {
     return ThemeData.light().copyWith(
-      primaryColor: Colors.black, // Monochrome primary
-      scaffoldBackgroundColor: Colors.white, // Pure White
+      primaryColor: ZoltTokens.lightInverse,
+      scaffoldBackgroundColor: ZoltTokens.lightBg,
       colorScheme: const ColorScheme.light(
-        primary: Colors.black,
-        onPrimary: Colors.white,
-        secondary: Colors.black87,
-        surface: Color(0xFFF5F5F5),
-        error: AppColors.errorColor, // Keep semantic red
+        primary: ZoltTokens.lightInverse,
+        onPrimary: ZoltTokens.lightBgDeep,
+        secondary: ZoltTokens.lightTextSecondary,
+        surface: ZoltTokens.lightSurface1,
+        error: ZoltTokens.critical,
       ),
       
       // Typographie
-      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge: GoogleFonts.inter(
-          fontSize: 32,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-        displayMedium: GoogleFonts.inter(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: Colors.black,
-        ),
-        titleLarge: GoogleFonts.inter(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.black,
-        ),
-        titleMedium: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
-        ),
-        bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
-          color: Colors.black87,
-        ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
-          color: Colors.black54,
-        ),
-      ),
+      textTheme: _buildTextTheme(Brightness.light),
       
-      // Cards
+      // Cards Profil B (Standard)
       cardTheme: const CardThemeData(
-        color: Color(0xFFF0F0F0), // Off-white
-        elevation: 0,
+        color: ZoltTokens.lightSurface1,
+        elevation: 0, 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          side: BorderSide(color: Colors.black12, width: 1), // Thin border
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+          side: BorderSide(color: Color(0x1E0D0D0B), width: 1), // border_default light
         ),
       ),
       
-      // Boutons
+      // Boutons primaires
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
+          backgroundColor: ZoltTokens.lightTextPrimary,
+          foregroundColor: ZoltTokens.lightBg,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          minimumSize: const Size(0, 54),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      // Boutons secondaires / outline
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: ZoltTokens.lightTextPrimary,
+          side: const BorderSide(color: Color(0x380D0D0B), width: 1.5), // border_strong light
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          minimumSize: const Size(0, 54),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      // Text Buttons (Ghost)
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: ZoltTokens.lightTextSecondary,
+          minimumSize: const Size(0, 44),
+          textStyle: const TextStyle(
+            fontFamily: 'CabinetGrotesk',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -182,38 +216,114 @@ class AppTheme {
       // Input
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF0F0F0),
-        hintStyle: const TextStyle(color: Colors.black38),
+        fillColor: ZoltTokens.lightSurface2,
+        hintStyle: const TextStyle(
+          color: ZoltTokens.lightTextTertiary,
+          fontFamily: 'CabinetGrotesk',
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x140D0D0B)), // border_subtle light
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0x140D0D0B)), 
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: ZoltTokens.lightTextPrimary, width: 1.5),
         ),
       ),
       
       // Bottom Navigation
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black38,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: ZoltTokens.lightTextPrimary,
+        unselectedItemColor: ZoltTokens.lightTextTertiary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       
       // AppBar
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: ZoltTokens.lightBg,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        titleTextStyle: GoogleFonts.inter(
+        iconTheme: IconThemeData(color: ZoltTokens.lightTextPrimary),
+        titleTextStyle: TextStyle(
+          fontFamily: 'CabinetGrotesk',
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: ZoltTokens.lightTextPrimary,
         ),
+      ),
+    );
+  }
+
+  static TextTheme _buildTextTheme(Brightness brightness) {
+    final bool isDark = brightness == Brightness.dark;
+    final primary = isDark ? ZoltTokens.darkTextPrimary : ZoltTokens.lightTextPrimary;
+    final secondary = isDark ? ZoltTokens.darkTextSecondary : ZoltTokens.lightTextSecondary;
+
+    return TextTheme(
+      displayLarge: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 32,
+        fontWeight: FontWeight.w700,
+        color: primary,
+      ),
+      displayMedium: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 24,
+        fontWeight: FontWeight.w700, // headline_lg
+        color: primary,
+      ),
+      titleLarge: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 20,
+        fontWeight: FontWeight.w600, // headline_md
+        color: primary,
+      ),
+      titleMedium: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 17,
+        fontWeight: FontWeight.w600, // headline_sm
+        color: primary,
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 15,
+        fontWeight: FontWeight.w400, // body_lg
+        color: primary,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 14,
+        fontWeight: FontWeight.w400, // body_md
+        color: secondary,
+      ),
+      bodySmall: TextStyle(
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 13,
+        fontWeight: FontWeight.w400, // body_sm
+        color: secondary,
+      ),
+      labelSmall: TextStyle( // caption
+        fontFamily: 'CabinetGrotesk',
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        color: secondary,
       ),
     );
   }

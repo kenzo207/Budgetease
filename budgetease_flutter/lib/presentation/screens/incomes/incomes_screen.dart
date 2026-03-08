@@ -266,6 +266,7 @@ class _IncomeCard extends StatelessWidget {
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(

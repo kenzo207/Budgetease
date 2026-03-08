@@ -12,6 +12,8 @@ import '../../providers/theme_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/sms_parser_provider.dart';
 import '../../../services/analytics_service.dart';
+import '../../widgets/zolt_credit_score_widget.dart';
+import '../simulator/simulator_screen.dart';
 import '../charges/charges_screen.dart';
 import '../incomes/incomes_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,15 +74,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       style: Theme.of(context).textTheme.displayMedium,
                     ),
                     SizedBox(height: 8),
-                    Text(
-                      'Bonjour, ${calibrationData.userName} 👋',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            // color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), // Removed to use theme
-                          ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Bonjour, ${calibrationData.userName} ',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                // color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), // Removed to use theme
+                              ),
+                        ),
+                        Icon(Icons.waving_hand, size: 18, color: Theme.of(context).colorScheme.primary),
+                      ],
                     ),
                   ],
                 ),
               ),
+
+              const ZoltCreditScoreWidget(),
+              SizedBox(height: 12),
 
               // Profile Section
               Padding(
@@ -126,6 +137,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () {
                   ref.read(analyticsServiceProvider).capture('settings_theme_picker_opened');
                   _showThemePicker(context, ref);
+                },
+              ),
+
+              _buildSettingCard(
+                context,
+                icon: Icons.auto_graph_outlined,
+                title: 'Simulateur Financier',
+                subtitle: 'Simuler l\'impact d\'une grosse dépense',
+                iconColor: Colors.purple,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SimulatorScreen(),
+                    ),
+                  );
                 },
               ),
 

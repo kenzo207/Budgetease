@@ -166,22 +166,6 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                 ),
               ),
               
-              SizedBox(height: 32),
-              
-              // Titre
-              Text(
-                'Zolt',
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              
-              SizedBox(height: 8),
-              
-              // Sous-titre
-              Text(
-                'Votre coffre-fort financier',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              
               SizedBox(height: 64),
               
               // Bouton Biométrie

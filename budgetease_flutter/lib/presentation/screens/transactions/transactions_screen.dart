@@ -405,6 +405,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(

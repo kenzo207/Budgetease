@@ -13,8 +13,7 @@ import '../../providers/transactions_provider.dart';
 import '../../providers/categories_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/discrete_mode_provider.dart';
-import '../../widgets/dynamic_card.dart';
-import '../../widgets/triage_zone_widget.dart';
+import '../../widgets/zolt_card.dart';
 import '../../widgets/action_bottom_sheet.dart';
 import '../../widgets/upcoming_charge_card.dart';
 import '../../widgets/pending_income_card.dart';
@@ -25,6 +24,7 @@ import '../../../services/analytics_service.dart';
 import '../../widgets/app_tutorial.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/zolt_count_up_text.dart';
 
 /// Écran d'accueil (Dashboard)
 class HomeScreen extends ConsumerStatefulWidget {
@@ -108,13 +108,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: _buildHeader(userName, discreteMode)),
-              SliverToBoxAdapter(
-                child: Container(
-                  key: _triageKey,
-                  child: const TriageZoneWidget(),
-                ),
-              ),
-              SliverToBoxAdapter(child: _buildCardsCarousel(currency, discreteMode)),
+
+              SliverToBoxAdapter(child: _buildBentoLayout(currency, discreteMode)),
               // ── Prédiction fin de cycle ──
               SliverToBoxAdapter(child: _buildPredictionBanner()),
               // ── Messages intelligents du Zolt Engine ──
@@ -317,109 +312,113 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildCardsCarousel(String currency, bool discreteMode) {
-    return SizedBox(
-      height: 220,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
+  Widget _buildBentoLayout(String currency, bool discreteMode) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
         children: [
-          _buildDailyBudgetCard(currency, discreteMode),
-          _buildHealthScoreCard(),
-          _buildTotalBalanceCard(currency, discreteMode),
-          _buildAccountsCard(currency, discreteMode),
-        ],
-      ),
-    );
+            SizedBox(
+              height: 212,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: _buildDailyBudgetCard(currency, discreteMode),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(child: _buildTotalBalanceCard(currency, discreteMode)),
+                        const SizedBox(height: 12),
+                        Expanded(child: _buildHealthScoreCard()),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildAccountsCard(currency, discreteMode),
+          ],
+        ),
+      );
   }
 
   Widget _buildHealthScoreCard() {
     final healthAsync = ref.watch(engineHealthScoreProvider);
     return healthAsync.when(
       data: (health) {
-        if (health.score == 0 && health.grade == 'Fair') {
-          // Valeur par défaut (fallback Dart) — on ne l'affiche pas
-          return const SizedBox.shrink();
-        }
+        if (health.score == 0 && health.grade == 'Fair') return const SizedBox.shrink();
         final color = _healthColor(health.grade);
-        final trend = health.trend > 0
-            ? '+${health.trend}'
-            : '${health.trend}';
-        return Card(
-          margin: const EdgeInsets.only(right: 12),
-          child: Container(
-            width: 160,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        
+        return ZoltCard(
+          profile: ZoltCardProfile.standard,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'SANTÉ',
+                style: TextStyle(
+                  fontFamily: 'CabinetGrotesk',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.4,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35),
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      health.gradeEmoji,
-                      style: const TextStyle(fontSize: 22),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${health.score}',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w800,
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '${health.score}',
+                          style: TextStyle(fontFamily: 'Zodiak', fontSize: 24, fontWeight: FontWeight.w600, color: color),
+                        ),
                       ),
                     ),
                     Text(
                       '/100',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: color.withValues(alpha: 0.7),
-                      ),
+                      style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35)),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  health.grade,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
+              ),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    health.grade,
+                    style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, color: color),
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (health.trend != 0)
-                  Text(
-                    '$trend pts vs cycle préc.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: health.trend > 0
-                          ? const Color(0xFF69F0AE)
-                          : const Color(0xFFFF5252),
-                      fontSize: 11,
-                    ),
-                  ),
-                const SizedBox(height: 6),
-                Text(
-                  'Santé Financière',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
-      loading: () => const SizedBox(width: 160),
+      loading: () => const ZoltCard(child: Center(child: CircularProgressIndicator())),
       error: (_, __) => const SizedBox.shrink(),
     );
   }
 
   Color _healthColor(String grade) {
     switch (grade) {
-      case 'Excellent': return const Color(0xFF69F0AE);
-      case 'Good':      return const Color(0xFF40C4FF);
-      case 'Fair':      return const Color(0xFFFFAB40);
-      case 'Poor':      return const Color(0xFFFF5252);
-      case 'Critical':  return const Color(0xFFD50000);
-      default:          return const Color(0xFFFFAB40);
+      case 'Excellent': return const Color(0xFF16A34A); 
+      case 'Good':      return const Color(0xFF4B6E9E); 
+      case 'Fair':      return const Color(0xFFD97706); 
+      case 'Poor':      return const Color(0xFFDC2626); 
+      case 'Critical':  return const Color(0xFFDC2626); 
+      default:          return const Color(0xFFD97706);
     }
   }
 
@@ -428,11 +427,103 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return budgetAsync.when(
       data: (dailyBudget) {
-        final displayAmount = discreteMode ? '\u2022\u2022\u2022\u2022' : MoneyFormatter.formatCompact(dailyBudget, currency);
-        return Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: displayAmount, icon: Icons.calendar_today));
+        if (discreteMode) {
+          return Container(key: _dailyBudgetKey, child: _buildHeroCard(title: 'BUDGET DU JOUR', amountString: '••••', currency: currency, discreteMode: discreteMode));
+        } else {
+          return Container(key: _dailyBudgetKey, child: _buildHeroCard(title: 'BUDGET DU JOUR', amountValue: dailyBudget, currency: currency, discreteMode: discreteMode));
+        }
       },
-      loading: () => Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: '...', icon: Icons.calendar_today)),
-      error: (e, s) => Container(key: _dailyBudgetKey, child: _buildCard(title: 'Budget Quotidien', amount: 'Erreur', icon: Icons.calendar_today)),
+      loading: () => Container(key: _dailyBudgetKey, child: _buildHeroCard(title: 'BUDGET DU JOUR', amountString: '...', currency: currency, discreteMode: discreteMode)),
+      error: (e, s) => Container(key: _dailyBudgetKey, child: _buildHeroCard(title: 'BUDGET DU JOUR', amountString: 'Erreur', currency: currency, discreteMode: discreteMode)),
+    );
+  }
+
+  Widget _buildHeroCard({
+    required String title,
+    double? amountValue,
+    String? amountString,
+    required String currency,
+    required bool discreteMode,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? const Color(0xFF0D0D0B) : const Color(0xFFF5F3EE);
+    final isPlaceholder = amountValue == null && amountString != null && (amountString == '...' || amountString == 'Erreur');
+    
+    return ZoltCard(
+      profile: ZoltCardProfile.hero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'CabinetGrotesk',
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.4,
+              color: textColor.withValues(alpha: 0.40),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              amountValue != null ? ZoltCountUpText(
+                value: amountValue,
+                builder: (context, val) {
+                  final formatted = MoneyFormatter.formatCompact(val, currency);
+                  return RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: formatted,
+                          style: TextStyle(fontFamily: 'Zodiak', fontSize: 32, fontWeight: FontWeight.w700, color: textColor),
+                        ),
+                        if (!discreteMode && !isPlaceholder)
+                          TextSpan(
+                            text: ' $currency',
+                            style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w500, color: textColor.withValues(alpha: 0.55)),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ) : RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: amountString ?? '',
+                      style: TextStyle(fontFamily: 'Zodiak', fontSize: 32, fontWeight: FontWeight.w700, color: textColor),
+                    ),
+                    if (!discreteMode && !isPlaceholder)
+                      TextSpan(
+                        text: ' $currency',
+                        style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w500, color: textColor.withValues(alpha: 0.55)),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                height: 3,
+                width: double.infinity,
+                decoration: BoxDecoration(color: textColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(1.5)),
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 80, 
+                  height: 3,
+                  decoration: BoxDecoration(color: textColor, borderRadius: BorderRadius.circular(1.5)),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Il te reste ${amountValue != null ? MoneyFormatter.formatCompact(amountValue, currency) : amountString}',
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, color: textColor.withValues(alpha: 0.65)),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -441,11 +532,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return accountsAsync.when(
       data: (accounts) {
         final total = accounts.fold<double>(0, (sum, a) => sum + a.currentBalance);
-        final displayAmount = discreteMode ? '\u2022\u2022\u2022\u2022' : MoneyFormatter.formatCompact(total, currency);
-        return Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: displayAmount, icon: Icons.account_balance_wallet_outlined));
+        if (discreteMode) {
+          return Container(key: _totalBalanceKey, child: _buildStandardMiniCard(title: 'SOLDE TOTAL', amountString: '••••', currency: currency));
+        } else {
+          return Container(key: _totalBalanceKey, child: _buildStandardMiniCard(title: 'SOLDE TOTAL', amountValue: total, currency: currency));
+        }
       },
-      loading: () => Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: '...', icon: Icons.account_balance_wallet_outlined)),
-      error: (e, s) => Container(key: _totalBalanceKey, child: _buildCard(title: 'Solde Total', amount: 'Erreur', icon: Icons.account_balance_wallet_outlined)),
+      loading: () => Container(key: _totalBalanceKey, child: _buildStandardMiniCard(title: 'SOLDE TOTAL', amountString: '...', currency: currency)),
+      error: (e, s) => Container(key: _totalBalanceKey, child: _buildStandardMiniCard(title: 'SOLDE TOTAL', amountString: 'Erreur', currency: currency)),
+    );
+  }
+
+  Widget _buildStandardMiniCard({required String title, double? amountValue, String? amountString, required String currency}) {
+    return ZoltCard(
+      profile: ZoltCardProfile.standard,
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.4, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35)),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: amountValue != null 
+              ? ZoltCountUpText(
+                  value: amountValue,
+                  formatValue: (val) => MoneyFormatter.formatCompact(val, currency),
+                  style: TextStyle(fontFamily: 'Zodiak', fontSize: 24, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                )
+              : Text(
+                  amountString ?? '',
+                  style: TextStyle(fontFamily: 'Zodiak', fontSize: 24, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -454,137 +579,96 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return accountsAsync.when(
       data: (accounts) {
-        return Container(
-          width: 280,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: DynamicCard(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.account_balance_outlined),
-                      SizedBox(width: 8),
-                      Text(
-                        'Mes Comptes',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  if (accounts.isEmpty)
-                    Expanded(
-                      child: Center(child: Text('Aucun compte')),
-                    )
-                  else
-                    Expanded(
-                      child: ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: accounts.length > 3 ? 3 : accounts.length,
-                        itemBuilder: (context, index) {
-                          final account = accounts[index];
+        return ZoltCard(
+          profile: ZoltCardProfile.standard,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Prevent the Column from trying to expand infinitely
+            children: [
+              Text(
+                'MES COMPTES',
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.4, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.35)),
+              ),
+              const SizedBox(height: 12),
+              if (accounts.isEmpty)
+                const Center(child: Text('Aucun compte'))
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(
+                        accounts.length > 3 ? 5 : accounts.length * 2 - 1,
+                        (index) {
+                          if (index % 2 != 0) {
+                            return Expanded(child: Center(child: Container(width: 1, height: 24, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1))));
+                          }
+                          final accountIndex = index ~/ 2;
+                          final account = accounts[accountIndex];
                           final displayAmount = discreteMode
-                              ? '\u2022\u2022\u2022\u2022'
+                              ? '••••'
                               : MoneyFormatter.formatCompact(account.currentBalance, currency);
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
+                          
+                          return Expanded(
+                            flex: 2,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            UIHelpers.getAccountIcon(account.type),
-                                            color: UIHelpers.getAccountColor(account.type),
-                                            size: 20,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Flexible(
-                                            child: Text(
-                                              account.name,
-                                              style: Theme.of(context).textTheme.bodyMedium,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: UIHelpers.getAccountColor(account.type).withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    UIHelpers.getAccountIcon(account.type),
+                                    color: UIHelpers.getAccountColor(account.type),
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        account.name,
+                                        style: TextStyle(
+                                          fontFamily: 'CabinetGrotesk', 
+                                          fontSize: 13, 
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                Text(
-                                  displayAmount,
-                                  style: Theme.of(context).textTheme.titleSmall,
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        displayAmount,
+                                        style: TextStyle(
+                                          fontFamily: 'Zodiak', 
+                                          fontSize: 14, 
+                                          fontWeight: FontWeight.w500, 
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.65),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           );
                         },
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        );
+                      ), // Closes List.generate
+                ), // Closes Row
+            ], // Closes Column children
+          ), // Closes Column
+        ); // Closes ZoltCard
       },
-      loading: () => _buildCard(
-        title: 'Mes Comptes',
-        amount: '...',
-        icon: Icons.account_balance_outlined,
-      ),
-      error: (e, s) => _buildCard(
-        title: 'Mes Comptes',
-        amount: 'Erreur',
-        icon: Icons.account_balance_outlined,
-      ),
-    );
-  }
-
-  Widget _buildCard({
-    required String title,
-    required String amount,
-    required IconData icon,
-  }) {
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      child: DynamicCard(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Theme.of(context).colorScheme.onSurface),
-                SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                amount,
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      loading: () => const SizedBox.shrink(),
+      error: (e, s) => const SizedBox.shrink(),
     );
   }
 

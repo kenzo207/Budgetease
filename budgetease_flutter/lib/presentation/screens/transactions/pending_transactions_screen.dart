@@ -8,6 +8,7 @@ import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/pending_transactions_table.dart';
 import '../../../data/database/tables/categories_table.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/ui_helpers.dart';
 import '../../../services/analytics_service.dart';
 
 class PendingTransactionsScreen extends ConsumerWidget {
@@ -148,11 +149,20 @@ class PendingTransactionsScreen extends ConsumerWidget {
       final result = await ref.read(pendingTransactionsProvider.notifier).scan();
       if (context.mounted) {
         final String msg = result.hasActivity
-            ? '${result.autoApproved} transaction${result.autoApproved > 1 ? 's' : ''} intégrée${result.autoApproved > 1 ? 's' : ''} automatiquement ✓'
+            ? '${result.autoApproved} transaction${result.autoApproved > 1 ? 's' : ''} intégrée${result.autoApproved > 1 ? 's' : ''} automatiquement'
             : 'Aucune nouvelle transaction';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(msg),
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (result.hasActivity) ...[
+                  Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                  SizedBox(width: 8),
+                ],
+                Text(msg),
+              ],
+            ),
             backgroundColor: result.hasActivity
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface,
@@ -739,7 +749,7 @@ class _TransactionReviewSheetState
           clipBehavior: Clip.none,
           children: [
             ChoiceChip(
-              avatar: Text(cat.icon, style: const TextStyle(fontSize: 16)),
+              avatar: Icon(UIHelpers.getIconForCategory(cat.icon, cat.type), size: 16),
               label: Text(cat.name),
               selected: isSelected,
               selectedColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
@@ -821,7 +831,14 @@ class _TransactionReviewSheetState
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Transaction ajoutée ✓'),
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+                SizedBox(width: 8),
+                Text('Transaction ajoutée'),
+              ],
+            ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );

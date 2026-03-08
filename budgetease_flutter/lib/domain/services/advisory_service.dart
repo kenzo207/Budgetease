@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_output.dart';
 import '../../presentation/providers/engine_provider.dart';
@@ -136,23 +137,23 @@ class Advisory {
   }
 
   /// Icône selon type
-  String get icon {
+  IconData get icon {
     switch (type) {
       case 'shield_reminder':
-        return '🛡️';
+        return Icons.verified_user_outlined;
       case 'overdue_charge':
-        return '🚨';
+        return Icons.warning_amber_rounded;
       case 'velocity_alert':
       case 'engine_alert':
-        return '⚠️';
+        return Icons.report_problem_outlined;
       case 'end_of_cycle_risk':
-        return '📉';
+        return Icons.trending_down;
       case 'savings_opportunity':
-        return '💰';
+        return Icons.savings_outlined;
       case 'income_prediction':
-        return '📊';
+        return Icons.analytics_outlined;
       default:
-        return 'ℹ️';
+        return Icons.info_outline;
     }
   }
 }

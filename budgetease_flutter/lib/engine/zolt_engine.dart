@@ -125,6 +125,17 @@ class ZoltEngine {
   static late final _ZoltSingleDart?     _integrityFn    = _loadFn('zolt_integrity');
   static late final _ZoltSingleDart?     _onboardingFn   = _loadFn('zolt_onboarding');
 
+  // Nouveaux bindings Rust ajoutés (Phase 1)
+  static late final _ZoltSingleDart?     _simulateFn      = _loadFn('zolt_simulate');
+  static late final _ZoltSingleDart?     _checkFraudFn    = _loadFn('zolt_check_fraud');
+  static late final _ZoltSingleDart?     _creditScoreFn   = _loadFn('zolt_credit_score');
+  static late final _ZoltSingleDart?     _behavioralFn    = _loadFn('zolt_behavioral');
+  static late final _ZoltSingleDart?     _tightMonthFn    = _loadFn('zolt_tight_month');
+  static late final _ZoltSingleDart?     _widgetFn        = _loadFn('zolt_widget');
+  static late final _ZoltSingleDart?     _parseSmsFn      = _loadFn('zolt_parse_sms');
+  static late final _ZoltSingleDart?     _parseSmsBatchFn = _loadFn('zolt_parse_sms_batch');
+  static late final _ZoltSingleDart?     _parseReceiptFn  = _loadFn('zolt_parse_receipt');
+
   // ─── Helper interne : 1 arg → JSON ───────────────────────────
   static Map<String, dynamic> _call1(
     _ZoltSingleDart? fn,
@@ -237,6 +248,35 @@ class ZoltEngine {
     'engine_input': engineInput,
     'history':      history,
   });
+
+  // ─── Nouveaux Wrappers Rust (Phase 1) ──────────────────────────
+  
+  /// Simule l'impact budgétaire d'une potentielle dépense
+  static Map<String, dynamic> simulate({required Map<String, dynamic> input}) => _call1(_simulateFn, 'zolt_simulate', input);
+
+  /// Vérifie s'il y a des doublons ou fraudes possibles
+  static Map<String, dynamic> checkFraud({required Map<String, dynamic> input}) => _call1(_checkFraudFn, 'zolt_check_fraud', input);
+
+  /// Calcule l'indice de confiance financier Zolt (0-100)
+  static Map<String, dynamic> creditScore({required Map<String, dynamic> input}) => _call1(_creditScoreFn, 'zolt_credit_score', input);
+
+  /// Obtient l'analyse comportementale pure (Module A)
+  static Map<String, dynamic> behavioral({required Map<String, dynamic> input}) => _call1(_behavioralFn, 'zolt_behavioral', input);
+
+  /// Active le mode de restriction budgétaire de fin de mois
+  static Map<String, dynamic> tightMonth({required Map<String, dynamic> input}) => _call1(_tightMonthFn, 'zolt_tight_month', input);
+
+  /// Fournit des données allégées pour les widgets de l'écran d'accueil iOS/Android
+  static Map<String, dynamic> widgetData({required Map<String, dynamic> input}) => _call1(_widgetFn, 'zolt_widget', input);
+
+  /// Parse rapidement un seul SMS brut sans le classer
+  static Map<String, dynamic> parseSms({required Map<String, dynamic> input}) => _call1(_parseSmsFn, 'zolt_parse_sms', input);
+
+  /// Parse un lot de centaines de SMS en un temps record
+  static Map<String, dynamic> parseSmsBatch({required Map<String, dynamic> input}) => _call1(_parseSmsBatchFn, 'zolt_parse_sms_batch', input);
+
+  /// Extrait des données structurées à partir du texte d'un reçu (OCR/Texte brut)
+  static Map<String, dynamic> parseReceipt({required Map<String, dynamic> input}) => _call1(_parseReceiptFn, 'zolt_parse_receipt', input);
 
   // ─── zolt_onboarding ─────────────────────────────────────────
   /// Valide et construit un [EngineInput] depuis les données d'onboarding.

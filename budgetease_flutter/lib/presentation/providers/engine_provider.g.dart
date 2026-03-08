@@ -327,6 +327,26 @@ class _EngineAnalyticsProviderElement
   DateTime get month => (origin as EngineAnalyticsProvider).month;
 }
 
+String _$engineRawInputHash() => r'69a3c4d219ccfb018acde3249443cd44f7a28215';
+
+/// Expose les inputs bruts du moteur pour les fonctionnalités avancées (Simulateur, Credit Score)
+///
+/// Copied from [engineRawInput].
+@ProviderFor(engineRawInput)
+final engineRawInputProvider =
+    AutoDisposeFutureProvider<Map<String, dynamic>>.internal(
+  engineRawInput,
+  name: r'engineRawInputProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$engineRawInputHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef EngineRawInputRef = AutoDisposeFutureProviderRef<Map<String, dynamic>>;
 String _$zoltEngineProviderHash() =>
     r'746a81832cccb152d7b1c928453590473a5ee8cd';
 

@@ -548,6 +548,18 @@ class DeterministicResult {
       chargesReserve:   (j['charges_reserve']   as num).toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'total_balance': totalBalance,
+    'committed_mass': committedMass,
+    'free_mass': freeMass,
+    'days_remaining': daysRemaining,
+    'daily_budget': dailyBudget,
+    'spent_today': spentToday,
+    'remaining_today': remainingToday,
+    'transport_reserve': transportReserve,
+    'charges_reserve': chargesReserve,
+  };
 }
 
 /// Profil comportemental (Module A).

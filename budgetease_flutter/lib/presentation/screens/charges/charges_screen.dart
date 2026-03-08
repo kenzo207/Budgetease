@@ -254,23 +254,33 @@ class _ChargeCard extends StatelessWidget {
                       decoration:
                           charge.isPaid ? TextDecoration.lineThrough : null,
                     )),
-            subtitle: Text(
-              charge.isPaid
-                  ? '✓ Payée'
-                  : daysLeft < 0
-                      ? 'En retard de ${-daysLeft}j'
-                      : daysLeft == 0
-                          ? 'Due aujourd\'hui !'
-                          : 'Dans $daysLeft jour${daysLeft > 1 ? 's' : ''}',
-              style: TextStyle(
-                  color: charge.isPaid
-                      ? Theme.of(context).colorScheme.primary
-                      : urgencyColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
+            subtitle: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (charge.isPaid) ...[
+                  Icon(Icons.check_circle_outline, size: 14, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 4),
+                ],
+                Text(
+                  charge.isPaid
+                      ? 'Payée'
+                      : daysLeft < 0
+                          ? 'En retard de ${-daysLeft}j'
+                          : daysLeft == 0
+                              ? 'Due aujourd\'hui !'
+                              : 'Dans $daysLeft jour${daysLeft > 1 ? 's' : ''}',
+                  style: TextStyle(
+                      color: charge.isPaid
+                          ? Theme.of(context).colorScheme.primary
+                          : urgencyColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
             trailing: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(

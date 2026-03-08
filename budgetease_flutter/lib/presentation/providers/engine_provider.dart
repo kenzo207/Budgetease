@@ -191,6 +191,35 @@ Future<eng.AnalyticsResult?> engineAnalytics(
   }
 }
 
+/// Expose les inputs bruts du moteur pour les fonctionnalités avancées (Simulateur, Credit Score)
+@riverpod
+Future<Map<String, dynamic>> engineRawInput(EngineRawInputRef ref) async {
+  final db           = ref.watch(databaseProvider);
+  final settings     = await db.select(db.settings).getSingle();
+  final accounts     = await AccountsDao(db).getActiveAccounts();
+  final charges      = await RecurringChargesDao(db).getActiveCharges();
+
+  final cycleManager = CycleManagerService(cycle: settings.financialCycle);
+  final transactions = await TransactionsDao(db).getTransactionsByPeriod(
+    cycleManager.getStartOfCycle(), 
+    cycleManager.getEndOfCycle()
+  );
+
+  final input = buildEngineInput(
+    accounts:     accounts,
+    charges:      charges,
+    transactions: transactions,
+    settings:     settings,
+  );
+  
+  final history = await CycleSnapshotService(db).buildHistory(limit: 12);
+  
+  return {
+    'input': input,
+    'history': history,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────

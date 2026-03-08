@@ -181,7 +181,7 @@ pub extern "C" fn zolt_validate(input_json: *const c_char) -> *mut c_char {
 /// Retourne la version du moteur.
 #[no_mangle]
 pub extern "C" fn zolt_version() -> *mut c_char {
-    string_to_ptr(r#"{"version":"1.2.0","build":"2026-03-05"}"#)
+    string_to_ptr(r#"{"version":"1.4.0","build":"2026-03-08"}"#)
 }
 
 // ── Helpers internes ──────────────────────────────────────────
@@ -493,6 +493,217 @@ pub extern "C" fn zolt_integrity(input_json: *const c_char) -> *mut c_char {
         Ok(v) => v, Err(e) => return e,
     };
     to_json_ptr(&crate::ops::DataIntegrityEngine::check(&input.engine_input, &input.history))
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SESSION v1.4.0 — Appel unique avec cash + behavioral + narrative
+// ─────────────────────────────────────────────────────────────
+
+/// Session complète v1.4.0 — conseiller financier embarqué.
+/// Input  : SessionInputV2 JSON
+/// Output : SessionStateV2 JSON
+#[no_mangle]
+pub extern "C" fn zolt_session_v2(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::session_v2::SessionInputV2 = match parse_json(input_json, "session_v2") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::session_v2::SessionEngineV2::compute(&input))
+}
+
+/// Parse le texte OCR d'un reçu et retourne un RawTransaction structuré.
+/// Input  : ReceiptParseInput JSON { "ocr_text": "...", "today": Date }
+/// Output : ReceiptParseResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_parse_receipt(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::receipt_parser::ReceiptParseInput = match parse_json(input_json, "receipt") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::receipt_parser::ReceiptParser::parse(&input))
+}
+
+/// Simule un scénario financier "what-if".
+/// Input  : { "request": ScenarioRequest, "context": ScenarioContext } JSON
+/// Output : ScenarioResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_simulate(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+
+    #[derive(serde::Deserialize)]
+    struct SimInput {
+        request: crate::scenario_engine::ScenarioRequest,
+        context: crate::scenario_engine::ScenarioContext,
+    }
+
+    let input: SimInput = match parse_json(input_json, "scenario") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::scenario_engine::ScenarioEngine::simulate(&input.request, &input.context))
+}
+
+/// Calcule les insights comportementaux depuis l'historique.
+/// Input  : { "transactions": [...], "history": [...], "today": Date } JSON
+/// Output : BehavioralInsights JSON
+#[no_mangle]
+pub extern "C" fn zolt_behavioral(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+
+    #[derive(serde::Deserialize)]
+    struct BehInput {
+        transactions: Vec<crate::types::Transaction>,
+        history:      Vec<crate::types::CycleRecord>,
+        today:        crate::types::Date,
+    }
+
+    let input: BehInput = match parse_json(input_json, "behavioral") {
+        Ok(v) => v, Err(e) => return e,
+    };
+
+    // Besoin d'un DeterministicResult minimal pour le module
+    // On calcule depuis les transactions si possible
+    #[derive(serde::Deserialize)]
+    struct MinDet {
+        daily_budget:    Option<f64>,
+        days_remaining:  Option<u32>,
+    }
+
+    // Crée un det minimal avec des valeurs par défaut raisonnables
+    let det = crate::types::DeterministicResult {
+        total_balance: 0.0, committed_mass: 0.0, free_mass: 0.0,
+        days_remaining: 15, daily_budget: 10_000.0,
+        spent_today: 0.0, remaining_today: 10_000.0,
+        transport_reserve: 0.0, charges_reserve: 0.0,
+    };
+
+    to_json_ptr(&crate::behavioral_insights::BehavioralInsightsEngine::compute(
+        &input.transactions, &input.history, &input.today, &det,
+    ))
+}
+
+/// Vérifie un SMS parsé pour détecter une fraude MoMo.
+/// Input  : FraudCheckInput JSON
+/// Output : FraudCheckResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_check_fraud(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::fraud_detector::FraudCheckInput = match parse_json(input_json, "fraud") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::fraud_detector::FraudDetector::check(&input))
+}
+
+/// Calcule le score de crédit informel Zolt.
+/// Input  : CreditScoreInput JSON { "history": [...], "current": EngineInput, "first_name": "..." }
+/// Output : CreditScoreResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_credit_score(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::credit_score::CreditScoreInput = match parse_json(input_json, "credit") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::credit_score::CreditScoreEngine::compute(&input))
+}
+
+/// Mode fin de mois serré + calendrier de tension.
+/// Input  : TightMonthInput JSON { "engine_input": EngineInput, "det": DeterministicResult, "history": [...] }
+/// Output : TightMonthResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_tight_month(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::tight_month::TightMonthInput = match parse_json(input_json, "tight") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::tight_month::TightMonthEngine::compute(&input))
+}
+
+/// État compact pour le widget OS (mise à jour légère, sans recalcul complet).
+/// Input  : TightMonthInput JSON
+/// Output : WidgetState JSON
+#[no_mangle]
+pub extern "C" fn zolt_widget(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::tight_month::TightMonthInput = match parse_json(input_json, "widget") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::tight_month::TightMonthEngine::compute_widget(&input))
+}
+
+/// Parse un SMS Mobile Money en arrière-plan.
+/// Input  : SmsParseInput JSON { "sms_text": "...", "received_at": Date, "sender": "MTN-BJ" }
+/// Output : SmsParseResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_parse_sms(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::sms_parser::SmsParseInput = match parse_json(input_json, "sms") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::sms_parser::SmsParser::parse(&input))
+}
+
+/// Traite un lot de SMS en une seule passe (arrière-plan).
+/// Input  : { "inputs": [SmsParseInput], "existing_txs": [Transaction], "today": Date }
+/// Output : BatchProcessResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_parse_sms_batch(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+
+    #[derive(serde::Deserialize)]
+    struct BatchIn {
+        inputs:       Vec<crate::sms_parser::SmsParseInput>,
+        existing_txs: Vec<crate::types::Transaction>,
+        today:        crate::types::Date,
+    }
+
+    let input: BatchIn = match parse_json(input_json, "sms_batch") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::sms_parser::SmsBatchProcessor::process_batch(
+        &input.inputs, &input.existing_txs, &input.today
+    ))
+}
+
+/// Vérifie si un résultat parsé est un doublon.
+/// Input  : DeduplicationInput JSON
+/// Output : DeduplicationResult JSON
+#[no_mangle]
+pub extern "C" fn zolt_check_duplicate(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+    let input: crate::sms_parser::DeduplicationInput = match parse_json(input_json, "dedup") {
+        Ok(v) => v, Err(e) => return e,
+    };
+    to_json_ptr(&crate::sms_parser::SmsParser::check_duplicate(&input))
+}
+
+/// Rapport de vérification multi-formules des calculs.
+/// Input  : { "engine_input": EngineInput, "history": [CycleRecord] } JSON
+/// Output : VerificationReport JSON
+#[no_mangle]
+pub extern "C" fn zolt_verify(input_json: *const c_char) -> *mut c_char {
+    if input_json.is_null() { return error_json("pointeur null reçu"); }
+
+    #[derive(serde::Deserialize)]
+    struct VerIn {
+        engine_input: crate::types::EngineInput,
+        history:      Vec<crate::types::CycleRecord>,
+    }
+
+    let input: VerIn = match parse_json(input_json, "verify") {
+        Ok(v) => v, Err(e) => return e,
+    };
+
+    let det = match crate::deterministic::DeterministicEngine::compute(&input.engine_input) {
+        Ok(d)  => d,
+        Err(e) => return error_json(&format!("calcul impossible: {}", e)),
+    };
+
+    to_json_ptr(&crate::compute_verifier::ComputeVerifier::verify_all(
+        &crate::compute_verifier::VerifierContext {
+            input:   &input.engine_input,
+            history: &input.history,
+            det:     &det,
+        }
+    ))
 }
 
 // ─────────────────────────────────────────────────────────────

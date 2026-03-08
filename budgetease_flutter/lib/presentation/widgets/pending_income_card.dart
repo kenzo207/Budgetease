@@ -13,6 +13,7 @@ import '../providers/accounts_provider.dart';
 import '../providers/categories_provider.dart';
 import '../providers/database_provider.dart';
 import '../../data/database/daos/accounts_dao.dart';
+import 'zolt_card.dart';
 
 class PendingIncomeCard extends ConsumerStatefulWidget {
   final RecurringIncome income;
@@ -59,15 +60,6 @@ class _PendingIncomeCardState extends ConsumerState<PendingIncomeCard> {
         description: 'Rentrée: ${widget.income.name}',
       );
       
-      // Update account balance manually since we bypass normal flow
-      final database = ref.read(databaseProvider);
-      await AccountsDao(database).updateAccountBalance(
-        primaryAccount.id,
-        primaryAccount.currentBalance + widget.income.amount,
-      );
-      // Invalider les accounts pour refrescher l'UI
-      ref.invalidate(accountsProviderProvider);
-
       // 4. Update the RecurringIncome nextDepositDate
       DateTime nextDate;
       switch (widget.income.frequency) {
@@ -90,6 +82,9 @@ class _PendingIncomeCardState extends ConsumerState<PendingIncomeCard> {
       
       final updatedIncome = widget.income.copyWith(nextDepositDate: nextDate);
       await ref.read(incomesNotifierProvider.notifier).updateIncome(updatedIncome);
+      
+      // Invalidate the provider so the UI hides the card
+      ref.invalidate(nextPendingIncomeProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,6 +114,9 @@ class _PendingIncomeCardState extends ConsumerState<PendingIncomeCard> {
       nextDepositDate: widget.income.nextDepositDate.add(const Duration(days: 1))
     );
     await ref.read(incomesNotifierProvider.notifier).updateIncome(updatedIncome);
+    
+    // Invalidate the provider so the UI updates
+    ref.invalidate(nextPendingIncomeProvider);
   }
 
   @override
@@ -126,14 +124,10 @@ class _PendingIncomeCardState extends ConsumerState<PendingIncomeCard> {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
 
-    return Container(
+    return ZoltCard(
+      profile: ZoltCardProfile.semantic,
+      semanticLevel: ZoltSemanticLevel.positive,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: primaryColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: primaryColor.withValues(alpha: 0.4), width: 1.5),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -5,6 +5,7 @@ import "../../core/utils/ui_helpers.dart";
 
 import '../../data/database/app_database.dart';
 import '../providers/phase7_providers.dart';
+import 'zolt_card.dart';
 
 /// Widget pour afficher une alerte Ghost Money
 class GhostMoneyCard extends ConsumerWidget {
@@ -14,20 +15,11 @@ class GhostMoneyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Card(
-      color: AppColors.cardColor,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: AppColors.warningColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return ZoltCard(
+      profile: ZoltCardProfile.semantic,
+      semanticLevel: ZoltSemanticLevel.warning,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Row(
@@ -173,7 +165,6 @@ class GhostMoneyCard extends ConsumerWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

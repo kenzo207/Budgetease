@@ -26,3 +26,20 @@ pub mod triage_scorer;
 pub mod cycle_detector;
 pub mod ops;
 pub mod session;
+
+// Modules v1.4.0 — Conseiller financier embarqué
+pub mod cash_tracker;
+pub mod behavioral_insights;
+pub mod scenario_engine;
+pub mod narrative_engine;
+pub mod receipt_parser;
+pub mod session_v2;
+
+// Modules v1.4.0 — Fiabilité & SMS
+pub mod sms_parser;
+pub mod compute_verifier;
+
+// Modules v1.5.0 — Fraude, Score, Mode serré
+pub mod fraud_detector;
+pub mod credit_score;
+pub mod tight_month;

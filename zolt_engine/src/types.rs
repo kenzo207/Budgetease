@@ -124,6 +124,15 @@ impl Date {
             _ => 30,
         }
     }
+
+    /// Ajoute N jours à la date (utilisé pour le calendrier de tension).
+    pub fn add_days(&self, days: u32) -> Self {
+        Self::from_days_since_epoch(self.to_days_since_epoch() + days)
+    }
+
+    pub fn to_string(&self) -> String {
+        format!("{:04}-{:02}-{:02}", self.year, self.month, self.day)
+    }
 }
 
 impl fmt::Display for Date {

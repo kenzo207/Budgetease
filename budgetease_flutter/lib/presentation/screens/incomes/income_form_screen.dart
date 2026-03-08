@@ -5,6 +5,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/recurring_incomes_table.dart';
 import '../../providers/incomes_provider.dart';
+import '../onboarding/calibration_screen.dart';
 
 class IncomeFormScreen extends ConsumerStatefulWidget {
   final RecurringIncome? income;
@@ -39,6 +40,9 @@ class _IncomeFormScreenState extends ConsumerState<IncomeFormScreen> {
       _daysPerWeek = widget.income!.daysPerWeek ?? 1;
       _nextDepositDate = widget.income!.nextDepositDate;
     }
+    _amountCtrl.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -108,8 +112,9 @@ class _IncomeFormScreenState extends ConsumerState<IncomeFormScreen> {
             TextFormField(
               controller: _amountCtrl,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Montant (à chaque versement)',
+                suffixText: ref.watch(calibrationDataProvider).currency,
                 prefixIcon: Icon(Icons.attach_money),
               ),
               validator: (v) {
@@ -183,7 +188,7 @@ class _IncomeFormScreenState extends ConsumerState<IncomeFormScreen> {
                       label: '$_daysPerWeek jours',
                       onChanged: (v) => setState(() => _daysPerWeek = v.round()),
                     ),
-                    Text('Je reçois $_amountCtrl.text, $_daysPerWeek fois par semaine.', 
+                    Text('Je reçois ${_amountCtrl.text.isEmpty ? "..." : _amountCtrl.text} ${ref.watch(calibrationDataProvider).currency}, $_daysPerWeek fois par semaine.', 
                       style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
                   ],
                 ),
@@ -231,7 +236,7 @@ class _IncomeFormScreenState extends ConsumerState<IncomeFormScreen> {
   String _translateCategory(IncomeCategory t) {
     switch (t) {
       case IncomeCategory.pocket_money: return 'Argent de poche';
-      case IncomeCategory.salary:       return 'Salaire (Mensuel)';
+      case IncomeCategory.salary:       return 'Salaire';
       case IncomeCategory.freelance:    return 'Mission / Freelance';
       case IncomeCategory.business:     return 'Recette (Commerce)';
       case IncomeCategory.allowance:    return 'Pension / Allocation';

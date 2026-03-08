@@ -7,6 +7,7 @@ import '../../data/database/daos/recurring_charges_dao.dart';
 import '../../data/database/tables/recurring_charges_table.dart';
 import '../providers/charges_provider.dart';
 import '../screens/charges/charges_screen.dart';
+import 'zolt_card.dart';
 
 /// Widget HomeScreen — affiche la charge la plus urgente (≤ 7 jours)
 /// Ne s'affiche pas s'il n'y a aucune charge urgente.
@@ -78,17 +79,12 @@ class _ChargeAlertCard extends StatelessWidget {
             ? 'Due aujourd\'hui !'
             : 'Dans $daysLeft jour${daysLeft > 1 ? 's' : ''}';
 
-    return GestureDetector(
+    return ZoltCard(
+      profile: ZoltCardProfile.semantic,
+      semanticLevel: ZoltSemanticLevel.critical,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: _color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _color.withValues(alpha: 0.4), width: 1),
-        ),
-        child: Row(
+      child: Row(
           children: [
             // Icône urgence
             Container(
@@ -150,7 +146,6 @@ class _ChargeAlertCard extends StatelessWidget {
             Icon(Icons.chevron_right, color: _color.withValues(alpha: 0.6)),
           ],
         ),
-      ),
     );
   }
 }

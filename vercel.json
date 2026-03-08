@@ -9,6 +9,10 @@
     ],
     "routes": [
         {
+            "src": "/privacy-policy",
+            "dest": "/landing/privacy-policy.html"
+        },
+        {
             "src": "/(.*)",
             "dest": "/landing/$1"
         }

@@ -37,6 +37,75 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     );
   }
 
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, int currentIndex, {Key? key}) {
+    final isSelected = currentIndex == index;
+    final color = isSelected 
+        ? Theme.of(context).colorScheme.primary 
+        : Theme.of(context).bottomNavigationBarTheme.unselectedItemColor ?? Colors.grey;
+        
+    return GestureDetector(
+      key: key,
+      onTap: () {
+        ref.read(navigationIndexProvider.notifier).state = index;
+        final screenByName = ['Home', 'Transactions', 'Analysis', 'Settings'];
+        if (index < screenByName.length) {
+          ref.read(analyticsServiceProvider).screen(screenByName[index]);
+        }
+      },
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 65,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(isSelected ? activeIcon : icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddPill() {
+    return GestureDetector(
+      onTap: _showActionBottomSheet,
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF7C3A1E), // brand #7C3A1E
+          borderRadius: BorderRadius.circular(100), // radius_full
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.add, color: Color(0xFFF0E8DC), size: 18), // text_inverse
+            SizedBox(width: 6),
+            Text(
+              'Ajouter',
+              style: TextStyle(
+                color: Color(0xFFF0E8DC), // text_inverse
+                fontFamily: 'CabinetGrotesk',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Écouter le provider de navigation
@@ -47,53 +116,33 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         index: currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          ref.read(navigationIndexProvider.notifier).state = index;
-          
-          // Analytics
-          final screenByName = ['Home', 'Transactions', 'Analysis', 'Settings'];
-          if (index < screenByName.length) {
-            ref.read(analyticsServiceProvider).screen(screenByName[index]);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_outlined),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            activeIcon: Icon(Icons.receipt_long_outlined),
-            label: 'Transactions',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics_outlined),
-            activeIcon: Icon(Icons.analytics),
-            label: 'Analyse',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              key: TutorialKeys.settingsTabKey,
-              child: Icon(Icons.settings_outlined),
+      bottomNavigationBar: Container(
+        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        child: SafeArea(
+          child: Container(
+            height: 65,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
             ),
-            activeIcon: Icon(Icons.settings_outlined),
-            label: 'Paramètres',
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavItem(0, Icons.home_outlined, Icons.home, 'Accueil', currentIndex),
+                _buildNavItem(1, Icons.receipt_long_outlined, Icons.receipt_long, 'Histor.', currentIndex),
+                _buildAddPill(),
+                _buildNavItem(2, Icons.analytics_outlined, Icons.analytics, 'Analyse', currentIndex),
+                _buildNavItem(3, Icons.settings_outlined, Icons.settings, 'Params', currentIndex, key: TutorialKeys.settingsTabKey),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showActionBottomSheet,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: Icon(Icons.add, size: 32),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

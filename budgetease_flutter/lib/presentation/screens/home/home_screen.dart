@@ -1,4 +1,6 @@
+import "package:lucide_icons/lucide_icons.dart";
 import 'package:flutter/material.dart';
+import '../../../core/utils/zolt_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/ui_helpers.dart';
@@ -99,11 +101,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final currency = ref.watch(calibrationDataProvider).currency;
     final discreteMode = ref.watch(discreteModeProvider);
 
+    final zolt = context.zolt;
+
     return Scaffold(
+      backgroundColor: zolt.bg,
       body: RefreshIndicator(
         onRefresh: _refresh,
-        color: Theme.of(context).colorScheme.primary,
-        backgroundColor: Theme.of(context).cardColor,
+        color: ZoltTokens.brand,
+        backgroundColor: zolt.surface,
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
@@ -125,12 +130,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               SliverToBoxAdapter(child: UpcomingChargeCard(currency: currency)),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Transactions récentes', style: Theme.of(context).textTheme.titleLarge),
-                      TextButton(onPressed: _navigateToTransactions, child: Text('Voir tout')),
+                      Text(
+                        'TRANSACTIONS RÉCENTES',
+                        style: TextStyle(
+                          fontFamily: 'CabinetGrotesk',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.4,
+                          color: context.zolt.text3,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _navigateToTransactions,
+                        child: Text(
+                          'Voir tout →',
+                          style: TextStyle(
+                            fontFamily: 'CabinetGrotesk',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: ZoltTokens.brand,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -146,10 +171,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildHeader(String userName, bool discreteMode) {
     final hour = DateTime.now().hour;
-    final greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon apr\u00e8s-midi' : 'Bonsoir';
+    final greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+    final zolt = context.zolt;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -157,22 +183,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(greeting, style: Theme.of(context).textTheme.bodyLarge),
                 Text(
-                  userName,
-                  style: Theme.of(context).textTheme.displayMedium,
+                  '$greeting, $userName',
+                  style: TextStyle(
+                    fontFamily: 'CabinetGrotesk',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: zolt.textPrimary,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: Icon(
-              discreteMode ? Icons.visibility_off : Icons.visibility,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-            tooltip: discreteMode ? 'Afficher les montants' : 'Masquer les montants',
-            onPressed: () {
+          GestureDetector(
+            onTap: () {
               final newMode = !discreteMode;
               ref.read(discreteModeProvider.notifier).state = newMode;
               ref.read(analyticsServiceProvider).capture(
@@ -180,6 +205,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 properties: {'enabled': newMode},
               );
             },
+            child: Icon(
+              discreteMode ? LucideIcons.eyeOff : LucideIcons.eye,
+              size: 22,
+              color: zolt.text3,
+            ),
           ),
         ],
       ),
@@ -198,17 +228,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// Returns color + icon based on message level
+  /// Returns color + icon based on message level using Zolt v4 semantic tokens
   (Color, IconData) _messageStyle(String level) {
     switch (level) {
       case 'Critical':
-        return (const Color(0xFFFF5252), Icons.warning_amber_rounded);
+        return (const Color(0xFFB53B2A), LucideIcons.trendingDown);
       case 'Warning':
-        return (const Color(0xFFFFAB40), Icons.info_outline);
+        return (const Color(0xFFB8650A), LucideIcons.alertTriangle);
       case 'Positive':
-        return (const Color(0xFF69F0AE), Icons.thumb_up_outlined);
+        return (const Color(0xFF2D7A4F), LucideIcons.trendingUp);
       default: // Info
-        return (Theme.of(context).colorScheme.onSurface, Icons.lightbulb_outline);
+        return (const Color(0xFF4A6E8A), LucideIcons.search);
     }
   }
 
@@ -218,38 +248,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (pred) {
         if (pred == null || !pred.isReliable) return const SizedBox.shrink();
         final isDeficit = pred.isDeficit;
-        final color = isDeficit ? const Color(0xFFFF5252) : const Color(0xFF69F0AE);
-        final icon  = isDeficit ? Icons.trending_down : Icons.trending_up;
+        final color = isDeficit ? ZoltTokens.warning : ZoltTokens.positive;
+        final colorMuted = isDeficit ? ZoltTokens.warningMuted : ZoltTokens.positiveMuted;
+        final icon = isDeficit ? LucideIcons.trendingDown : LucideIcons.trendingUp;
         final label = isDeficit
-            ? 'Déficit prévu en fin de cycle'
+            ? 'Mode fin de mois serré'
             : 'Fin de cycle estimée positive';
         final amount = isDeficit
             ? '− ${pred.projectedDeficit.toStringAsFixed(0)}'
             : '+ ${pred.projectedFinalBalance.toStringAsFixed(0)}';
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
+            color: colorMuted,
+            borderRadius: BorderRadius.circular(12),
+            border: Border(
+              left: BorderSide(color: color, width: 3),
+            ),
           ),
           child: Row(
             children: [
-              Icon(icon, color: color, size: 22),
+              Icon(icon, color: color, size: 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   label,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: color),
+                  style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, fontWeight: FontWeight.w700, color: color),
                 ),
               ),
               Text(
                 amount,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontFamily: 'Zodiak', fontSize: 13, fontWeight: FontWeight.w700, color: color),
               ),
             ],
           ),
@@ -267,42 +297,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (messages) {
         if (messages.isEmpty) return const SizedBox.shrink();
 
-        // On prend le premier message (le plus important)
-        final msg = messages.first;
-        final (iconColor, icon) = _messageStyle(msg.level);
+        final zolt = context.zolt;
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-          ),
-          child: Row(
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: iconColor, size: 24),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      msg.title.isNotEmpty ? msg.title : 'Conseil Zolt',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: iconColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      msg.body,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
+              Text(
+                'ZOLT DIT',
+                style: TextStyle(
+                  fontFamily: 'CabinetGrotesk',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.4,
+                  color: zolt.text3,
                 ),
               ),
+              const SizedBox(height: 8),
+              ...messages.take(2).map((msg) {
+                final (iconColor, icon) = _messageStyle(msg.level);
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.fromLTRB(18, 14, 16, 14),
+                  decoration: BoxDecoration(
+                    color: zolt.surface,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.zero,
+                      bottomLeft: Radius.zero,
+                      topRight: Radius.circular(14),
+                      bottomRight: Radius.circular(14),
+                    ),
+                    border: Border(
+                      left: BorderSide(color: ZoltTokens.brand, width: 3),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(icon, color: iconColor, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (msg.title.isNotEmpty) ...[  
+                              Text(
+                                msg.title,
+                                style: TextStyle(
+                                  fontFamily: 'CabinetGrotesk',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: zolt.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                            ],
+                            Text(
+                              msg.body,
+                              style: TextStyle(
+                                fontFamily: 'CabinetGrotesk',
+                                fontSize: 13,
+                                color: zolt.text2,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         );
@@ -682,33 +748,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final categories = categoriesAsync.valueOrNull ?? [];
 
         if (recent.isEmpty) {
+          final zolt = context.zolt;
           return SliverToBoxAdapter(
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(48.0),
                 child: Column(
                   children: [
-                    Icon(Icons.receipt_long_outlined, size: 64, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)),
-                    SizedBox(height: 16),
-                    Text('Aucune transaction', style: Theme.of(context).textTheme.bodyLarge),
-                    SizedBox(height: 8),
+                    Icon(LucideIcons.inbox, size: 48, color: zolt.text3),
+                    const SizedBox(height: 16),
                     Text(
-                      'Appuyez sur + pour ajouter votre premi\u00e8re transaction',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                      'Aucune transaction',
+                      style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 16, fontWeight: FontWeight.w600, color: zolt.text2),
                     ),
-                    SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.add),
-                      label: Text('Ajouter une transaction'),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (context) => const ActionBottomSheet(),
-                        );
-                      },
+                    const SizedBox(height: 8),
+                    Text(
+                      'Appuie sur + pour ajouter ta première dépense.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text3),
                     ),
                   ],
                 ),
@@ -742,39 +799,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color = _getTransactionColor(transaction.type);
               }
 
-              return ListTile(
-                leading: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 22,
-                  ),
-                ),
-                title: Text(
-                  category?.name ?? transaction.description ?? 'Transaction',
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  transaction.description != null && category != null
-                      ? '${transaction.description} • ${DateFormatter.formatRelative(transaction.date)}'
-                      : DateFormatter.formatRelative(transaction.date),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  '${transaction.type == TransactionType.expense ? '-' : transaction.type == TransactionType.transfer ? '→' : '+'} $displayAmount',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: _getTransactionColor(transaction.type),
+              final zolt = context.zolt;
+              final amountColor = transaction.type == TransactionType.expense
+                  ? ZoltTokens.critical
+                  : transaction.type == TransactionType.income
+                      ? ZoltTokens.positive
+                      : zolt.textPrimary;
+              final prefix = transaction.type == TransactionType.expense ? '- ' : transaction.type == TransactionType.income ? '+ ' : '';
+
+              return Column(
+                children: [
+                  SizedBox(
+                    height: 64,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: zolt.isDark ? ZoltTokens.darkSurface3 : ZoltTokens.lightSurface3,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: Icon(icon, color: color, size: 20),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  category?.name ?? transaction.description ?? 'Transaction',
+                                  style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w500, color: zolt.textPrimary),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  DateFormatter.formatRelative(transaction.date),
+                                  style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 12, color: zolt.text2),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$prefix$displayAmount',
+                            style: TextStyle(fontFamily: 'Zodiak', fontSize: 15, fontWeight: FontWeight.w700, color: amountColor),
+                          ),
+                        ],
                       ),
-                ),
-                onTap: () {
-                  // TODO: Afficher détails transaction
-                },
+                    ),
+                  ),
+                  if (index < recent.length - 1)
+                    Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                ],
               );
             },
             childCount: recent.length,
@@ -828,11 +913,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Color _getTransactionColor(TransactionType type) {
     switch (type) {
       case TransactionType.expense:
-        return Theme.of(context).colorScheme.primary;
+        return ZoltTokens.critical;
       case TransactionType.income:
-        return Theme.of(context).colorScheme.primary;
+        return ZoltTokens.positive;
       case TransactionType.transfer:
-        return Theme.of(context).colorScheme.primary;
+        return ZoltTokens.info;
     }
   }
 }

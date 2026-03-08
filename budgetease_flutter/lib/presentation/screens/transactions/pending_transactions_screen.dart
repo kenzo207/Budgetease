@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/zolt_colors.dart';
 import '../../providers/sms_parser_provider.dart';
 import '../../providers/accounts_provider.dart';
 import '../../providers/categories_provider.dart';
@@ -24,17 +26,22 @@ class PendingTransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transactions SMS'),
+        backgroundColor: context.zolt.bg,
         elevation: 0,
+        titleSpacing: 16,
+        title: Text(
+          'Transactions SMS',
+          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 24, fontWeight: FontWeight.w700, color: context.zolt.textPrimary),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.sync),
+            icon: Icon(LucideIcons.refreshCw, size: 20, color: context.zolt.text3),
             tooltip: 'Scanner les SMS',
             onPressed: () => _scanSms(context, ref),
           ),
         ],
       ),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.zolt.bg,
       body: pendingAsync.when(
         data: (transactions) {
           if (transactions.isEmpty) {
@@ -76,38 +83,46 @@ class PendingTransactionsScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    final zolt = context.zolt;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check_circle_outline, size: 80,
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
-            SizedBox(height: 24),
+            Icon(LucideIcons.checkCircle, size: 56, color: ZoltTokens.positive),
+            const SizedBox(height: 20),
             Text(
               'Aucune transaction en attente',
-              style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 17, fontWeight: FontWeight.w700, color: zolt.textPrimary),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Les SMS Mobile Money détectés apparaîtront ici pour validation.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text2),
             ),
-            SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: Icon(Icons.sync),
-              label: Text('Scanner maintenant'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => ref.read(pendingTransactionsProvider.notifier).scan(),
+              child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: ZoltTokens.brand,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(LucideIcons.refreshCw, color: Colors.white, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Scanner maintenant',
+                      style: const TextStyle(fontFamily: 'CabinetGrotesk', fontWeight: FontWeight.w600, color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-              onPressed: () => ref.read(pendingTransactionsProvider.notifier).scan(),
             ),
           ],
         ),
@@ -126,9 +141,13 @@ class PendingTransactionsScreen extends ConsumerWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              '${transactions.length} transaction${transactions.length > 1 ? 's' : ''} à valider',
+              '${transactions.length} TRANSACTION${transactions.length > 1 ? 'S' : ''} À VALIDER',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 14,
+                fontFamily: 'CabinetGrotesk',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.4,
+                color: context.zolt.text3,
               ),
             ),
           );
@@ -192,42 +211,47 @@ class _PendingTransactionCard extends ConsumerWidget {
     final momoType = transaction.momoType;
     final isIncome = momoType == MomoTransactionType.transferIn ||
         momoType == MomoTransactionType.deposit;
+    final amountColor = isIncome ? ZoltTokens.positive : ZoltTokens.critical;
+    final prefix = isIncome ? '+ ' : '- ';
+    final zolt = context.zolt;
 
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: zolt.surface,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         onTap: () => _showReviewSheet(context, ref),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Ligne 1: Type + Montant ──
               Row(
                 children: [
-                  _buildTypeIcon(context, momoType),
-                  SizedBox(width: 12),
+                  Container(
+                    width: 40, height: 40,
+                    decoration: BoxDecoration(
+                      color: amountColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(child: Icon(_typeIconLucide(momoType), size: 20, color: amountColor)),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _typeLabel(momoType),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
+                          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w600, color: zolt.textPrimary),
                         ),
                         if (transaction.counterpart != null)
                           Text(
                             '${isIncome ? 'De' : 'À'} ${transaction.counterpart}',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13,
-                            ),
+                            style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 12, color: zolt.text2),
                           ),
                       ],
                     ),
@@ -236,76 +260,78 @@ class _PendingTransactionCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${isIncome ? '+' : '-'}${MoneyFormatter.formatCompact(transaction.amount, 'F')}',
-                        style: TextStyle(
-                          color: isIncome ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        '$prefix${MoneyFormatter.formatCompact(transaction.amount, 'F')}',
+                        style: TextStyle(fontFamily: 'Zodiak', fontSize: 16, fontWeight: FontWeight.w700, color: amountColor),
                       ),
                       if (transaction.fee > 0)
                         Text(
                           'Frais: ${MoneyFormatter.formatCompact(transaction.fee, 'F')}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11,
-                          ),
+                          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, color: zolt.text3),
                         ),
                     ],
                   ),
                 ],
               ),
-
-              SizedBox(height: 10),
-              Divider(color: Theme.of(context).colorScheme.surface, height: 1),
-              SizedBox(height: 10),
-
-              // ── Ligne 2: Détails (opérateur, date, solde) ──
+              const SizedBox(height: 10),
+              Divider(height: 1, thickness: 1, color: zolt.border),
+              const SizedBox(height: 10),
               Row(
                 children: [
-                  _chip(context, transaction.operator),
-                  SizedBox(width: 4),
+                  _chip(context, transaction.operator, zolt),
+                  const SizedBox(width: 6),
                   _chip(context, DateFormatter.formatRelative(
                     transaction.transactionDate ?? transaction.smsDate,
-                  )),
+                  ), zolt),
                   const Spacer(),
                   if (transaction.balanceAfter != null)
                     Text(
                       'Solde: ${MoneyFormatter.formatCompact(transaction.balanceAfter!, 'F')}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 12,
-                      ),
+                      style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, color: zolt.text3),
                     ),
                 ],
               ),
-
-              SizedBox(height: 12),
-
-              // ── Ligne 3: Actions rapides ──
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
-                      icon: Icon(Icons.close, size: 18),
-                      label: Text('Ignorer'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                        side: BorderSide(color: Theme.of(context).colorScheme.surface),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: GestureDetector(
+                      onTap: () => _rejectTransaction(context, ref),
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: zolt.border),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(LucideIcons.x, size: 16, color: zolt.text2),
+                            const SizedBox(width: 6),
+                            Text('Ignorer', style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w600, color: zolt.text2)),
+                          ],
+                        ),
                       ),
-                      onPressed: () => _rejectTransaction(context, ref),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: Icon(Icons.check, size: 18),
-                      label: Text('Valider'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: GestureDetector(
+                      onTap: () => _showReviewSheet(context, ref),
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: ZoltTokens.brand,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(LucideIcons.check, size: 16, color: Colors.white),
+                            const SizedBox(width: 6),
+                            const Text('Valider', style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white)),
+                          ],
+                        ),
                       ),
-                      onPressed: () => _showReviewSheet(context, ref),
                     ),
                   ),
                 ],
@@ -317,20 +343,15 @@ class _PendingTransactionCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildTypeIcon(BuildContext context, MomoTransactionType type) {
-    final (IconData icon, Color color) = switch (type) {
-      MomoTransactionType.transferOut => (Icons.arrow_upward, Theme.of(context).colorScheme.primary),
-      MomoTransactionType.transferIn => (Icons.arrow_downward, Theme.of(context).colorScheme.primary),
-      MomoTransactionType.withdrawal => (Icons.money_off, Theme.of(context).colorScheme.primary),
-      MomoTransactionType.payment => (Icons.shopping_cart_outlined, Theme.of(context).colorScheme.primary),
-      MomoTransactionType.deposit => (Icons.account_balance_wallet_outlined, Theme.of(context).colorScheme.primary),
-      MomoTransactionType.unknown => (Icons.help_outline, Theme.of(context).colorScheme.onSurface),
+  IconData _typeIconLucide(MomoTransactionType type) {
+    return switch (type) {
+      MomoTransactionType.transferOut => LucideIcons.arrowUpRight,
+      MomoTransactionType.transferIn => LucideIcons.arrowDownLeft,
+      MomoTransactionType.withdrawal => LucideIcons.banknote,
+      MomoTransactionType.payment => LucideIcons.shoppingCart,
+      MomoTransactionType.deposit => LucideIcons.wallet,
+      MomoTransactionType.unknown => LucideIcons.helpCircle,
     };
-    return CircleAvatar(
-      radius: 20,
-      backgroundColor: color.withValues(alpha: 0.15),
-      child: Icon(icon, color: color, size: 20),
-    );
   }
 
   String _typeLabel(MomoTransactionType type) {
@@ -344,16 +365,17 @@ class _PendingTransactionCard extends ConsumerWidget {
     };
   }
 
-  Widget _chip(BuildContext context, String label) {
+  Widget _chip(BuildContext context, String label, ZoltColors zolt) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: zolt.surface2,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(label, style: TextStyle(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38), fontSize: 11,
-      )),
+      child: Text(
+        label,
+        style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, color: zolt.text3),
+      ),
     );
   }
 
@@ -369,7 +391,7 @@ class _PendingTransactionCard extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: context.zolt.isDark ? ZoltTokens.darkSurface3 : ZoltTokens.lightSurface3,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

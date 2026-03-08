@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../../core/utils/ui_helpers.dart';
+import '../../../core/utils/zolt_colors.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
@@ -19,18 +21,31 @@ class ChargesScreen extends ConsumerWidget {
     final chargesAsync = ref.watch(chargesNotifierProvider);
     final currency = ref.watch(calibrationDataProvider).currency;
 
+    final zolt = context.zolt;
+
     return Scaffold(
+      backgroundColor: zolt.bg,
       appBar: AppBar(
-        title: Text('Mes charges fixes'),
-        centerTitle: false,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ChargeFormScreen()),
+        backgroundColor: zolt.bg,
+        elevation: 0,
+        titleSpacing: 16,
+        title: Text(
+          'Charges fixes',
+          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 24, fontWeight: FontWeight.w700, color: zolt.textPrimary),
         ),
-        icon: Icon(Icons.add),
-        label: Text('Ajouter'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChargeFormScreen())),
+              child: Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(color: ZoltTokens.brand, borderRadius: BorderRadius.circular(10)),
+                child: const Icon(LucideIcons.plus, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
+        ],
       ),
       body: chargesAsync.when(
         loading: () => Center(child: CircularProgressIndicator()),
@@ -164,14 +179,13 @@ class _SummaryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final zolt = context.zolt;
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: Theme.of(context).colorScheme.outline, width: 1),
+        color: zolt.surface,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -179,21 +193,18 @@ class _SummaryBanner extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total à prévoir',
-                  style: Theme.of(context).textTheme.bodyMedium),
-              SizedBox(height: 4),
+              Text(
+                'TOTAL CE CYCLE',
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.4, color: zolt.text3),
+              ),
+              const SizedBox(height: 4),
               Text(
                 '${NumberFormat.decimalPattern('fr').format(total)} $currency',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: TextStyle(fontFamily: 'Zodiak', fontSize: 22, fontWeight: FontWeight.w700, color: ZoltTokens.critical),
               ),
             ],
           ),
-          Icon(Icons.calendar_today_outlined,
-              size: 28,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
+          Icon(LucideIcons.repeat, size: 24, color: zolt.text3),
         ],
       ),
     );
@@ -222,85 +233,85 @@ class _ChargeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final daysLeft = charge.dueDate.difference(DateTime.now()).inDays;
     final dailyReserve = RecurringChargesDao.dailyReserveFor(charge);
-    final urgencyColor = _urgencyColor(context, daysLeft);
+    final urgencyColor = _urgencyColor(daysLeft);
+    final zolt = context.zolt;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: zolt.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: charge.isPaid
-              ? Theme.of(context).colorScheme.outline
-              : urgencyColor.withValues(alpha: 0.4),
-          width: 1,
-        ),
       ),
       child: Column(
         children: [
-          ListTile(
-            leading: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: urgencyColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(_typeIcon(charge.type),
-                  size: 20, color: urgencyColor),
-            ),
-            title: Text(charge.name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      decoration:
-                          charge.isPaid ? TextDecoration.lineThrough : null,
-                    )),
-            subtitle: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (charge.isPaid) ...[
-                  Icon(Icons.check_circle_outline, size: 14, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 4),
-                ],
-                Text(
-                  charge.isPaid
-                      ? 'Payée'
-                      : daysLeft < 0
-                          ? 'En retard de ${-daysLeft}j'
-                          : daysLeft == 0
-                              ? 'Due aujourd\'hui !'
-                              : 'Dans $daysLeft jour${daysLeft > 1 ? 's' : ''}',
-                  style: TextStyle(
-                      color: charge.isPaid
-                          ? Theme.of(context).colorScheme.primary
-                          : urgencyColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${NumberFormat.decimalPattern('fr').format(charge.amount)} $currency',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                if (!charge.isPaid)
-                  Text(
-                    '${NumberFormat.decimalPattern('fr').format(dailyReserve.round())}/j',
-                    style: TextStyle(
-                        fontSize: 11,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+          SizedBox(
+            height: 60,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: urgencyColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(child: Icon(_typeIconLucide(charge.type), size: 18, color: urgencyColor)),
                   ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          charge.name,
+                          style: TextStyle(
+                            fontFamily: 'CabinetGrotesk',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: zolt.textPrimary,
+                            decoration: charge.isPaid ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          charge.isPaid
+                              ? 'Payée ✓'
+                              : daysLeft < 0
+                                  ? 'En retard de ${-daysLeft}j'
+                                  : daysLeft == 0
+                                      ? "Due aujourd'hui !"
+                                      : 'Dans $daysLeft jour${daysLeft > 1 ? 's' : ''}',
+                          style: TextStyle(
+                            fontFamily: 'CabinetGrotesk',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: charge.isPaid ? ZoltTokens.positive : urgencyColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${NumberFormat.decimalPattern('fr').format(charge.amount)} $currency',
+                        style: TextStyle(fontFamily: 'Zodiak', fontSize: 14, fontWeight: FontWeight.w700, color: zolt.textPrimary),
+                      ),
+                      if (!charge.isPaid)
+                        Text(
+                          '${NumberFormat.decimalPattern('fr').format(dailyReserve.round())}/j',
+                          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, color: zolt.text3),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          // ── Actions ──
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Row(
@@ -308,48 +319,47 @@ class _ChargeCard extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: onEdit,
-                  icon: Icon(Icons.edit_outlined,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  icon: Icon(LucideIcons.edit2, size: 17, color: zolt.text3),
                   tooltip: 'Modifier',
+                  visualDensity: VisualDensity.compact,
                 ),
                 if (!charge.isPaid)
                   IconButton(
                     onPressed: onMarkPaid,
-                    icon: Icon(Icons.check_circle_outline,
-                        size: 20, color: Theme.of(context).colorScheme.primary),
+                    icon: Icon(LucideIcons.checkCircle, size: 18, color: ZoltTokens.positive),
                     tooltip: 'Marquer payée',
+                    visualDensity: VisualDensity.compact,
                   ),
                 IconButton(
                   onPressed: onDelete,
-                  icon: Icon(Icons.delete_outline,
-                      size: 18, color: Theme.of(context).colorScheme.primary),
+                  icon: Icon(LucideIcons.trash2, size: 17, color: ZoltTokens.critical),
                   tooltip: 'Supprimer',
+                  visualDensity: VisualDensity.compact,
                 ),
               ],
             ),
           ),
         ],
       ),
-      );
+    );
   }
 
-  Color _urgencyColor(BuildContext context, int days) {
-    if (days < 0) return Theme.of(context).colorScheme.primary;
-    if (days <= 3) return Theme.of(context).colorScheme.primary;
-    if (days <= 7) return Theme.of(context).colorScheme.primary;
-    return Theme.of(context).colorScheme.primary;
+  Color _urgencyColor(int days) {
+    if (days < 0) return ZoltTokens.critical;
+    if (days <= 3) return ZoltTokens.critical;
+    if (days <= 7) return ZoltTokens.warning;
+    return ZoltTokens.positive;
   }
 
-  IconData _typeIcon(ChargeType type) {
+  IconData _typeIconLucide(ChargeType type) {
     switch (type) {
-      case ChargeType.rent:        return Icons.home_outlined;
-      case ChargeType.electricity: return Icons.bolt;
-      case ChargeType.water:       return Icons.water_drop_outlined;
-      case ChargeType.internet:    return Icons.wifi_outlined;
-      case ChargeType.school:      return Icons.school_outlined;
-      case ChargeType.transport:   return Icons.directions_bus_outlined;
-      case ChargeType.other:       return Icons.receipt_outlined;
+      case ChargeType.rent:        return LucideIcons.home;
+      case ChargeType.electricity: return LucideIcons.zap;
+      case ChargeType.water:       return LucideIcons.droplets;
+      case ChargeType.internet:    return LucideIcons.wifi;
+      case ChargeType.school:      return LucideIcons.graduationCap;
+      case ChargeType.transport:   return LucideIcons.bus;
+      case ChargeType.other:       return LucideIcons.receipt;
     }
   }
 }

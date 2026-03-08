@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import "../../../core/utils/ui_helpers.dart";
+import '../../../core/utils/zolt_colors.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
@@ -18,20 +20,31 @@ class IncomesScreen extends ConsumerWidget {
     final incomesAsync = ref.watch(incomesNotifierProvider);
     final currency = ref.watch(calibrationDataProvider).currency;
 
+    final zolt = context.zolt;
+
     return Scaffold(
+      backgroundColor: zolt.bg,
       appBar: AppBar(
-        title: Text('Mes revenus réguliers'),
-        centerTitle: false,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const IncomeFormScreen()),
+        backgroundColor: zolt.bg,
+        elevation: 0,
+        titleSpacing: 16,
+        title: Text(
+          'Revenus réguliers',
+          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 24, fontWeight: FontWeight.w700, color: zolt.textPrimary),
         ),
-        icon: Icon(Icons.add),
-        label: Text('Ajouter'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const IncomeFormScreen())),
+              child: Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(color: ZoltTokens.positive, borderRadius: BorderRadius.circular(10)),
+                child: const Icon(LucideIcons.plus, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
+        ],
       ),
       body: incomesAsync.when(
         loading: () => Center(child: CircularProgressIndicator()),
@@ -174,14 +187,13 @@ class _SummaryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final zolt = context.zolt;
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 1),
+        color: zolt.surface,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,21 +201,18 @@ class _SummaryBanner extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Entrées prévues (Mensuel est.)',
-                  style: Theme.of(context).textTheme.bodyMedium),
-              SizedBox(height: 4),
+              Text(
+                'ENTRÉES PREV. / MOIS',
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 1.4, color: zolt.text3),
+              ),
+              const SizedBox(height: 4),
               Text(
                 '+ ${NumberFormat.decimalPattern('fr').format(total)} $currency',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: TextStyle(fontFamily: 'Zodiak', fontSize: 22, fontWeight: FontWeight.w700, color: ZoltTokens.positive),
               ),
             ],
           ),
-          Icon(Icons.trending_up_outlined,
-              size: 28,
-              color: Theme.of(context).colorScheme.primary),
+          Icon(LucideIcons.trendingUp, size: 24, color: ZoltTokens.positive),
         ],
       ),
     );
@@ -228,64 +237,74 @@ class _IncomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Formatter = DateFormat('dd MMM yyyy', 'fr');
+    final dateFormatter = DateFormat('dd MMM yyyy', 'fr');
     final isPending = income.nextDepositDate.isBefore(DateTime.now()) || DateUtils.isSameDay(income.nextDepositDate, DateTime.now());
+    final zolt = context.zolt;
+    final borderColor = isPending ? ZoltTokens.positive : Colors.transparent;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: zolt.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isPending 
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.outline,
-          width: isPending ? 1.5 : 1,
-        ),
+        border: Border.all(color: borderColor, width: isPending ? 1.5 : 0),
       ),
       child: Column(
         children: [
-          ListTile(
-            leading: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+          SizedBox(
+            height: 60,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: ZoltTokens.positiveMuted,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(child: Icon(_typeIconLucide(income.type), size: 18, color: ZoltTokens.positive)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          income.name,
+                          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 13, fontWeight: FontWeight.w500, color: zolt.textPrimary),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _frequencyString(income),
+                          style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 11, color: zolt.text3),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '+ ${NumberFormat.decimalPattern('fr').format(income.amount)}',
+                        style: TextStyle(fontFamily: 'Zodiak', fontSize: 14, fontWeight: FontWeight.w700, color: ZoltTokens.positive),
+                      ),
+                      Text(
+                        isPending ? "Attendue aujourd'hui" : 'Prévu le ${dateFormatter.format(income.nextDepositDate)}',
+                        style: TextStyle(
+                          fontFamily: 'CabinetGrotesk',
+                          fontSize: 10,
+                          color: isPending ? ZoltTokens.positive : zolt.text3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              child: Icon(_typeIcon(income.type),
-                  size: 20, color: Theme.of(context).colorScheme.primary),
-            ),
-            title: Text(income.name,
-                style: Theme.of(context).textTheme.titleMedium),
-            subtitle: Text(
-              _frequencyString(income),
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 12),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '+ ${NumberFormat.decimalPattern('fr').format(income.amount)}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.primary),
-                ),
-                Text(
-                  isPending ? 'Attendue aujourd\'hui' : 'Prévu le : ${Formatter.format(income.nextDepositDate)}',
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: isPending ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
-                ),
-              ],
             ),
           ),
-          // ── Actions ──
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Row(
@@ -293,16 +312,15 @@ class _IncomeCard extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: onEdit,
-                  icon: Icon(Icons.edit_outlined,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                  icon: Icon(LucideIcons.edit2, size: 17, color: zolt.text3),
                   tooltip: 'Modifier',
+                  visualDensity: VisualDensity.compact,
                 ),
                 IconButton(
                   onPressed: onDelete,
-                  icon: Icon(Icons.delete_outline,
-                      size: 18, color: Theme.of(context).colorScheme.primary),
+                  icon: Icon(LucideIcons.trash2, size: 17, color: ZoltTokens.critical),
                   tooltip: 'Supprimer',
+                  visualDensity: VisualDensity.compact,
                 ),
               ],
             ),
@@ -324,14 +342,14 @@ class _IncomeCard extends StatelessWidget {
     }
   }
 
-  IconData _typeIcon(IncomeCategory type) {
+  IconData _typeIconLucide(IncomeCategory type) {
     switch (type) {
-      case IncomeCategory.pocket_money: return Icons.account_balance_wallet_outlined;
-      case IncomeCategory.salary:       return Icons.work_outline;
-      case IncomeCategory.freelance:    return Icons.laptop_mac_outlined;
-      case IncomeCategory.business:     return Icons.storefront_outlined;
-      case IncomeCategory.allowance:    return Icons.family_restroom_outlined;
-      case IncomeCategory.other:        return Icons.monetization_on_outlined;
+      case IncomeCategory.pocket_money: return LucideIcons.wallet;
+      case IncomeCategory.salary:       return LucideIcons.briefcase;
+      case IncomeCategory.freelance:    return LucideIcons.laptop;
+      case IncomeCategory.business:     return LucideIcons.store;
+      case IncomeCategory.allowance:    return LucideIcons.users;
+      case IncomeCategory.other:        return LucideIcons.coins;
     }
   }
 }

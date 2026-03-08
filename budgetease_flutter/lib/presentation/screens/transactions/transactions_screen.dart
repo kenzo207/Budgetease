@@ -12,6 +12,7 @@ import '../../providers/accounts_provider.dart';
 import '../../providers/engine_provider.dart';
 import '../onboarding/calibration_screen.dart';
 import '../../../services/analytics_service.dart';
+import '../../providers/database_provider.dart';
 
 /// Écran des transactions
 class TransactionsScreen extends ConsumerStatefulWidget {
@@ -564,7 +565,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     Transaction transaction,
   ) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final dao = TransactionsDao(database);
       
       // Delete transaction

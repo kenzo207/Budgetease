@@ -15,6 +15,7 @@ import 'fixed_charges_screen.dart';
 import 'transport_config_screen.dart';
 import '../main_screen.dart';
 import '../../../services/analytics_service.dart';
+import '../../providers/database_provider.dart';
 
 /// Écran 9 : Confirmation finale et sauvegarde
 class PermissionsScreen extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _PermissionsScreenState extends ConsumerState<PermissionsScreen> {
     });
 
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       
       // 1. Récupérer toutes les données de configuration
       final calibration = ref.read(calibrationDataProvider);

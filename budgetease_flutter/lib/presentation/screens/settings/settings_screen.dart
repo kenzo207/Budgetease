@@ -8,6 +8,7 @@ import '../onboarding/calibration_screen.dart';
 import '../transactions/pending_transactions_screen.dart';
 import 'categories_management_screen.dart';
 import '../../providers/border_color_provider.dart';
+import '../../providers/database_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/sms_parser_provider.dart';
@@ -43,7 +44,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _loadSmsSettings() async {
-    final database = AppDatabase();
+    final database = ref.read(databaseProvider);
     final settings = await database.select(database.settings).getSingleOrNull();
     if (settings != null && mounted) {
       setState(() {
@@ -493,7 +494,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _resetApp(BuildContext context) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       
       // Analytics — fire before wiping DB
       ref.read(analyticsServiceProvider).capture('app_reset_confirmed');
@@ -601,7 +602,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _updateUserName(BuildContext context, WidgetRef ref, String newName) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final settings = await database.select(database.settings).getSingleOrNull();
       
       if (settings != null) {
@@ -644,7 +645,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _updateCurrency(BuildContext context, WidgetRef ref, String newCurrency) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final settings = await database.select(database.settings).getSingleOrNull();
       
       if (settings != null) {
@@ -685,7 +686,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _toggleSms(bool value) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final settings = await database.select(database.settings).getSingleOrNull();
       
       if (settings != null) {
@@ -720,7 +721,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _exportData(BuildContext context) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       
       // Get all data
       final accounts = await database.select(database.accounts).get();
@@ -939,7 +940,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     String colorHex,
   ) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       final settings = await database.select(database.settings).getSingleOrNull();
       
       if (settings != null) {

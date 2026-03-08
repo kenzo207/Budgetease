@@ -5,6 +5,7 @@ import '../../../core/utils/ui_helpers.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/database/tables/categories_table.dart';
 import '../../providers/categories_provider.dart';
+import '../../providers/database_provider.dart';
 import '../../../services/analytics_service.dart';
 
 /// Écran de gestion des catégories
@@ -246,7 +247,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
     CategoryType type,
   ) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       await database.into(database.categories).insert(
         CategoriesCompanion.insert(
           name: name,
@@ -292,7 +293,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
     String newName,
   ) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       await database.update(database.categories).replace(
         category.copyWith(name: newName),
       );
@@ -331,7 +332,7 @@ class CategoriesManagementScreen extends ConsumerWidget {
     Category category,
   ) async {
     try {
-      final database = AppDatabase();
+      final database = ref.read(databaseProvider);
       
       // Check if category is used in transactions
       final transactionsCount = await (database.select(database.transactions)

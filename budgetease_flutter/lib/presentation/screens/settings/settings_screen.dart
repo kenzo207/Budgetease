@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
-import '../../../core/constants/app_constants.dart';
-import '../../../data/database/app_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+
+import '../../../core/utils/zolt_colors.dart';
+import '../../widgets/zolt_card.dart';
 import '../onboarding/onboarding_screen.dart';
-import '../onboarding/calibration_screen.dart';
 import '../transactions/pending_transactions_screen.dart';
 import 'categories_management_screen.dart';
 import '../../providers/border_color_provider.dart';
@@ -13,14 +15,11 @@ import '../../providers/theme_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/sms_parser_provider.dart';
 import '../../../services/analytics_service.dart';
-import '../../widgets/zolt_credit_score_widget.dart';
 import '../simulator/simulator_screen.dart';
 import '../charges/charges_screen.dart';
 import '../incomes/incomes_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import '../onboarding/calibration_screen.dart';
 
-/// Écran des paramètres
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -34,12 +33,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    // Track screen view
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(analyticsServiceProvider).screen('Settings');
-    });
-    // Load SMS settings after first frame to avoid null errors
-    WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadSmsSettings();
     });
   }
@@ -48,18 +43,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final database = ref.read(databaseProvider);
     final settings = await database.select(database.settings).getSingleOrNull();
     if (settings != null && mounted) {
-      setState(() {
-        _smsEnabled = settings.smsParsingEnabled;
-      });
+      setState(() => _smsEnabled = settings.smsParsingEnabled);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final calibrationData = ref.watch(calibrationDataProvider);
+    final themeMode = ref.watch(themeProviderProvider).valueOrNull;
+    final zolt = context.zolt;
 
     return Scaffold(
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Removed to use theme
+      backgroundColor: zolt.bg,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -67,304 +62,217 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Paramètres',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Bonjour, ${calibrationData.userName} ',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                // color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), // Removed to use theme
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
+                child: Text(
+                  'Paramètres',
+                  style: TextStyle(
+                    fontFamily: 'CabinetGrotesk',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: zolt.textPrimary,
+                  ),
+                ),
+              ),
+
+              // Profil Card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ZoltCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: const BoxDecoration(
+                              color: ZoltTokens.brand,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              _getInitials(calibrationData.userName),
+                              style: const TextStyle(
+                                fontFamily: 'CabinetGrotesk',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  calibrationData.userName,
+                                  style: TextStyle(
+                                    fontFamily: 'CabinetGrotesk',
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: zolt.textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Compte gratuit',
+                                  style: TextStyle(
+                                    fontFamily: 'CabinetGrotesk',
+                                    fontSize: 12,
+                                    color: zolt.text2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: ZoltTokens.goldMuted,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        Icon(Icons.waving_hand, size: 18, color: Theme.of(context).colorScheme.primary),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const ZoltCreditScoreWidget(),
-              SizedBox(height: 12),
-
-              // Groupe 1: Compte & Profil
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Compte & Profil',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(LucideIcons.lock, size: 16, color: ZoltTokens.gold),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Passer à Premium',
+                              style: TextStyle(
+                                fontFamily: 'CabinetGrotesk',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: ZoltTokens.gold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 12),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.user,
-                title: 'Nom d\'utilisateur',
-                subtitle: calibrationData.userName,
-                onTap: () => _showEditNameDialog(context, ref, calibrationData.userName),
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.banknote,
-                title: 'Devise',
-                subtitle: calibrationData.currency,
-                onTap: () => _showEditCurrencyDialog(context, ref, calibrationData.currency),
-              ),
 
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.calculator,
-                title: 'Simulateur Financier',
-                subtitle: 'Simuler l\'impact d\'une grosse dépense',
-                iconColor: Colors.purple,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SimulatorScreen(),
-                    ),
-                  );
-                },
-              ),
-              
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              // Groupe 2: Expérience & Préférences
+              // SECTION 1 : MON COMPTE
+              _buildSectionTitle('MON COMPTE', zolt),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Expérience & Préférences',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                ),
-              ),
-              SizedBox(height: 12),
-
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.palette,
-                title: 'Couleur des bordures',
-                subtitle: 'Personnaliser l\'apparence',
-                onTap: () => _showBorderColorPicker(context, ref),
-              ),
-
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.moon,
-                title: 'Thème',
-                subtitle: _getThemeName(ref.watch(themeProviderProvider).valueOrNull),
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture('settings_theme_picker_opened');
-                  _showThemePicker(context, ref);
-                },
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.bell,
-                title: 'Notifications',
-                subtitle: 'Gérer les alertes',
-                onTap: () => _showNotificationsDialog(context),
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.calendar,
-                title: 'Mes charges fixes',
-                subtitle: 'Loyer, factures, abonnements · Réserve journalière',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ChargesScreen()),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ZoltCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _buildListItem(LucideIcons.user, 'Prénom et préférences', zolt, onTap: () => _showEditNameDialog(context, ref, calibrationData.userName)),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.smartphone, 'Mes comptes MoMo', zolt, onTap: () {}), // Implement accounts later
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.repeat, 'Charges & Revenus', zolt, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChargesScreen()))),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.download, 'Données & Export', zolt, onTap: () => _exportData(context)),
+                    ],
+                  ),
                 ),
               ),
 
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.wallet,
-                title: 'Mes rentrées régulières',
-                subtitle: 'Argent de poche, salaire, paie de chantier',
-                iconColor: Theme.of(context).colorScheme.primary,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const IncomesScreen()),
-                ),
-              ),
+              const SizedBox(height: 24),
 
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.tags,
-                title: 'Catégories',
-                subtitle: 'Gérer les catégories de transactions',
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture(
-                    'screen_viewed',
-                    properties: {'screen': 'Categories', 'source': 'settings'},
-                  );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CategoriesManagementScreen(),
-                    ),
-                  );
-                },
-              ),
-
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.lightbulb,
-                title: 'Revoir le tutoriel',
-                subtitle: 'Relancer le guide visuel de l\'écran d\'accueil',
-                iconColor: Theme.of(context).colorScheme.primary,
-                onTap: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('has_seen_tutorial', false);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tutoriel réinitialisé ! Retournez à l\'accueil pour le voir.')),
-                    );
-                    Navigator.of(context).pop(); 
-                  }
-                },
-              ),
-
-              SizedBox(height: 24),
-
-              // Groupe 3: Données, Sécurité & À propos
+              // SECTION 2 : APPARENCE & APP
+              _buildSectionTitle('APPARENCE & APP', zolt),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Données & Sécurité',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ZoltCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _buildListItem(LucideIcons.sunMedium, 'Thème', zolt, trailing: Text(_getThemeName(themeMode), style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text3)), onTap: () => _showThemePicker(context, ref)),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.globe, 'Langue', zolt, trailing: Text('Français', style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text3))),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.bell, 'Notifications', zolt, onTap: () => _showNotificationsDialog(context)),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.layoutGrid, 'Widget écran d\'accueil', zolt),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 12),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.messageSquare,
-                title: 'Analyse SMS',
-                subtitle: 'Détection automatique des transactions',
-                trailing: Switch(
-                  value: _smsEnabled,
-                  onChanged: (value) async {
-                    await _toggleSms(value);
-                    ref.read(analyticsServiceProvider).capture(
-                      'sms_scanning_toggled',
-                      properties: {'enabled': value},
-                    );
-                    if (value) {
-                      try {
-                         await ref.read(pendingTransactionsProvider.notifier).scan();
-                      } catch (e) {
+
+              const SizedBox(height: 24),
+
+              // SECTION 3 : AIDE
+              _buildSectionTitle('AIDE', zolt),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ZoltCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _buildListItem(LucideIcons.compass, 'Revoir la visite guidée', zolt, onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('has_seen_tutorial', false);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Erreur: $e')),
-                          );
-                          await _toggleSms(false);
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tutoriel réinitialisé.')));
                         }
-                      }
-                    }
-                  },
-                ),
-              ),
-
-              if (_smsEnabled)
-                _buildSettingCard(
-                  context,
-                  icon: LucideIcons.inbox,
-                  title: 'Transactions détectées',
-                  subtitle: 'Valider les transactions SMS',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PendingTransactionsScreen(),
-                      ),
-                    );
-                  },
-                ),
-
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.downloadCloud,
-                title: 'Sauvegarde',
-                subtitle: 'Export de données — prochainement',
-                iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-              ),
-              
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.uploadCloud,
-                title: 'Restaurer',
-                subtitle: 'Import de données — prochainement',
-                iconColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
-              ),
-
-              _buildSettingCard(
-                context,
-                icon: LucideIcons.fileText,
-                title: 'Licences',
-                subtitle: 'Licences open source',
-                onTap: () {
-                  ref.read(analyticsServiceProvider).capture('licenses_viewed');
-                  showLicensePage(
-                    context: context,
-                    applicationName: 'Zolt',
-                    applicationVersion: '4.0.0',
-                  );
-                },
-              ),
-
-              SizedBox(height: 12),
-
-              // ⚠️ Zone dangereuse
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: _buildSettingCard(
-                    context,
-                    icon: LucideIcons.alertTriangle,
-                    title: 'Réinitialiser l\'application',
-                    subtitle: 'Supprime toutes les données — irréversible',
-                    iconColor: Theme.of(context).colorScheme.error,
-                    onTap: () => _showResetDialog(context),
+                      }),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.info, 'Comment fonctionne Zolt?', zolt, onTap: () {}),
+                      Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: zolt.border),
+                      _buildListItem(LucideIcons.mail, 'Nous contacter', zolt, onTap: () {}),
+                    ],
                   ),
                 ),
               ),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 32),
+
+              // FOOTER
               Center(
                 child: Text(
-                  'Zolt v4.0.0 · Signé par Kenzo O\'Bryan',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontStyle: FontStyle.italic,
-                      ),
+                  'Version 1.5.0 · Zolt\nMade with ♥ in Bénin',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'CabinetGrotesk',
+                    fontSize: 11,
+                    color: zolt.text3,
+                  ),
                 ),
               ),
+              const SizedBox(height: 24),
 
-              SizedBox(height: 32),
+              // DESTRUCTIVE
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: InkWell(
+                  onTap: () => _showResetDialog(context),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 52,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(LucideIcons.trash2, size: 18, color: ZoltTokens.critical),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Supprimer mon compte',
+                          style: TextStyle(
+                            fontFamily: 'CabinetGrotesk',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: ZoltTokens.critical,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 48),
             ],
           ),
         ),
@@ -372,87 +280,126 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    VoidCallback? onTap,
-    Widget? trailing,
-    Color? iconColor,
-  }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-      child: ListTile(
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: (iconColor ?? Theme.of(context).colorScheme.primary).withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: iconColor ?? Theme.of(context).colorScheme.primary,
-            size: 20,
-          ),
+  String _getInitials(String name) {
+    if (name.isEmpty) return '??';
+    final parts = name.split(' ');
+    if (parts.length > 1) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return name.substring(0, name.length > 1 ? 2 : 1).toUpperCase();
+  }
+
+  Widget _buildSectionTitle(String title, ZoltColors zolt) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.4,
+          color: zolt.text3,
         ),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        subtitle: subtitle != null
-            ? Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall,
-              )
-            : null,
-        trailing: trailing ??
-            (onTap != null
-                ? Icon(LucideIcons.chevronRight, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))
-                : null),
-        onTap: onTap,
       ),
     );
   }
 
-  void _showResetDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Réinitialiser l\'application ?'),
-        content: Text(
-          'Cette action supprimera toutes vos données (comptes, transactions, paramètres). '
-          'Cette action est irréversible.',
+  Widget _buildListItem(IconData icon, String title, ZoltColors zolt, {Widget? trailing, VoidCallback? onTap}) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      leading: Icon(icon, size: 20, color: zolt.textPrimary),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontFamily: 'CabinetGrotesk',
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: zolt.textPrimary,
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _resetApp(context);
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.primary,
-            ),
-            child: Text('Réinitialiser'),
-          ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (trailing != null) trailing,
+          if (trailing != null) const SizedBox(width: 8),
+          Icon(LucideIcons.chevronRight, size: 16, color: zolt.text3),
         ],
       ),
+      onTap: onTap,
+    );
+  }
+
+  String _getThemeName(ThemeMode? mode) {
+    if (mode == null || mode == ThemeMode.system) return 'Auto';
+    if (mode == ThemeMode.light) return 'Clair';
+    return 'Sombre';
+  }
+
+  // --- Logic Methods Start ---
+
+  void _showResetDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final zolt = context.zolt;
+        return Container(
+          decoration: BoxDecoration(
+            color: zolt.isDark ? ZoltTokens.darkSurface3 : ZoltTokens.lightSurface3,
+            borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(LucideIcons.alertTriangle, size: 28, color: ZoltTokens.critical),
+              const SizedBox(height: 16),
+              Text(
+                'Supprimer mon compte ?',
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 18, fontWeight: FontWeight.w700, color: zolt.textPrimary),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Cette action est irréversible. Toutes tes données seront effacées.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text2),
+              ),
+              const SizedBox(height: 24),
+              InkWell(
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _resetApp(context);
+                },
+                child: Container(
+                  height: 48,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: ZoltTokens.critical,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text('Supprimer définitivement', style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Annuler', style: TextStyle(fontFamily: 'CabinetGrotesk', fontSize: 14, color: zolt.text2)),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Future<void> _resetApp(BuildContext context) async {
     try {
       final database = ref.read(databaseProvider);
-      
-      // Analytics — fire before wiping DB
       ref.read(analyticsServiceProvider).capture('app_reset_confirmed');
 
-      // Delete all data
       await database.delete(database.transactions).go();
       await database.delete(database.accounts).go();
       await database.delete(database.recurringCharges).go();
@@ -460,536 +407,67 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await database.delete(database.settings).go();
       
       if (context.mounted) {
-        // Navigate to onboarding
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const OnboardingScreen()),
           (route) => false,
         );
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Application réinitialisée'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
       }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
+    } catch (e) {}
   }
 
   void _showEditNameDialog(BuildContext context, WidgetRef ref, String currentName) {
     final controller = TextEditingController(text: currentName);
-    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Modifier le nom'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Nom d\'utilisateur',
-            hintText: 'Entrez votre nom',
-          ),
-          autofocus: true,
-        ),
+        title: const Text('Modifier le nom'),
+        content: TextField(controller: controller, autofocus: true),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Annuler'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
           TextButton(
             onPressed: () async {
               final newName = controller.text.trim();
               if (newName.isNotEmpty) {
-                await _updateUserName(context, ref, newName);
+                final db = ref.read(databaseProvider);
+                final s = await db.select(db.settings).getSingleOrNull();
+                if (s != null) {
+                  await db.update(db.settings).replace(s.copyWith(userName: newName));
+                  final current = ref.read(calibrationDataProvider);
+                  ref.read(calibrationDataProvider.notifier).state = current.copyWith(userName: newName);
+                }
                 if (context.mounted) Navigator.pop(context);
               }
             },
-            child: Text('Enregistrer'),
+            child: const Text('Enregistrer'),
           ),
         ],
       ),
     );
   }
 
-  void _showEditCurrencyDialog(BuildContext context, WidgetRef ref, String currentCurrency) {
-    final currencies = ['FCFA', 'EUR', 'USD', 'GBP', 'CAD'];
-    
+  void _showThemePicker(BuildContext context, WidgetRef ref) {
+    final currentmode = ref.read(themeProviderProvider).valueOrNull ?? ThemeMode.system;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Choisir la devise'),
+        title: const Text('Choisir le thème'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: currencies.map((currency) {
-            return RadioListTile<String>(
-              title: Text(currency),
-              value: currency,
-              groupValue: currentCurrency,
-              onChanged: (value) async {
-                if (value != null) {
-                  await _updateCurrency(context, ref, value);
-                  if (context.mounted) Navigator.pop(context);
-                }
-              },
-            );
-          }).toList(),
+          children: [
+            RadioListTile<ThemeMode>(title: const Text('Système / Auto'), value: ThemeMode.system, groupValue: currentmode, onChanged: (v) { ref.read(themeProviderProvider.notifier).setThemeMode(v!); Navigator.pop(context); }),
+            RadioListTile<ThemeMode>(title: const Text('Clair'), value: ThemeMode.light, groupValue: currentmode, onChanged: (v) { ref.read(themeProviderProvider.notifier).setThemeMode(v!); Navigator.pop(context); }),
+            RadioListTile<ThemeMode>(title: const Text('Sombre'), value: ThemeMode.dark, groupValue: currentmode, onChanged: (v) { ref.read(themeProviderProvider.notifier).setThemeMode(v!); Navigator.pop(context); }),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Annuler'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _updateUserName(BuildContext context, WidgetRef ref, String newName) async {
-    try {
-      final database = ref.read(databaseProvider);
-      final settings = await database.select(database.settings).getSingleOrNull();
-      
-      if (settings != null) {
-        await database.update(database.settings).replace(
-          settings.copyWith(userName: newName),
-        );
-        
-        // Mettre à jour le provider directement avec la nouvelle valeur
-        final current = ref.read(calibrationDataProvider);
-        ref.read(calibrationDataProvider.notifier).state = current.copyWith(userName: newName);
-
-        // Analytics
-        ref.read(analyticsServiceProvider).capture(
-          'username_updated',
-          properties: {'new_length': newName.length},
-        );
-        // Mettre à jour le nom dans PostHog
-        ref.read(analyticsServiceProvider).identifyWithName(newName);
-        
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Nom mis à jour'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _updateCurrency(BuildContext context, WidgetRef ref, String newCurrency) async {
-    try {
-      final database = ref.read(databaseProvider);
-      final settings = await database.select(database.settings).getSingleOrNull();
-      
-      if (settings != null) {
-        await database.update(database.settings).replace(
-          settings.copyWith(currency: newCurrency),
-        );
-        
-        // Mettre à jour le provider directement avec la nouvelle valeur
-        final current = ref.read(calibrationDataProvider);
-        ref.read(calibrationDataProvider.notifier).state = current.copyWith(currency: newCurrency);
-
-        // Analytics
-        ref.read(analyticsServiceProvider).capture(
-          'currency_changed',
-          properties: {'to': newCurrency},
-        );
-        
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Devise mise à jour'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _toggleSms(bool value) async {
-    try {
-      final database = ref.read(databaseProvider);
-      final settings = await database.select(database.settings).getSingleOrNull();
-      
-      if (settings != null) {
-        await database.update(database.settings).replace(
-          settings.copyWith(smsParsingEnabled: value),
-        );
-        
-        setState(() {
-          _smsEnabled = value;
-        });
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(value ? 'Analyse SMS activée' : 'Analyse SMS désactivée'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _exportData(BuildContext context) async {
-    try {
-      final database = ref.read(databaseProvider);
-      
-      // Get all data
-      final accounts = await database.select(database.accounts).get();
-      final transactions = await database.select(database.transactions).get();
-      final categories = await database.select(database.categories).get();
-      
-      final exportCount = accounts.length + transactions.length + categories.length;
-      
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sauvegarde créée: $exportCount éléments\n(Fonctionnalité d\'export fichier à venir)'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur lors de la sauvegarde: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _importData(BuildContext context) async {
-    // Show dialog explaining the feature
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Restaurer les données'),
-        content: Text(
-          'Cette fonctionnalité permet d\'importer des données depuis une sauvegarde.\n\n'
-          'L\'import de fichiers sera disponible dans une prochaine version.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
-          ),
-        ],
       ),
     );
   }
 
   void _showNotificationsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Notifications'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Configurez vos préférences de notifications',
-              style: TextStyle(fontSize: 14),
-            ),
-            SizedBox(height: 16),
-            
-            // Budget alerts
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Alertes budget',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Recevoir une alerte quand le budget est dépassé',
-                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                      ),
-                    ],
-                  ),
-                ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    final settings = ref.watch(notificationSettingsProvider).valueOrNull ?? {};
-                    final enabled = settings['budget'] ?? true;
-                    return Switch(
-                      value: enabled,
-                      onChanged: (value) {
-                         ref.read(notificationSettingsProvider.notifier).toggleBudgetAlerts(value);
-                      },
-                    );
-                  }
-                ),
-              ],
-            ),
-            
-            Divider(),
-            
-            // Daily check-in
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Check-in Quotidien',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Petit rappel le soir pour noter vos dépenses',
-                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                      ),
-                    ],
-                  ),
-                ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    final settings = ref.watch(notificationSettingsProvider).valueOrNull ?? {};
-                    final enabled = settings['daily'] ?? false;
-                    return Switch(
-                      value: enabled,
-                      onChanged: (value) {
-                         ref.read(notificationSettingsProvider.notifier).toggleDailyReminders(value);
-                      },
-                    );
-                  }
-                ),
-              ],
-            ),
-
-            SizedBox(height: 16),
-            
-            // Test notification button
-            SizedBox(
-              width: double.infinity,
-              child: Consumer(
-                builder: (context, ref, child) {
-                  return OutlinedButton.icon(
-                    icon: Icon(Icons.notifications_active_outlined, size: 18),
-                    label: Text('Tester les notifications'),
-                    onPressed: () async {
-                      final service = ref.read(notificationServiceProvider);
-                      await service.showTestNotification();
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Fermer'),
-          ),
-        ],
-      ),
-    );
+    showDialog(context: context, builder: (ctx) => AlertDialog(title: const Text('Notifications'), content: const Text('En développement...')));
   }
 
-  void _showBorderColorPicker(BuildContext context, WidgetRef ref) {
-    final colors = {
-      'Vert': '#4CAF50',
-      'Bleu': '#2196F3',
-      'Violet': '#9C27B0',
-      'Orange': '#FF9800',
-      'Rouge': '#F44336',
-      'Rose': '#E91E63',
-      'Cyan': '#00BCD4',
-      'Jaune': '#FFC107',
-    };
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Couleur des bordures'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: colors.entries.map((entry) {
-            final color = Color(int.parse(entry.value.substring(1), radix: 16) + 0xFF000000);
-            return ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-              ),
-              title: Text(entry.key),
-              onTap: () async {
-                await _updateBorderColor(context, ref, entry.value);
-                if (context.mounted) Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Annuler'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _updateBorderColor(
-    BuildContext context,
-    WidgetRef ref,
-    String colorHex,
-  ) async {
-    try {
-      final database = ref.read(databaseProvider);
-      final settings = await database.select(database.settings).getSingleOrNull();
-      
-      if (settings != null) {
-        await database.update(database.settings).replace(
-          settings.copyWith(borderColor: drift.Value(colorHex)),
-        );
-        
-        // Invalidate border color provider for instant refresh
-        ref.invalidate(borderColorProvider);
-        
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Couleur mise à jour instantanément !'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: $e'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-        );
-      }
-    }
-  }
-
-  String _getThemeName(ThemeMode? mode) {
-    if (mode == null) return 'Système';
-    switch (mode) {
-      case ThemeMode.system:
-        return 'Système';
-      case ThemeMode.light:
-        return 'Clair';
-      case ThemeMode.dark:
-        return 'Sombre';
-    }
-  }
-
-  void _showThemePicker(BuildContext context, WidgetRef ref) {
-    final currentmode = ref.read(themeProviderProvider).valueOrNull ?? ThemeMode.system;
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Choisir le thème'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<ThemeMode>(
-              title: Text('Système'),
-              value: ThemeMode.system,
-              groupValue: currentmode,
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: Text('Clair'),
-              value: ThemeMode.light,
-              groupValue: currentmode,
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-            RadioListTile<ThemeMode>(
-              title: Text('Sombre'),
-              value: ThemeMode.dark,
-              groupValue: currentmode,
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(themeProviderProvider.notifier).setThemeMode(value);
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Annuler'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _exportData(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export bientôt disponible')));
   }
 }
